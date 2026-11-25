@@ -32,6 +32,10 @@ function AppShell() {
   });
 
   useEffect(() => {
+    document.documentElement.classList.add('is-loaded');
+  }, []);
+
+  useEffect(() => {
     const rawTitle = ROUTE_TITLES[path] || ROUTE_TITLES['/'];
     document.title = t(rawTitle);
   }, [path, lang, t]);
@@ -71,7 +75,7 @@ function AppShell() {
         }}
       />
       <Menu />
-      <div className="site">
+      <div className="site is-loaded">
         <main>{renderPage()}</main>
         <Footer />
       </div>

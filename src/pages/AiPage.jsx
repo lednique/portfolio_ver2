@@ -90,7 +90,6 @@ export function AiPage() {
           items={cms.ai.heroGallery}
           variant="wide"
           ariaLabel="Лучшие работы AI-продакшн"
-          onSelect={setLightboxItem}
         />
 
         <div className="content">
@@ -168,7 +167,6 @@ export function AiPage() {
           items={cms.ai.productGallery}
           variant="card"
           ariaLabel="Нейрофотосессии товаров"
-          onSelect={setLightboxItem}
         />
       </section>
 
@@ -190,7 +188,6 @@ export function AiPage() {
           items={cms.ai.modelGallery}
           variant="photo"
           ariaLabel="Нейрофотосессии модели"
-          onSelect={setLightboxItem}
         />
       </section>
 

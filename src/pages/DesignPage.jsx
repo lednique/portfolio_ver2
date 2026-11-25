@@ -266,7 +266,6 @@ export function DesignPage() {
           items={cms.design.identityGallery}
           variant="card"
           ariaLabel="Галерея айдентики"
-          onSelect={setLightboxItem}
         />
       </section>
 
@@ -288,7 +287,6 @@ export function DesignPage() {
           items={cms.design.infographicGallery}
           variant="card"
           ariaLabel="Галерея инфографики"
-          onSelect={setLightboxItem}
         />
       </section>
 

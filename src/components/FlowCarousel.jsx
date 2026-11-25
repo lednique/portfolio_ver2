@@ -10,7 +10,6 @@ export function FlowCarousel({
   items = [],
   variant = 'card', // 'card' | 'wide' | 'photo'
   ariaLabel = 'Галерея работ',
-  onSelect,
 }) {
   const { resolveUrl } = useCms();
   const { t } = useI18n();
@@ -22,7 +21,7 @@ export function FlowCarousel({
 
   const [activeIndex, setActiveIndex] = useState(0);
 
-  // Triple the items for seamless infinite looping (matching old portfolio initFlow)
+  // Triple the items for seamless infinite looping (matching original initFlow)
   const loopEnabled = items.length > 1;
   const renderedItems = useMemo(() => {
     if (!loopEnabled) return items.map((item, idx) => ({ item, origIdx: idx, copy: 1 }));
@@ -36,17 +35,35 @@ export function FlowCarousel({
   // Mutable animation state kept in refs for silky 60fps without React re-renders
   const stateRef = useRef({
     x: 0,
+    vx: 0, // momentum velocity (px / ms) after touch/pointer swipe
     offsets: [],
     widths: [],
     stride: 0,
     initialized: false,
     onScreen: true,
-    hovered: false,
     drag: null,
     anim: null,
-    moved: false,
     activeIdx: 0,
   });
+
+  const wrapX = useCallback(
+    (st) => {
+      const n = items.length;
+      if (!st.stride || st.offsets.length < n * 2) return 0;
+      const minX = st.offsets[n] - st.stride * 0.5;
+      const maxX = st.offsets[n] + st.stride * 1.5;
+      if (st.x >= maxX) {
+        st.x -= st.stride;
+        return -st.stride;
+      }
+      if (st.x < minX) {
+        st.x += st.stride;
+        return st.stride;
+      }
+      return 0;
+    },
+    [items.length]
+  );
 
   const measure = useCallback(() => {
     const track = trackRef.current;
@@ -82,6 +99,7 @@ export function FlowCarousel({
   useEffect(() => {
     stateRef.current.initialized = false;
     stateRef.current.activeIdx = 0;
+    stateRef.current.vx = 0;
     setActiveIndex(0);
     measure();
 
@@ -93,6 +111,25 @@ export function FlowCarousel({
     ro?.observe(viewport);
     ro?.observe(track);
     window.addEventListener('resize', measure);
+
+    // Trackpad horizontal two-finger swipe & Shift+wheel scrolling
+    const onWheel = (e) => {
+      const st = stateRef.current;
+      if (!st.stride) return;
+      const absX = Math.abs(e.deltaX);
+      const absY = Math.abs(e.deltaY);
+      const isHorizontal = absX > absY && absX > 1;
+      const isShiftScroll = e.shiftKey && absY > 1;
+      if (!isHorizontal && !isShiftScroll) return;
+
+      e.preventDefault();
+      st.anim = null;
+      st.vx = 0;
+      const delta = isHorizontal ? e.deltaX : e.deltaY;
+      st.x += delta;
+      wrapX(st);
+    };
+    viewport.addEventListener('wheel', onWheel, { passive: false });
 
     // Intersection observer so offscreen carousels pause CPU work
     let io = null;
@@ -109,24 +146,16 @@ export function FlowCarousel({
     return () => {
       ro?.disconnect();
       io?.disconnect();
+      viewport.removeEventListener('wheel', onWheel);
       window.removeEventListener('resize', measure);
     };
-  }, [measure, items]);
+  }, [measure, items, wrapX]);
 
-  // Continuous smooth 60fps flow + live glowing progress rail sync
+  // Continuous smooth 60fps flow (NEVER pauses on hover!) + momentum decay + rail sync
   useEffect(() => {
     if (!loopEnabled) return;
     let rafId = 0;
     let lastTs = 0;
-
-    const wrapX = (st) => {
-      const n = items.length;
-      if (!st.stride || st.offsets.length < n * 2) return;
-      const minX = st.offsets[n] - st.stride * 0.5;
-      const maxX = st.offsets[n] + st.stride * 1.5;
-      if (st.x >= maxX) st.x -= st.stride;
-      else if (st.x < minX) st.x += st.stride;
-    };
 
     const syncProgress = (st) => {
       const n = items.length;
@@ -135,7 +164,6 @@ export function FlowCarousel({
       let rel = (st.x - baseStart) % st.stride;
       if (rel < 0) rel += st.stride;
 
-      // Find which slide interval [start_i, start_{i+1}) rel falls into
       let curIdx = 0;
       let segProgress = 0;
       for (let i = 0; i < n; i++) {
@@ -176,9 +204,16 @@ export function FlowCarousel({
             st.anim = null;
             wrapX(st);
           }
-        } else if (!st.drag && !st.hovered && !still && st.onScreen && !document.hidden) {
-          st.x += (FLOW_SPEED_PX_PER_SEC * dt) / 1000;
-          wrapX(st);
+        } else if (!st.drag) {
+          if (Math.abs(st.vx) > 0.02) {
+            st.x += st.vx * dt;
+            st.vx *= Math.pow(0.92, dt / 16);
+            if (Math.abs(st.vx) <= 0.02) st.vx = 0;
+            wrapX(st);
+          } else if (!still && st.onScreen && !document.hidden) {
+            st.x += (FLOW_SPEED_PX_PER_SEC * dt) / 1000;
+            wrapX(st);
+          }
         }
 
         track.style.transform = `translate3d(${(-st.x).toFixed(2)}px, 0, 0)`;
@@ -190,58 +225,74 @@ export function FlowCarousel({
 
     rafId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafId);
-  }, [items.length, loopEnabled, still]);
+  }, [items.length, loopEnabled, still, wrapX]);
 
-  const scrollToIndex = useCallback(
-    (targetIdx) => {
+  // Homepage-style slider step: delta = -1 (left half) or +1 (right half)
+  const stepBy = useCallback(
+    (delta) => {
       const st = stateRef.current;
       const n = items.length;
       if (!n || !st.offsets.length) return;
-      const clamped = ((targetIdx % n) + n) % n;
+
+      st.vx = 0;
+      const baseIdx = st.anim ? st.anim.targetIdx : st.activeIdx;
+      const targetIdx = ((baseIdx + delta) % n + n) % n;
 
       if (!loopEnabled) {
-        setActiveIndex(clamped);
+        setActiveIndex(targetIdx);
         return;
       }
 
-      // Pick the closest copy of targetIdx relative to current st.x
-      const candidates = [clamped, n + clamped, 2 * n + clamped]
+      const refX = st.anim ? st.anim.x1 : st.x;
+      const candidates = [targetIdx, n + targetIdx, 2 * n + targetIdx]
         .map((i) => st.offsets[i])
         .filter((v) => typeof v === 'number');
 
-      let bestTarget = candidates[0] ?? st.x;
-      let bestDist = Infinity;
-      for (const c of candidates) {
-        const d = Math.abs(c - st.x);
-        if (d < bestDist) {
-          bestDist = d;
-          bestTarget = c;
-        }
+      let bestTarget = null;
+      if (delta > 0) {
+        // Pick the nearest candidate strictly to the RIGHT of current position
+        const ahead = candidates.filter((c) => c > refX + 8).sort((a, b) => a - b);
+        bestTarget = ahead[0];
+      } else {
+        // Pick the nearest candidate strictly to the LEFT of current position
+        const behind = candidates.filter((c) => c < refX - 8).sort((a, b) => b - a);
+        bestTarget = behind[0];
+      }
+
+      if (bestTarget == null) {
+        // Fallback: closest copy
+        bestTarget = candidates.reduce((best, c) =>
+          Math.abs(c - refX) < Math.abs(best - refX) ? c : best
+        );
       }
 
       st.anim = {
         x0: st.x,
         x1: bestTarget,
+        targetIdx,
         t0: performance.now(),
-        dur: 520,
+        dur: 480,
       };
-      st.activeIdx = clamped;
-      setActiveIndex(clamped);
+      st.activeIdx = targetIdx;
+      setActiveIndex(targetIdx);
     },
     [items.length, loopEnabled]
   );
 
-  // Pointer drag (desktop mouse + touch swipe)
+  // Touch swipe & mouse drag with smooth inertia
   const onPointerDown = (e) => {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     const st = stateRef.current;
     st.anim = null;
-    st.moved = false;
+    st.vx = 0;
     st.drag = {
       pointerId: e.pointerId,
       startX: e.clientX,
       startY: e.clientY,
+      lastX: e.clientX,
+      lastTs: performance.now(),
       startPos: st.x,
+      vx: 0,
       lockedHorizontal: false,
     };
     viewportRef.current?.classList.add('is-dragging');
@@ -254,14 +305,12 @@ export function FlowCarousel({
     const dy = e.clientY - st.drag.startY;
     if (!st.drag.lockedHorizontal) {
       if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 8) {
-        // User is scrolling vertically on touch device — release horizontal drag
         st.drag = null;
         viewportRef.current?.classList.remove('is-dragging');
         return;
       }
-      if (Math.abs(dx) > 6) {
+      if (Math.abs(dx) > 5) {
         st.drag.lockedHorizontal = true;
-        st.moved = true;
         try {
           viewportRef.current?.setPointerCapture?.(e.pointerId);
         } catch {
@@ -270,18 +319,19 @@ export function FlowCarousel({
       }
     }
     if (st.drag.lockedHorizontal) {
+      const now = performance.now();
+      const dt = Math.max(1, now - st.drag.lastTs);
+      const stepDx = e.clientX - st.drag.lastX;
+      // Exponentially smoothed velocity (px / ms), positive = moving forward (right-to-left swipe)
+      const instV = -stepDx / dt;
+      st.drag.vx = st.drag.vx * 0.55 + instV * 0.45;
+      st.drag.lastX = e.clientX;
+      st.drag.lastTs = now;
+
       st.x = st.drag.startPos - dx;
-      if (st.stride > 0) {
-        const n = items.length;
-        const minX = st.offsets[n] - st.stride * 0.5;
-        const maxX = st.offsets[n] + st.stride * 1.5;
-        if (st.x >= maxX) {
-          st.x -= st.stride;
-          st.drag.startPos -= st.stride;
-        } else if (st.x < minX) {
-          st.x += st.stride;
-          st.drag.startPos += st.stride;
-        }
+      const shift = wrapX(st);
+      if (shift) {
+        st.drag.startPos += shift;
       }
     }
   };
@@ -296,11 +346,13 @@ export function FlowCarousel({
     } catch {
       // ignore
     }
+    // Apply swipe momentum if released shortly after motion
+    const fresh = performance.now() - st.drag.lastTs < 90;
+    if (st.drag.lockedHorizontal && fresh && Math.abs(st.drag.vx) > 0.08) {
+      st.vx = Math.max(-2.6, Math.min(2.6, st.drag.vx));
+    }
     st.drag = null;
     viewportRef.current?.classList.remove('is-dragging');
-    window.setTimeout(() => {
-      st.moved = false;
-    }, 40);
   };
 
   if (!items.length) {
@@ -316,12 +368,6 @@ export function FlowCarousel({
       className={`v2-flow v2-flow--${variant}`}
       role="region"
       aria-label={t(ariaLabel)}
-      onPointerEnter={(e) => {
-        if (e.pointerType === 'mouse') stateRef.current.hovered = true;
-      }}
-      onPointerLeave={() => {
-        stateRef.current.hovered = false;
-      }}
     >
       <div
         className="v2-flow__viewport"
@@ -342,18 +388,7 @@ export function FlowCarousel({
                 className="v2-flow__slide"
                 aria-hidden={isClone ? 'true' : undefined}
               >
-                <button
-                  type="button"
-                  tabIndex={isClone ? -1 : 0}
-                  className="v2-flow__card"
-                  onClick={() => {
-                    if (stateRef.current.moved) return;
-                    if (onSelect && src) {
-                      onSelect({ src, alt: label || t(ariaLabel), caption: label });
-                    }
-                  }}
-                  aria-label={label ? `${t('Открыть')}: ${label}` : t('Открыть изображение')}
-                >
+                <figure className="v2-flow__card">
                   {src ? (
                     <img
                       src={src}
@@ -366,7 +401,7 @@ export function FlowCarousel({
                   ) : (
                     <div className="v2-flow__placeholder" />
                   )}
-                </button>
+                </figure>
               </div>
             );
           })}
@@ -378,7 +413,7 @@ export function FlowCarousel({
         activeIndex={activeIndex}
         progressRef={railRef}
         still={still}
-        onSelect={scrollToIndex}
+        onStep={stepBy}
         ariaLabel={ariaLabel}
       />
     </div>

@@ -25,7 +25,7 @@ function ArVideoSlide({
   useEffect(() => {
     const vid = videoRef.current;
     if (!vid) return;
-    // Video must ALWAYS stay muted — no audio button
+    // Video must ALWAYS stay muted — no audio toggle
     vid.muted = true;
     vid.defaultMuted = true;
 
@@ -132,7 +132,6 @@ export function VideoCarousel({ items = [] }) {
   const trackRef = useRef(null);
   const railRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  const hoveredRef = useRef(false);
   const dragRef = useRef({ active: false, startX: 0, startScroll: 0 });
   const activeIdxRef = useRef(0);
   activeIdxRef.current = activeIndex;
@@ -172,6 +171,13 @@ export function VideoCarousel({ items = [] }) {
     track.scrollTo({ left: Math.max(0, target), behavior: 'smooth' });
   }, []);
 
+  const stepBy = useCallback(
+    (delta) => {
+      scrollToIndex(activeIdxRef.current + delta);
+    },
+    [scrollToIndex]
+  );
+
   const handleProgress = useCallback((p) => {
     if (railRef.current) {
       railRef.current.style.setProperty(
@@ -181,9 +187,9 @@ export function VideoCarousel({ items = [] }) {
     }
   }, []);
 
+  // Auto-advance on video end — NEVER paused on hover!
   const handleEnded = useCallback(() => {
-    if (hoveredRef.current || dragRef.current.active || items.length <= 1) {
-      // Loop current video when user hovers
+    if (dragRef.current.active || items.length <= 1) {
       const track = trackRef.current;
       const vid = track?.querySelectorAll('.v2-ar-slide video')?.[activeIdxRef.current];
       if (vid) {
@@ -235,13 +241,7 @@ export function VideoCarousel({ items = [] }) {
       className="v2-ar-carousel"
       role="region"
       aria-label={t('Галерея AR-эффектов')}
-      onPointerEnter={(e) => {
-        if (e.pointerType === 'mouse') hoveredRef.current = true;
-      }}
-      onPointerLeave={() => {
-        hoveredRef.current = false;
-        onMouseUp();
-      }}
+      onMouseLeave={onMouseUp}
     >
       <div
         className="v2-ar-carousel__track"
@@ -268,7 +268,7 @@ export function VideoCarousel({ items = [] }) {
         activeIndex={activeIndex}
         progressRef={railRef}
         still={still}
-        onSelect={scrollToIndex}
+        onStep={stepBy}
         ariaLabel="Галерея AR-эффектов"
       />
     </div>

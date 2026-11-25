@@ -125,7 +125,15 @@ function ShaderCanvas() {
     };
   }, []);
 
-  return <canvas id="gl" ref={canvasRef} className="hero__shader" aria-hidden="true" />;
+  return (
+    <canvas
+      id="gl"
+      ref={canvasRef}
+      className="hero__shader"
+      data-shader-ready="1"
+      aria-hidden="true"
+    />
+  );
 }
 
 function HeroSection() {

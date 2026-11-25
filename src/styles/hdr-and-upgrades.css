@@ -207,35 +207,26 @@
   box-shadow: var(--hdr-white-btn);
 }
 
-/* Hero title plate HDR blur-1 white inner glow */
+/* Hero title plate — keep original .hero__title framing without extra double box */
 .hero__title-plate {
   position: relative;
-  box-shadow:
-    0 2px 2px rgba(0, 0, 0, 0.55),
-    inset 0 4px 4px rgba(0, 0, 0, 0.25);
 }
 
-.hero__title-plate:after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  mix-blend-mode: plus-lighter;
-  box-shadow:
-    inset 1px -2px 1px var(--hdr-white-45),
-    inset -1px 2px 1px var(--hdr-white-45),
-    inset 0 1px 1px var(--hdr-white-80);
+/* Case cards & labels ("сегодня в меню") — preserve position:absolute on .case__label & crisp 36px corners on hover */
+.case {
+  overflow: hidden;
+  overflow: clip;
+  clip-path: inset(0 round 36px);
 }
 
-/* Case cards & labels ("сегодня в меню") */
 .case:after {
   mix-blend-mode: plus-lighter;
   box-shadow: var(--hdr-white-soft);
 }
 
 .case__label {
-  position: relative;
+  overflow: hidden;
+  clip-path: inset(0 round 28px);
   box-shadow:
     -2px 0 1px rgba(0, 0, 0, 0.3),
     2px 0 1px rgba(0, 0, 0, 0.3),
@@ -256,12 +247,15 @@
 
 /* AI gallery rail, active glow & frosted feature panel */
 .ai__rail {
-  position: relative;
   box-shadow:
     -1px 0 0 rgba(0, 0, 0, 0.3),
     1px 0 1px rgba(0, 0, 0, 0.3),
     0 4px 4px rgba(0, 0, 0, 0.25),
     inset 0 2px 2px rgba(0, 0, 0, 0.3);
+}
+
+.ai__visual .ai__rail {
+  position: relative;
 }
 
 .ai__rail:after {
@@ -299,9 +293,8 @@
   box-shadow: var(--hdr-white-glass);
 }
 
-/* AR QR card */
+/* AR QR card — preserve position:absolute from v2-core.css */
 .ar__qr {
-  position: relative;
   box-shadow:
     -2px 0 1px rgba(0, 0, 0, 0.3),
     2px 0 1px rgba(0, 0, 0, 0.3),

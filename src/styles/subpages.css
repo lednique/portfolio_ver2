@@ -71,11 +71,11 @@
 }
 
 .sub-heading {
-  font-family: var(--font-display);
+  font-family: var(--font-nav);
   font-weight: 500;
-  font-size: clamp(40px, 6.2vw, 82px);
-  line-height: 0.96;
-  letter-spacing: -0.03em;
+  font-size: clamp(32px, 5vw, 56px);
+  line-height: 1;
+  letter-spacing: -0.05em;
   text-transform: uppercase;
   color: var(--ink);
   margin: 0;
@@ -177,11 +177,11 @@
 }
 
 .sub-hero__title {
-  font-family: var(--font-display);
+  font-family: var(--font-nav);
   font-weight: 500;
-  font-size: clamp(48px, 9vw, 128px);
-  line-height: 0.94;
-  letter-spacing: -0.04em;
+  font-size: clamp(36px, 6vw, 72px);
+  line-height: 1;
+  letter-spacing: -0.06em;
   text-transform: uppercase;
   text-align: center;
   color: var(--ink);
@@ -562,6 +562,10 @@
   border-radius: 28px;
   background: #333333;
   max-width: 100%;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
   box-shadow:
     -1px 0 0 rgba(0, 0, 0, 0.3),
     1px 0 1px rgba(0, 0, 0, 0.3),
@@ -594,7 +598,7 @@
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.2);
   mix-blend-mode: plus-lighter;
-  cursor: pointer;
+  pointer-events: none;
   overflow: visible;
   transition: width 0.45s var(--ease-out), background-color 0.4s var(--ease-out);
 }
@@ -674,39 +678,26 @@
   position: relative;
   display: block;
   width: auto;
+  margin: 0;
   padding: 0;
-  border-radius: 28px;
+  border-radius: 36px;
   overflow: hidden;
-  border: 1px solid var(--glass-border);
+  clip-path: inset(0 round 36px);
+  border: 0;
   background: transparent;
-  cursor: zoom-in;
   box-shadow: var(--glass-dark-shadow);
-  transition: transform 0.3s var(--ease);
 }
 
-.v2-flow__card::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  box-shadow: var(--hdr-white-glass);
-  mix-blend-mode: plus-lighter;
-}
-
-.v2-flow__card:hover {
-  transform: translateY(-4px);
-}
-
-/* NEVER alter image aspect ratio — height guides row rhythm, width stays 100% natural! */
+/* Original image aspect ratio preserved — no cropping, no zoom */
 .v2-flow__card img {
   display: block;
   width: auto;
   max-width: none;
-  height: clamp(320px, 34vw, 440px);
+  height: clamp(300px, 34vw, 434px);
   object-fit: contain;
   user-select: none;
   -webkit-user-drag: none;
+  pointer-events: none;
 }
 
 .v2-flow--wide .v2-flow__card img {
@@ -1812,11 +1803,11 @@
     justify-content: center;
   }
 
-  /* Typography matching homepage mobile: 36px headings, 14px body, centered, pure white */
+  /* Typography matching homepage mobile (.statement p = 36px / -2.16px, body = 14px, centered, pure white) */
   .sub-hero__title {
     font-size: 36px;
     line-height: 1;
-    letter-spacing: 0;
+    letter-spacing: -2.16px;
     text-align: center;
   }
 
@@ -1824,7 +1815,7 @@
   .v2-cv__name {
     font-size: 36px;
     line-height: 1;
-    letter-spacing: 0;
+    letter-spacing: -2.16px;
     text-align: center;
   }
 
@@ -1935,7 +1926,8 @@
   .v2-flow--card .v2-flow__card,
   .v2-flow--wide .v2-flow__card {
     width: 100%;
-    border-radius: 24px;
+    border-radius: 28px;
+    clip-path: inset(0 round 28px);
   }
 
   .v2-flow--card .v2-flow__card img,
@@ -1946,7 +1938,8 @@
   }
 
   .v2-flow--photo .v2-flow__card {
-    border-radius: 24px;
+    border-radius: 28px;
+    clip-path: inset(0 round 28px);
   }
 
   .v2-flow--photo .v2-flow__card img {
