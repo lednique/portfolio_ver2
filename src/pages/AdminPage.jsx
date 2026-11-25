@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useCms } from '../data/CmsContext';
+import { extractBehanceEmbedUrl } from '../data/behance';
 import {
   MAX_MENU_CARDS,
   parseAiTranslationsInput,
@@ -12,7 +13,7 @@ import { useRouter } from '../router';
 
 const TABS = [
   { id: 'home', label: 'Главная страница', badge: 'Меню + AI', route: '/' },
-  { id: 'design', label: 'Графический дизайн', badge: '2 галереи', route: '/design' },
+  { id: 'design', label: 'Графический дизайн', badge: 'Behance + 2 галереи', route: '/design' },
   { id: 'ar', label: 'AR-эффекты', badge: 'Видео', route: '/ar' },
   { id: 'ai', label: 'AI-продакшн', badge: '3 галереи', route: '/ai' },
   { id: 'translations', label: 'Переводы (ИИ)', badge: '6 языков', route: '/' },
@@ -680,12 +681,148 @@ function HomeTab({ onNotify }) {
   );
 }
 
-/* ───────── Tab 2: Graphic Design Galleries ───────── */
+/* ───────── Tab 2: Graphic Design (Behance Embeds + 2 Galleries) ───────── */
 function DesignTab({ onNotify }) {
   const { cms, updateCms, uploadMedia, resolveUrl } = useCms();
+  const behanceCases = cms.design.behanceCases || [];
+
+  const setBehanceCases = (next) => {
+    updateCms((prev) => ({
+      ...prev,
+      design: { ...prev.design, behanceCases: next },
+    }));
+  };
+
+  const handleAddBehance = () => {
+    const next = [
+      ...behanceCases,
+      {
+        id: uid('beh'),
+        title: `Кейс Behance #${behanceCases.length + 1}`,
+        embedCode: '',
+      },
+    ];
+    setBehanceCases(next);
+    onNotify('Добавлен слот Behance — вставьте embed-код или ссылку на проект');
+  };
+
+  const handleUpdateBehance = (idx, patch) => {
+    setBehanceCases(behanceCases.map((item, i) => (i === idx ? { ...item, ...patch } : item)));
+  };
+
+  const handleRemoveBehance = (idx) => {
+    setBehanceCases(behanceCases.filter((_, i) => i !== idx));
+    onNotify('Кейс Behance удалён');
+  };
 
   return (
     <div className="admin__stack">
+      <section className="admin__panel">
+        <div className="admin__panel-head">
+          <div>
+            <h2 className="admin__panel-title">Кейсы на Behance (Embed-код)</h2>
+            <p className="admin__panel-desc">
+              Вставьте полный HTML embed-код виджета из Behance (<code>&lt;iframe ...&gt;</code>)
+              или просто ссылку на проект Behance — виджет обновится автоматически.
+            </p>
+          </div>
+          <div className="admin__head-right">
+            <span className="admin__count-badge">{behanceCases.length} кейсов</span>
+            <button
+              type="button"
+              className="v2-pill-btn v2-pill-btn--lime"
+              onClick={handleAddBehance}
+            >
+              + Добавить кейс Behance
+            </button>
+          </div>
+        </div>
+
+        <div className="admin__beh-list">
+          {behanceCases.map((item, idx) => {
+            const previewUrl = extractBehanceEmbedUrl(item.embedCode || item.embedUrl || item.url);
+            return (
+              <article className="admin__beh-card" key={item.id || idx}>
+                <div className="admin__beh-preview">
+                  {previewUrl ? (
+                    <iframe
+                      src={previewUrl}
+                      title={item.title || `Behance #${idx + 1}`}
+                      loading="lazy"
+                      frameBorder="0"
+                      allow="clipboard-write"
+                      referrerPolicy="strict-origin-when-cross-origin"
+                    />
+                  ) : (
+                    <div className="admin__beh-empty">Вставьте embed-код Behance</div>
+                  )}
+                </div>
+
+                <div className="admin__beh-fields">
+                  <label className="admin__field">
+                    <span>Название (для подсказки / SEO)</span>
+                    <input
+                      type="text"
+                      className="admin__input"
+                      value={item.title || ''}
+                      onChange={(e) => handleUpdateBehance(idx, { title: e.target.value })}
+                      placeholder="Например: Company rebranding – BKA Vertical"
+                    />
+                  </label>
+
+                  <label className="admin__field">
+                    <span>Embed-код Behance или ссылка на проект</span>
+                    <textarea
+                      className="admin__textarea admin__textarea--code"
+                      rows={3}
+                      value={item.embedCode ?? item.embedUrl ?? ''}
+                      onChange={(e) => handleUpdateBehance(idx, { embedCode: e.target.value })}
+                      placeholder='<iframe src="https://www.behance.net/embed/project/257802213?ilo0=1" height="316" width="404" ...></iframe>'
+                    />
+                  </label>
+
+                  {item.embedCode && !previewUrl && (
+                    <p className="admin__field-warn">
+                      Не удалось распознать URL — вставьте тег &lt;iframe src=&quot;https://...&quot;&gt;
+                      или ссылку на проект Behance.
+                    </p>
+                  )}
+
+                  <div className="admin__card-actions admin__card-actions--end">
+                    <button
+                      type="button"
+                      className="admin__icon-btn"
+                      onClick={() => setBehanceCases(moveItem(behanceCases, idx, -1))}
+                      disabled={idx === 0}
+                      title="Переместить выше"
+                    >
+                      ↑
+                    </button>
+                    <button
+                      type="button"
+                      className="admin__icon-btn"
+                      onClick={() => setBehanceCases(moveItem(behanceCases, idx, 1))}
+                      disabled={idx === behanceCases.length - 1}
+                      title="Переместить ниже"
+                    >
+                      ↓
+                    </button>
+                    <button
+                      type="button"
+                      className="admin__icon-btn admin__icon-btn--danger"
+                      onClick={() => handleRemoveBehance(idx)}
+                      title="Удалить кейс"
+                    >
+                      Удалить
+                    </button>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
       <GalleryManager
         title="Галерея «Айдентика»"
         description="Слайдер проектов фирменного стиля и брендинга на странице Графического дизайна."

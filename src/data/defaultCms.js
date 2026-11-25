@@ -44,8 +44,8 @@ export const DEFAULT_CMS = {
       },
       {
         id: 'home-ai-4',
-        src: './assets/ai/hero-1.jpg',
-        alt: 'AI-продакшн — стальной образ',
+        src: './assets/ai/home-ai-4.jpg',
+        alt: 'AI-продакшн — LED Faces 2',
       },
     ],
   },
@@ -55,6 +55,26 @@ export const DEFAULT_CMS = {
       preview: './assets/gfx/roll.jpg',
       alt: 'Company rebranding – BKA Vertical',
     },
+    behanceCases: [
+      {
+        id: 'beh-257802213',
+        title: 'Game UI Design – Noirie',
+        embedCode:
+          '<iframe src="https://www.behance.net/embed/project/257802213?ilo0=1" height="316" width="404" allowfullscreen lazyload frameborder="0" allow="clipboard-write" refererPolicy="strict-origin-when-cross-origin"></iframe>',
+      },
+      {
+        id: 'beh-255985065',
+        title: 'Aurora Brew App Concept',
+        embedCode:
+          '<iframe src="https://www.behance.net/embed/project/255985065?ilo0=1" height="316" width="404" allowfullscreen lazyload frameborder="0" allow="clipboard-write" refererPolicy="strict-origin-when-cross-origin"></iframe>',
+      },
+      {
+        id: 'beh-256638775',
+        title: 'Company rebranding – BKA Vertical',
+        embedCode:
+          '<iframe src="https://www.behance.net/embed/project/256638775?ilo0=1" height="316" width="404" allowfullscreen lazyload frameborder="0" allow="clipboard-write" refererPolicy="strict-origin-when-cross-origin"></iframe>',
+      },
+    ],
     identityGallery: [
       { id: 'id-1', src: './assets/gfx/ident-lopale.jpg', alt: 'Lopale' },
       { id: 'id-2', src: './assets/gfx/ident-teamup.jpg', alt: 'TeamUp' },

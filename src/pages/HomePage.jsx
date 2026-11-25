@@ -125,7 +125,15 @@ function ShaderCanvas() {
     };
   }, []);
 
-  return <canvas id="gl" ref={canvasRef} className="hero__shader" aria-hidden="true" />;
+  return (
+    <canvas
+      id="gl"
+      ref={canvasRef}
+      className="hero__shader"
+      data-shader-ready="1"
+      aria-hidden="true"
+    />
+  );
 }
 
 function HeroSection() {
@@ -225,9 +233,10 @@ function HeroSection() {
   );
 }
 
-/* ───────── 2. Today Menu (sS, CMS-driven up to 6 cards) ───────── */
+/* ───────── 2. Today Menu (sS, CMS-driven up to 6 cards + original mobile scroll-expand) ───────── */
 const CASE_OPEN_H = 480;
 const CASE_SHORT_H = 141;
+const CASE_SCROLL_MARGIN = 100;
 
 function TodaySection() {
   const still = useStillMode();
@@ -237,6 +246,12 @@ function TodaySection() {
   const [isMobile, setIsMobile] = useState(false);
   const [openIdx, setOpenIdx] = useState(0);
 
+  const gridRef = useRef(null);
+  const cardRefs = useRef([]);
+  const lastScrollYRef = useRef(0);
+  const scrollDirRef = useRef(1);
+  const manualOverrideRef = useRef(false);
+
   const cards = cms.home.menuCards || [];
 
   useEffect(() => {
@@ -245,6 +260,79 @@ function TodaySection() {
     window.addEventListener('resize', sync);
     return () => window.removeEventListener('resize', sync);
   }, []);
+
+  // Original mobile scroll-based card expand animation
+  useEffect(() => {
+    manualOverrideRef.current = false;
+    if (!isMobile) {
+      setOpenIdx(-1);
+      return;
+    }
+
+    setOpenIdx(0);
+    lastScrollYRef.current = window.scrollY;
+    let rafId = 0;
+
+    const evaluate = () => {
+      rafId = 0;
+      if (manualOverrideRef.current) return;
+      const pad = Math.min(CASE_SCROLL_MARGIN, Math.max(0, (window.innerHeight - CASE_OPEN_H) / 2));
+      const topBound = pad;
+      const bottomBound = window.innerHeight - pad;
+      const visibleIndices = [];
+
+      cardRefs.current.forEach((el, idx) => {
+        if (!el) return;
+        const rectTop = el.getBoundingClientRect().top;
+        if (rectTop >= topBound && rectTop <= bottomBound) {
+          visibleIndices.push(idx);
+        }
+      });
+
+      if (!visibleIndices.length) return;
+      const nextIdx =
+        scrollDirRef.current > 0
+          ? visibleIndices[visibleIndices.length - 1]
+          : visibleIndices[0];
+      setOpenIdx((prev) => (prev === nextIdx ? prev : nextIdx));
+    };
+
+    const schedule = () => {
+      if (!rafId) rafId = window.requestAnimationFrame(evaluate);
+    };
+
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (y !== lastScrollYRef.current) {
+        scrollDirRef.current = y > lastScrollYRef.current ? 1 : -1;
+        lastScrollYRef.current = y;
+      }
+      manualOverrideRef.current = false;
+      schedule();
+    };
+
+    const onResize = () => {
+      manualOverrideRef.current = false;
+      schedule();
+    };
+
+    evaluate();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onResize);
+
+    const ro =
+      typeof ResizeObserver !== 'undefined' && gridRef.current
+        ? new ResizeObserver(schedule)
+        : null;
+    if (gridRef.current && ro) ro.observe(gridRef.current);
+
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onResize);
+      ro?.disconnect();
+      window.cancelAnimationFrame(rafId);
+    };
+  }, [isMobile, cards.length]);
 
   const openLink = (href) => {
     if (!href) return;
@@ -263,6 +351,8 @@ function TodaySection() {
     }
   };
 
+  cardRefs.current.length = cards.length;
+
   return (
     <section className="section content" id="design">
       <Reveal as="h2" className="section-title" stagger={0.045}>
@@ -274,7 +364,7 @@ function TodaySection() {
         {t('Брендинг, дополненная реальность, UI/UX, авторское.')}
       </Reveal>
 
-      <div className="cases__grid">
+      <div className="cases__grid" ref={gridRef}>
         {cards.map((card, i) => {
           const isOpen = !isMobile || openIdx === i;
           const isShort = isMobile && !isOpen;
@@ -282,27 +372,32 @@ function TodaySection() {
           const cardTitle = t(card.title);
           const cardTag = card.tag ? t(card.tag) : '';
 
+          const handleActivate = () => {
+            if (isMobile && !isOpen) {
+              manualOverrideRef.current = true;
+              setOpenIdx(i);
+            } else {
+              openLink(card.href);
+            }
+          };
+
           return (
             <motion.article
               key={`${card.id || card.title}-${isMobile}`}
+              ref={(el) => {
+                cardRefs.current[i] = el;
+              }}
               data-reveal="1"
               className={`case${isShort ? ' case--short' : ''}`}
               style={imgSrc ? { backgroundImage: `url("${imgSrc}")` } : undefined}
-              role="link"
+              role={isMobile ? 'button' : 'link'}
               tabIndex={0}
               aria-expanded={isMobile ? isOpen : undefined}
-              onClick={() => {
-                if (isMobile && !isOpen) {
-                  setOpenIdx(i);
-                } else {
-                  openLink(card.href);
-                }
-              }}
+              onClick={handleActivate}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
-                  if (isMobile && !isOpen) setOpenIdx(i);
-                  else openLink(card.href);
+                  handleActivate();
                 }
               }}
               initial={still ? false : { opacity: 0, y: 40 }}
@@ -310,8 +405,8 @@ function TodaySection() {
               whileInView={still ? undefined : { opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-60px' }}
               transition={{
-                opacity: { duration: still ? 0 : 0.8, delay: still ? 0 : i * 0.1, ease: EASE_OUT },
-                y: { duration: still ? 0 : 0.8, delay: still ? 0 : i * 0.1, ease: EASE_OUT },
+                opacity: { duration: still ? 0 : 0.8, delay: still ? 0 : i * 0.12, ease: EASE_OUT },
+                y: { duration: still ? 0 : 0.8, delay: still ? 0 : i * 0.12, ease: EASE_OUT },
                 height: { duration: still ? 0 : 0.65, ease: EASE_OUT },
               }}
               whileHover={!still && !isMobile ? { y: -6 } : undefined}
@@ -673,7 +768,7 @@ function AiSection() {
             <motion.button
               key="ai-expand-btn"
               type="button"
-              className="discuss__button ai__toggle-btn ai__toggle-btn--floating is-collapsed"
+              className="discuss__button ai__toggle-btn ai__toggle-btn--floating"
               onClick={() => setPanelCollapsed(false)}
               aria-expanded="false"
               aria-label={t('Показать описание AI-Продакшн')}
@@ -684,7 +779,6 @@ function AiSection() {
               transition={{ duration: still ? 0 : 0.25, ease: EASE_OUT }}
             >
               <ChatIcon size={20} />
-              <span>{t('описание')}</span>
             </motion.button>
           )}
         </AnimatePresence>
