@@ -1,0 +1,22 @@
+{
+  "name": "lednique-portfolio-v2",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build && node scripts/sync-build.mjs",
+    "serve": "node scripts/serve-root.mjs"
+  },
+  "dependencies": {
+    "@lottiefiles/dotlottie-web": "^0.45.0",
+    "framer-motion": "^12.4.7",
+    "matter-js": "^0.20.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^6.1.0"
+  }
+}
