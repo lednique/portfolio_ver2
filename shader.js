@@ -1,7 +1,7 @@
 (() => {
-const HEIGHT_DATA="/bg/height.webp";
-const HDRI_DATA="/bg/hdri.jpg";
-const ALU_DATA="/bg/aluminum.jpg";
+const HEIGHT_DATA="/portfolio_ver2/bg/height.webp";
+const HDRI_DATA="/portfolio_ver2/bg/hdri.jpg";
+const ALU_DATA="/portfolio_ver2/bg/aluminum.jpg";
 // Настройки со скриншота
 const P={normalScale:0.60,roughness:0.43,metalness:1.00,exposure:0.39,mouseInfluence:0.80,lightIntensity:0.80,hdriRot:1.26,flipY:1,autoRotate:false};
 const canvas=document.getElementById('gl');
