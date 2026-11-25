@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useCms } from '../data/CmsContext';
+import { extractBehanceEmbedUrl } from '../data/behance';
 import { useI18n } from '../i18n/I18nContext';
 import { useStillMode } from '../hooks/useA11y';
 import { useSubHeroMotion } from '../hooks/useSubHeroMotion';
@@ -25,33 +26,20 @@ const DESIGN_CHIPS = [
   'полиграфия',
 ];
 
-const BEHANCE_CASES = [
-  {
-    id: '257802213',
-    title: 'Game UI Design – Noirie',
-    embedUrl: 'https://www.behance.net/embed/project/257802213?ilo0=1',
-    url: 'https://www.behance.net/gallery/257802213/Game-UI-Design-Noirie',
-  },
-  {
-    id: '255985065',
-    title: 'Aurora Brew App Concept',
-    embedUrl: 'https://www.behance.net/embed/project/255985065?ilo0=1',
-    url: 'https://www.behance.net/gallery/255985065/Aurora-Brew-App-Concept',
-  },
-  {
-    id: '256638775',
-    title: 'Company rebranding – BKA Vertical',
-    embedUrl: 'https://www.behance.net/embed/project/256638775?ilo0=1',
-    url: 'https://www.behance.net/gallery/256638775/Company-rebranding-BKA-Vertical',
-  },
-];
-
 export function DesignPage() {
   const still = useStillMode();
   const { cms } = useCms();
   const { t } = useI18n();
   const [lightboxItem, setLightboxItem] = useState(null);
   const heroRef = useSubHeroMotion();
+
+  const behanceCases = (cms.design?.behanceCases || [])
+    .map((item, idx) => ({
+      id: item.id || `beh-${idx}`,
+      title: item.title || `Behance #${idx + 1}`,
+      embedUrl: extractBehanceEmbedUrl(item.embedCode || item.embedUrl || item.url),
+    }))
+    .filter((item) => Boolean(item.embedUrl));
 
   const scrollToForm = (e) => {
     e.preventDefault();
@@ -171,9 +159,9 @@ export function DesignPage() {
         </div>
       </section>
 
-      {/* 3. Case 01 — BKA Vertical */}
-      <section className="sub-section content sub-case">
-        <div className="sub-section__head">
+      {/* 3. Case 01 — BKA Vertical (full page width, no rounded corners or shadows) */}
+      <section className="sub-section sub-case">
+        <div className="content sub-section__head">
           <span className="sub-eyebrow">{t('Кейс 01')}</span>
           <Reveal as="h2" className="sub-heading">
             {t('Крайняя работа')}
@@ -206,47 +194,43 @@ export function DesignPage() {
         </motion.button>
       </section>
 
-      {/* 4. Behance Cases */}
-      <section className="sub-section content sub-behance">
-        <div className="sub-section__head sub-section__head--center">
-          <span className="sub-eyebrow">{t('Подписывайтесь!')}</span>
-          <Reveal as="h2" className="sub-heading">
-            {t('Кейсы на Behance')}
-          </Reveal>
-        </div>
+      {/* 4. Behance Cases (CMS-editable embed codes, no redundant footer caption) */}
+      {behanceCases.length > 0 && (
+        <section className="sub-section content sub-behance">
+          <div className="sub-section__head sub-section__head--center">
+            <span className="sub-eyebrow">{t('Подписывайтесь!')}</span>
+            <Reveal as="h2" className="sub-heading">
+              {t('Кейсы на Behance')}
+            </Reveal>
+          </div>
 
-        <div className="sub-beh__grid">
-          {BEHANCE_CASES.map((item, i) => (
-            <motion.div
-              key={item.id}
-              className="sub-beh__card"
-              initial={still ? false : { opacity: 0, y: 20 }}
-              animate={still ? { opacity: 1, y: 0 } : undefined}
-              whileInView={still ? undefined : { opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 0.5, delay: i * 0.08, ease: EASE_OUT }}
-            >
-              <div className="sub-beh__frame">
-                <iframe
-                  src={item.embedUrl}
-                  allowFullScreen
-                  loading="lazy"
-                  frameBorder="0"
-                  allow="clipboard-write"
-                  referrerPolicy="strict-origin-when-cross-origin"
-                  title={item.title}
-                />
-              </div>
-              <div className="sub-beh__foot">
-                <span>{item.title}</span>
-                <a href={item.url} target="_blank" rel="noreferrer noopener">
-                  Behance ↗
-                </a>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
+          <div className="sub-beh__grid">
+            {behanceCases.map((item, i) => (
+              <motion.div
+                key={item.id}
+                className="sub-beh__card"
+                initial={still ? false : { opacity: 0, y: 20 }}
+                animate={still ? { opacity: 1, y: 0 } : undefined}
+                whileInView={still ? undefined : { opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-60px' }}
+                transition={{ duration: 0.5, delay: i * 0.08, ease: EASE_OUT }}
+              >
+                <div className="sub-beh__frame">
+                  <iframe
+                    src={item.embedUrl}
+                    allowFullScreen
+                    loading="lazy"
+                    frameBorder="0"
+                    allow="clipboard-write"
+                    referrerPolicy="strict-origin-when-cross-origin"
+                    title={item.title}
+                  />
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* 5. Identity Gallery */}
       <section className="sub-section sub-section--accent">
@@ -290,9 +274,9 @@ export function DesignPage() {
         />
       </section>
 
-      {/* 7. Interactive 3D Invitation Showcase */}
-      <section className="sub-section content" id="invitations">
-        <div className="sub-narrow">
+      {/* 7. Interactive 3D Invitation Showcase — restored original unrounded full-stage WebGL 3D card */}
+      <section className="sub-section invitation-showcase" id="invitations">
+        <div className="content sub-narrow">
           <span className="sub-eyebrow">{t('Цифровые и печатные форматы')}</span>
           <Reveal as="h2" className="sub-heading">
             {t('Пригласительные и визитки')}

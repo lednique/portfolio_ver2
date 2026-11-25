@@ -79,6 +79,9 @@ export function normalizeCms(raw) {
     },
     design: {
       latestCase: raw.design?.latestCase || base.design.latestCase,
+      behanceCases: Array.isArray(raw.design?.behanceCases)
+        ? raw.design.behanceCases
+        : base.design.behanceCases,
       identityGallery: Array.isArray(raw.design?.identityGallery)
         ? raw.design.identityGallery
         : Array.isArray(raw.design?.identity)

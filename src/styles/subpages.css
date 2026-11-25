@@ -427,33 +427,24 @@
   margin-bottom: 0;
 }
 
-/* ───────── Case 01 (BKA Vertical banner) ───────── */
+/* ───────── Case 01 (BKA Vertical banner) — full page width, zero border-radius & zero shadows ───────── */
+.sub-case {
+  padding-inline: 0;
+}
+
 .sub-bigcase {
   position: relative;
   display: block;
   width: 100%;
+  max-width: none;
+  margin: 0;
   padding: 0;
-  border-radius: 32px;
+  border-radius: 0;
   overflow: hidden;
-  border: 1px solid var(--glass-border);
-  background: #121216;
+  border: 0;
+  background: transparent;
   cursor: zoom-in;
-  box-shadow: var(--glass-dark-shadow);
-  transition: transform 0.35s var(--ease);
-}
-
-.sub-bigcase::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  box-shadow: var(--hdr-white-glass);
-  mix-blend-mode: plus-lighter;
-}
-
-.sub-bigcase:hover {
-  transform: translateY(-4px);
+  box-shadow: none;
 }
 
 .sub-bigcase img {
@@ -477,7 +468,7 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
-/* ───────── Behance Grid ───────── */
+/* ───────── Behance Grid (clean embeds without redundant footer caption) ───────── */
 .sub-beh__grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -517,26 +508,6 @@
   display: block;
 }
 
-.sub-beh__foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 14px 18px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--ink);
-}
-
-.sub-beh__foot a {
-  color: var(--lime);
-  white-space: nowrap;
-}
-
-:root[data-theme='light'] .sub-beh__foot a {
-  color: #465d00;
-}
-
 @media (max-width: 960px) {
   .sub-beh__grid {
     grid-template-columns: 1fr;
@@ -548,7 +519,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 12px;
+  margin-top: 8px;
   padding-inline: 20px;
 }
 
@@ -640,17 +611,25 @@
   width: 100%;
 }
 
-/* ───────── Flow Carousel — Continuous Auto-Flow, Natural Aspect Ratios, Full-Width Images ───────── */
+/* ───────── Flow Carousel — Continuous Auto-Flow, Uniform Card Height, Natural Aspect Ratios ───────── */
 .v2-flow {
   width: 100%;
   position: relative;
   z-index: 2;
 }
 
+.sub-hero--ai .sub-hero__inner {
+  margin-bottom: 12px;
+}
+
+.sub-hero--ai .v2-flow {
+  margin-bottom: 24px;
+}
+
 .v2-flow__viewport {
   width: 100%;
   overflow: hidden;
-  padding: 12px 0 24px;
+  padding: 8px 0 14px;
   cursor: grab;
   touch-action: pan-y;
   user-select: none;
@@ -674,10 +653,12 @@
   width: auto;
 }
 
+/* Uniform height per carousel so wide & tall/square photos NEVER create uneven vertical gaps */
 .v2-flow__card {
   position: relative;
   display: block;
   width: auto;
+  height: clamp(300px, 34vw, 434px);
   margin: 0;
   padding: 0;
   border-radius: 36px;
@@ -688,31 +669,28 @@
   box-shadow: var(--glass-dark-shadow);
 }
 
-/* Original image aspect ratio preserved — no cropping, no zoom */
+.v2-flow--wide .v2-flow__card {
+  height: clamp(340px, 42vw, 520px);
+}
+
+.v2-flow--photo .v2-flow__card {
+  height: clamp(340px, 38vw, 500px);
+}
+
 .v2-flow__card img {
   display: block;
   width: auto;
+  height: 100%;
   max-width: none;
-  height: clamp(300px, 34vw, 434px);
-  object-fit: contain;
+  object-fit: cover;
   user-select: none;
   -webkit-user-drag: none;
   pointer-events: none;
 }
 
-.v2-flow--wide .v2-flow__card img {
-  height: clamp(340px, 44vw, 560px);
-  width: auto;
-}
-
-.v2-flow--photo .v2-flow__card img {
-  height: clamp(340px, 38vw, 520px);
-  width: auto;
-}
-
 .v2-flow__placeholder {
   width: 360px;
-  height: 270px;
+  height: 100%;
   background: rgba(var(--ink-rgb), 0.08);
 }
 
@@ -725,7 +703,7 @@
   color: var(--ink);
 }
 
-/* ───────── AR 9:16 Video Carousel (Always Muted, Auto-Advancing with Glowing Rail) ───────── */
+/* ───────── AR 9:16 Video Carousel (Infinite Loop, Auto-Advancing like Original, Always Muted, No Play Button) ───────── */
 .v2-ar-carousel {
   position: relative;
   z-index: 2;
@@ -745,9 +723,13 @@
   -webkit-overflow-scrolling: touch;
 }
 
+.v2-ar-carousel__track.is-dragging,
+.v2-ar-carousel__track.no-snap {
+  scroll-snap-type: none;
+}
+
 .v2-ar-carousel__track.is-dragging {
   cursor: grabbing;
-  scroll-snap-type: none;
 }
 
 .v2-ar-carousel__track::-webkit-scrollbar {
@@ -759,8 +741,8 @@
   width: clamp(250px, 24vw, 320px);
   scroll-snap-align: center;
   transition: transform 0.35s var(--ease), opacity 0.35s var(--ease);
-  opacity: 0.68;
-  transform: scale(0.94);
+  opacity: 0.72;
+  transform: scale(0.92);
 }
 
 .v2-ar-slide.is-center {
@@ -790,11 +772,28 @@
   mix-blend-mode: plus-lighter;
 }
 
-.v2-ar-slide__frame video,
-.v2-ar-slide__frame img {
+.v2-ar-slide__poster,
+.v2-ar-slide__video {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
+}
+
+.v2-ar-slide__poster {
+  z-index: 0;
+}
+
+.v2-ar-slide__video {
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.35s var(--ease);
+}
+
+.v2-ar-slide__video.is-live {
+  opacity: 1;
 }
 
 .v2-ar-slide__empty {
@@ -866,26 +865,6 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #ffffff;
-}
-
-.v2-ar-slide__play-pill {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 3;
-  width: 56px;
-  height: 56px;
-  border-radius: var(--radius-pill);
-  background: rgba(0, 0, 0, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  backdrop-filter: blur(10px);
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  padding-left: 3px;
 }
 
 /* ───────── AR About Glass + Clients Marquee ───────── */
@@ -1252,219 +1231,45 @@
   color: var(--ink);
 }
 
-/* ───────── Interactive 3D Invitation Showcase ───────── */
-.v2-inv {
-  display: grid;
-  grid-template-columns: minmax(280px, 1.1fr) minmax(0, 0.9fr);
-  gap: 36px;
-  align-items: center;
-  padding: clamp(24px, 4vw, 48px);
-  border-radius: 36px;
-  background: var(--surface);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-dark-shadow);
-  position: relative;
-}
-
-.v2-inv::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  box-shadow: var(--hdr-white-glass);
-  mix-blend-mode: plus-lighter;
-}
-
-.v2-inv__stage {
-  perspective: 1200px;
+/* ───────── Original Interactive 3D Invitation Showcase (no rounded card, no border, original WebGL animation) ───────── */
+.invitation-showcase {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  overflow: visible;
+  padding-inline: 0;
+}
+
+.invitation-showcase > .sub-narrow {
+  margin-bottom: 16px;
+}
+
+.invitation-showcase__stage {
+  display: block;
+  width: 100%;
+  height: clamp(460px, 72vh, 720px);
   min-height: 440px;
-  cursor: grab;
-  touch-action: none;
-  user-select: none;
-}
-
-.v2-inv__stage:active {
-  cursor: grabbing;
-}
-
-.v2-inv__card {
-  position: relative;
-  width: min(300px, 76vw);
-  aspect-ratio: 148 / 210;
-  transform-style: preserve-3d;
-  transition: transform 0.25s ease-out;
-}
-
-.v2-inv__face {
-  position: absolute;
-  inset: 0;
-  backface-visibility: hidden;
-  border-radius: 14px;
-  overflow: hidden;
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.45);
-  background: #f6f1e9;
-}
-
-.v2-inv__face--back {
-  transform: rotateY(180deg);
-}
-
-.v2-inv__layer {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  pointer-events: none;
-}
-
-.v2-inv__guest-name {
-  position: absolute;
-  top: 29%;
-  left: 10%;
-  right: 10%;
-  text-align: center;
-  font-family: var(--font-display);
-  font-size: 28px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #2b231d;
-  z-index: 4;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
-}
-
-.v2-inv__panel {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-.v2-inv__badge {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--lime);
-}
-
-:root[data-theme='light'] .v2-inv__badge {
-  color: #4b6400;
-}
-
-.v2-inv__title {
-  font-family: var(--font-display);
-  font-weight: 500;
-  font-size: clamp(30px, 3.6vw, 46px);
-  line-height: 0.98;
-  text-transform: uppercase;
-  color: var(--ink);
   margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
-.v2-inv__desc {
-  margin: 0;
-  font-size: 15px;
-  line-height: 1.6;
-  color: var(--ink);
+@media (max-width: 860px) {
+  .invitation-showcase__stage {
+    height: clamp(420px, 68vh, 580px);
+    min-height: 380px;
+  }
 }
 
-.v2-inv__field {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.v2-inv__field span {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink);
-}
-
-.v2-inv__field input {
-  padding: 13px 16px;
-  border-radius: 16px;
-  border: 1px solid var(--glass-border);
-  background: rgba(var(--ink-rgb), 0.06);
-  color: var(--ink);
-  font-size: 15px;
-  outline: none;
-}
-
-.v2-inv__field input:focus {
-  border-color: var(--lime);
-}
-
-.v2-inv__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.v2-inv__code-form {
-  display: flex;
-  align-items: flex-end;
-  gap: 10px;
-}
-
-.v2-inv__code-form .v2-inv__field {
-  flex: 1;
-}
-
-.v2-inv__postbox {
-  position: relative;
-  width: min(300px, 74vw);
-  aspect-ratio: 1154 / 1615;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  border-radius: 20px;
-  overflow: hidden;
-  background: #f4efe4;
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
-  transition: transform 0.3s var(--ease);
-}
-
-.v2-inv__postbox:hover {
-  transform: scale(1.03);
-}
-
-.v2-inv__postbox-body,
-.v2-inv__postbox-flap {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  pointer-events: none;
-}
-
-.v2-inv__postbox-flap {
-  z-index: 2;
-}
-
-.v2-inv__postbox-badge {
-  position: absolute;
-  bottom: 18px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 3;
-  padding: 8px 18px;
-  border-radius: var(--radius-pill);
-  background: #0a0a0a;
-  color: var(--lime);
-  font-family: var(--font-nav);
-  font-size: 16px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+@media (max-height: 550px) {
+  .invitation-showcase__stage {
+    height: 320px;
+    min-height: 300px;
+  }
 }
 
 /* ───────── Resume Page ───────── */
@@ -1776,18 +1581,25 @@
 
   .sub-hero__head-wrap,
   .sub-hero__inner,
+  .sub-hero__body-wrap,
   .sub-hero__lines,
   .sub-cta-row,
   .sub-section__head,
   .sub-narrow,
   .sub-fishblock__inner,
   .sub-clients > .content,
-  .subpage .request-title {
+  .subpage .request-title,
+  .v2-pinned .sub-narrow {
     width: 100%;
     max-width: none;
     padding-inline: 20px;
+    box-sizing: border-box;
     text-align: center;
     align-items: center;
+  }
+
+  .sub-hero__body-wrap .sub-hero__lines {
+    padding-inline: 0;
   }
 
   .sub-narrow,
@@ -1820,8 +1632,7 @@
   }
 
   .v2-cv__h2,
-  .sub-cmp__title,
-  .v2-inv__title {
+  .sub-cmp__title {
     font-size: 28px;
     line-height: 1.02;
     letter-spacing: 0;
@@ -1842,7 +1653,6 @@
   .v2-pinned__text,
   .sub-cmp__body,
   .sub-pipe__text,
-  .v2-inv__desc,
   .v2-cv__p,
   .v2-cv__role,
   .v2-cv__location,
@@ -1861,20 +1671,31 @@
     color: #0a0a0a;
   }
 
-  /* All non-carousel blocks constrained to 360px centered */
+  /* Guarantee 20px side margins from screen edges for text & blocks on mobile;
+     .sub-bigcase and .invitation-showcase__stage remain full page width */
   .sub-hero__meta,
-  .sub-bigcase,
   .sub-beh__grid,
   .sub-aboutglass,
   .v2-pinned__grid,
   .sub-cmp__grid,
   .sub-tools,
   .sub-pipe__grid,
-  .v2-inv,
   .v2-cv {
-    width: min(360px, 100%);
+    width: min(360px, calc(100% - 40px));
     max-width: 360px;
     margin-inline: auto;
+  }
+
+  .sub-hero__meta,
+  .sub-tools {
+    padding-inline: 0;
+  }
+
+  .sub-bigcase {
+    width: 100%;
+    max-width: none;
+    border-radius: 0;
+    box-shadow: none;
   }
 
   /* Centered meta, chips, kv */
@@ -1917,41 +1738,46 @@
     margin-bottom: 18px;
   }
 
-  /* Full-width carousels on mobile — images full width, original aspect ratio preserved! */
+  /* Full-width carousels on mobile — ALL cards share identical height (no tall/short vertical gaps!) */
   .v2-flow--card .v2-flow__slide,
-  .v2-flow--wide .v2-flow__slide {
-    width: calc(100vw - 32px);
+  .v2-flow--wide .v2-flow__slide,
+  .v2-flow--photo .v2-flow__slide {
+    width: auto;
   }
 
-  .v2-flow--card .v2-flow__card,
+  .v2-flow--card .v2-flow__card {
+    width: auto;
+    height: clamp(230px, 58vw, 300px);
+    border-radius: 28px;
+    clip-path: inset(0 round 28px);
+  }
+
   .v2-flow--wide .v2-flow__card {
-    width: 100%;
+    width: auto;
+    height: clamp(230px, 58vw, 310px);
+    border-radius: 28px;
+    clip-path: inset(0 round 28px);
+  }
+
+  .v2-flow--photo .v2-flow__card {
+    width: auto;
+    height: clamp(300px, 74vw, 380px);
     border-radius: 28px;
     clip-path: inset(0 round 28px);
   }
 
   .v2-flow--card .v2-flow__card img,
-  .v2-flow--wide .v2-flow__card img {
-    width: 100%;
-    height: auto;
-    max-width: 100%;
-  }
-
-  .v2-flow--photo .v2-flow__card {
-    border-radius: 28px;
-    clip-path: inset(0 round 28px);
-  }
-
+  .v2-flow--wide .v2-flow__card img,
   .v2-flow--photo .v2-flow__card img {
-    height: min(56vh, 360px);
     width: auto;
-    max-width: calc(100vw - 32px);
+    height: 100%;
+    max-width: none;
   }
 
-  /* AR aboutglass, pinned, compare, pipeline, invitation, CV single-column centered */
+  /* AR aboutglass, pinned, compare, pipeline, CV single-column centered */
   .sub-aboutglass {
     grid-template-columns: 1fr;
-    padding: 22px;
+    padding: 22px 20px;
     gap: 20px;
     text-align: center;
   }
@@ -1995,31 +1821,6 @@
     padding: 24px 20px;
     align-items: center;
     text-align: center;
-  }
-
-  .v2-inv {
-    grid-template-columns: 1fr;
-    padding: 22px 18px;
-    gap: 22px;
-  }
-
-  .v2-inv__stage {
-    min-height: 320px;
-  }
-
-  .v2-inv__panel {
-    align-items: center;
-    text-align: center;
-  }
-
-  .v2-inv__code-form {
-    width: 100%;
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .v2-inv__actions {
-    justify-content: center;
   }
 
   .v2-cv__head {

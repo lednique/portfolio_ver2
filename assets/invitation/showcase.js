@@ -1,11 +1,32 @@
 (function () {
-  const host = document.querySelector('[data-invitation-demo]');
-  if (!host) return;
-  fetch('assets/invitation/showcase.html?v=20261110e').then(function (response) {
-    if (!response.ok) throw new Error('Invitation showcase failed to load');
-    return response.text();
-  }).then(function (html) {
-    host.attachShadow({mode:'open'}).innerHTML = html;
+  var htmlPromise = null;
+  function loadHtml() {
+    if (!htmlPromise) {
+      htmlPromise = fetch('./assets/invitation/showcase.html?v=20261125a').then(function (response) {
+        if (!response.ok) throw new Error('Invitation showcase failed to load');
+        return response.text();
+      });
+    }
+    return htmlPromise;
+  }
+
+  function mountInvitation(targetHost) {
+    var host = targetHost || document.querySelector('[data-invitation-demo]');
+    if (!host) return function () {};
+    var disposed = false;
+    var cleanups = [];
+    var cleanup = function () {
+      disposed = true;
+      cleanups.forEach(function (fn) {
+        try { fn(); } catch (e) {}
+      });
+      cleanups.length = 0;
+    };
+
+    loadHtml().then(function (html) {
+      if (disposed || !host.isConnected) return;
+      var shadow = host.shadowRoot || host.attachShadow({ mode: 'open' });
+      shadow.innerHTML = html;
 
 /* ============================================================
    Сайт-открытка – логика
@@ -20,9 +41,6 @@
 (function () {
   'use strict';
 
-  const host = document.querySelector('[data-invitation-demo]');
-  if (!host) return;
-  const shadow = host.shadowRoot;
   const body = shadow.querySelector('.demo-root');
   const stage = shadow.getElementById('cardStage');
   const canvas  = shadow.getElementById('cardCanvas');
@@ -606,13 +624,22 @@
 
   /* ------------------------------------------------------------ */
   let rt = 0;
-  window.addEventListener('resize', function () {
+  function onResizeMain() {
+    if (disposed) return;
     clearTimeout(rt);
     if (!mobileBackZoomEnabled()) resetBackZoom();
-    rt = setTimeout(function () { measure(); kick(); }, 100);
-  });
-  window.addEventListener('orientationchange', function () {
-    setTimeout(function () { measure(); kick(); }, 240);
+    rt = setTimeout(function () { if (!disposed) { measure(); kick(); } }, 100);
+  }
+  function onOrient() {
+    if (disposed) return;
+    setTimeout(function () { if (!disposed) { measure(); kick(); } }, 240);
+  }
+  window.addEventListener('resize', onResizeMain);
+  window.addEventListener('orientationchange', onOrient);
+  cleanups.push(function () {
+    clearTimeout(rt);
+    window.removeEventListener('resize', onResizeMain);
+    window.removeEventListener('orientationchange', onOrient);
   });
 
   /* ------------------------------------------------------------
@@ -665,7 +692,11 @@
     setTimeout(ready, 2200);
   }
 
-  window.addEventListener('load', function () { measure(); kick(); });
+  function onLoadReady() {
+    if (!disposed) { measure(); kick(); }
+  }
+  window.addEventListener('load', onLoadReady);
+  cleanups.push(function () { window.removeEventListener('load', onLoadReady); });
 
   // The scene starts when its centre reaches the middle of the viewport.
   let demoTimer = 0, generation = 0, active = false, played = false;
@@ -769,13 +800,32 @@
   }
   window.addEventListener('scroll', checkVisibility, { passive: true });
   window.addEventListener('resize', checkVisibility);
-  if ('ResizeObserver' in window) new ResizeObserver(function () { measure(); kick(); checkVisibility(); }).observe(stage);
+  var roStage = null;
+  if ('ResizeObserver' in window) {
+    roStage = new ResizeObserver(function () { if (!disposed) { measure(); kick(); checkVisibility(); } });
+    roStage.observe(stage);
+  }
   document.addEventListener('visibilitychange', checkVisibility);
+  cleanups.push(function () {
+    ++generation;
+    clearTimeout(demoTimer);
+    clearTimeout(openTimer);
+    clearTimeout(closeTimer);
+    clearBackZoomTimer();
+    window.removeEventListener('scroll', checkVisibility);
+    window.removeEventListener('resize', checkVisibility);
+    document.removeEventListener('visibilitychange', checkVisibility);
+    if (roStage) roStage.disconnect();
+  });
   checkVisibility();
 
 
 })();
 
 
-  }).catch(function (error) { console.error(error); });
+    }).catch(function (error) { console.error(error); });
+    return cleanup;
+  }
+
+  window.__mountLedniqueInvitation = mountInvitation;
 })();
