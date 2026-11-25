@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useCms } from '../data/CmsContext';
 import { useI18n } from '../i18n/I18nContext';
 import { useStillMode } from '../hooks/useA11y';
+import { useSubHeroMotion } from '../hooks/useSubHeroMotion';
 import { FlowCarousel } from '../components/FlowCarousel';
 import { Lightbox } from '../components/Lightbox';
 import { PinnedSteps } from '../components/PinnedSteps';
@@ -61,6 +62,7 @@ export function AiPage() {
   const { cms } = useCms();
   const { t } = useI18n();
   const [lightboxItem, setLightboxItem] = useState(null);
+  const heroRef = useSubHeroMotion();
 
   const scrollToForm = (e) => {
     e.preventDefault();
@@ -69,10 +71,11 @@ export function AiPage() {
 
   return (
     <div className="subpage subpage--ai">
-      {/* 1. Hero section + wide carousel */}
-      <section className="sub-hero sub-hero--ai">
+      {/* 1. Hero section + wide carousel + ×3 scroll bg zoom */}
+      <section className="sub-hero sub-hero--ai" ref={heroRef} data-hero>
         <div
           className="sub-hero__bg"
+          data-bg
           aria-hidden="true"
           style={{ backgroundImage: 'url(./assets/bg/bg_ai.svg)' }}
         />
@@ -116,35 +119,33 @@ export function AiPage() {
         </div>
       </section>
 
-      {/* 2. Story block */}
+      {/* 2. Story block — plain open section matching original */}
       <section className="sub-section content">
-        <div className="sub-glass-panel">
-          <div className="sub-narrow">
-            <span className="sub-eyebrow">{t('Почему это работает')}</span>
-            <Reveal as="h2" className="sub-heading">
-              {t('Съёмка без съёмочного дня')}
-            </Reveal>
-            <Reveal as="p" className="sub-lead" delay={0.08}>
-              {t(
-                'Обычная предметная съёмка – это студия, свет, фотограф, модель, реквизит, день работы и бюджет, который надо согласовать. И в лучшем случае получится пять кадров, из которых будет утверждено два.'
-              )}
-            </Reveal>
-            <Reveal as="p" className="sub-lead" delay={0.14}>
-              {t('Нейрофотосессия даёт')}{' '}
-              <b>{t('десятки сцен в разных локациях и с разным светом за сутки')}</b>{' '}
-              {t(
-                '– и вы выбираете из готового, а не из того, что успели снять. При этом товар остаётся собой: силуэт, цвет, фактура и детали не «додумываются» нейросетью, потому что я контролирую материал на каждом шаге.'
-              )}
-            </Reveal>
-            <div className="sub-cta-row">
-              <a
-                className="v2-pill-btn v2-pill-btn--lime"
-                href="#request"
-                onClick={scrollToForm}
-              >
-                {t('Обсудить проект')}
-              </a>
-            </div>
+        <div className="sub-narrow">
+          <span className="sub-eyebrow">{t('Почему это работает')}</span>
+          <Reveal as="h2" className="sub-heading">
+            {t('Съёмка без съёмочного дня')}
+          </Reveal>
+          <Reveal as="p" className="sub-lead" delay={0.08}>
+            {t(
+              'Обычная предметная съёмка – это студия, свет, фотограф, модель, реквизит, день работы и бюджет, который надо согласовать. И в лучшем случае получится пять кадров, из которых будет утверждено два.'
+            )}
+          </Reveal>
+          <Reveal as="p" className="sub-lead" delay={0.14}>
+            {t('Нейрофотосессия даёт')}{' '}
+            <b>{t('десятки сцен в разных локациях и с разным светом за сутки')}</b>{' '}
+            {t(
+              '– и вы выбираете из готового, а не из того, что успели снять. При этом товар остаётся собой: силуэт, цвет, фактура и детали не «додумываются» нейросетью, потому что я контролирую материал на каждом шаге.'
+            )}
+          </Reveal>
+          <div className="sub-cta-row">
+            <a
+              className="v2-pill-btn v2-pill-btn--lime"
+              href="#request"
+              onClick={scrollToForm}
+            >
+              {t('Обсудить проект')}
+            </a>
           </div>
         </div>
       </section>
@@ -165,7 +166,7 @@ export function AiPage() {
 
         <FlowCarousel
           items={cms.ai.productGallery}
-          variant="portrait"
+          variant="card"
           ariaLabel="Нейрофотосессии товаров"
           onSelect={setLightboxItem}
         />
@@ -187,7 +188,7 @@ export function AiPage() {
 
         <FlowCarousel
           items={cms.ai.modelGallery}
-          variant="portrait"
+          variant="photo"
           ariaLabel="Нейрофотосессии модели"
           onSelect={setLightboxItem}
         />

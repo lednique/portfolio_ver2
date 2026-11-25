@@ -1,8 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useCms } from '../data/CmsContext';
 import { useI18n } from '../i18n/I18nContext';
 import { useStillMode } from '../hooks/useA11y';
+import { useSubHeroMotion } from '../hooks/useSubHeroMotion';
 import { FlowCarousel } from '../components/FlowCarousel';
 import { InvitationShowcase } from '../components/InvitationShowcase';
 import { Lightbox } from '../components/Lightbox';
@@ -50,19 +51,7 @@ export function DesignPage() {
   const { cms } = useCms();
   const { t } = useI18n();
   const [lightboxItem, setLightboxItem] = useState(null);
-  const heroRef = useRef(null);
-  const [parallax, setParallax] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    if (still) return;
-    const onMove = (e) => {
-      const nx = (e.clientX / window.innerWidth - 0.5) * 2;
-      const ny = (e.clientY / window.innerHeight - 0.5) * 2;
-      setParallax({ x: nx, y: ny });
-    };
-    window.addEventListener('pointermove', onMove, { passive: true });
-    return () => window.removeEventListener('pointermove', onMove);
-  }, [still]);
+  const heroRef = useSubHeroMotion();
 
   const scrollToForm = (e) => {
     e.preventDefault();
@@ -71,10 +60,11 @@ export function DesignPage() {
 
   return (
     <div className="subpage subpage--design">
-      {/* 1. Hero section */}
-      <section className="sub-hero sub-hero--design" ref={heroRef}>
+      {/* 1. Hero section — original Design hero composition (plain image + original fish layers + ×3 scroll bg zoom) */}
+      <section className="sub-hero sub-hero--design" ref={heroRef} data-hero>
         <div
           className="sub-hero__bg"
+          data-bg
           aria-hidden="true"
           style={{ backgroundImage: 'url(./assets/bg/bg_design.svg)' }}
         />
@@ -82,73 +72,38 @@ export function DesignPage() {
           <img src="./assets/bg/design_fishes.svg" alt="" />
         </div>
 
-        <div className="content sub-hero__inner">
+        <div className="content sub-hero__head-wrap">
           <Reveal as="h1" className="sub-hero__title" immediate delay={0.08} stagger={0.055}>
             {t('Графический дизайн')}
           </Reveal>
+        </div>
 
-          <motion.div
-            className="sub-hero__visual sub-hero__visual--design"
-            initial={still ? false : { opacity: 0, y: 24, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.65, delay: 0.16, ease: EASE_OUT }}
-          >
-            <button
-              type="button"
-              className="sub-hero__img-btn"
-              onClick={() =>
-                setLightboxItem({
-                  src: './assets/gfx/design-hero.jpg',
-                  alt: t('Графический дизайн — LEDNIQUE'),
-                })
-              }
-              aria-label={t('Открыть превью графического дизайна')}
-            >
-              <img
-                src="./assets/gfx/design-hero.jpg"
-                alt={t('Графический дизайн')}
-                width={1400}
-                height={736}
-              />
-            </button>
+        {/* Original heroimg + parallax fish layer (no card border, no box-shadow, no border-radius) */}
+        <div className="sub-design-heroimg">
+          <div className="sub-design-heroimg__in">
+            <img
+              className="sub-design-heroimg__pic"
+              src="./assets/gfx/design-hero.jpg"
+              alt={t('Графический дизайн')}
+              width={1400}
+              height={736}
+            />
+          </div>
+          <div className="sub-design-heroimg__fish-layer" aria-hidden="true">
+            <div className="pfish pfish--1" data-depth="1.6">
+              <img src="./assets/fish/group1.svg" alt="" />
+            </div>
+            <div className="pfish pfish--2" data-depth="1.0">
+              <img src="./assets/fish/group2.svg" alt="" />
+            </div>
+            <div className="pfish pfish--3" data-depth="2.0">
+              <img src="./assets/fish/group3.svg" alt="" />
+            </div>
+          </div>
+        </div>
 
-            {!still && (
-              <div className="sub-hero__fish-layer" aria-hidden="true">
-                <div
-                  className="pfish pfish--1"
-                  style={{
-                    transform: `translate3d(${(parallax.x * -18).toFixed(1)}px, ${(
-                      parallax.y * -14
-                    ).toFixed(1)}px, 0)`,
-                  }}
-                >
-                  <img src="./assets/fish/group1.svg" alt="" />
-                </div>
-                <div
-                  className="pfish pfish--2"
-                  style={{
-                    transform: `translate3d(${(parallax.x * 12).toFixed(1)}px, ${(
-                      parallax.y * 10
-                    ).toFixed(1)}px, 0)`,
-                  }}
-                >
-                  <img src="./assets/fish/group2.svg" alt="" />
-                </div>
-                <div
-                  className="pfish pfish--3"
-                  style={{
-                    transform: `translate3d(${(parallax.x * -24).toFixed(1)}px, ${(
-                      parallax.y * 16
-                    ).toFixed(1)}px, 0)`,
-                  }}
-                >
-                  <img src="./assets/fish/group3.svg" alt="" />
-                </div>
-              </div>
-            )}
-          </motion.div>
-
-          <Reveal as="p" className="sub-hero__lines" delay={0.22}>
+        <div className="content sub-hero__body-wrap">
+          <Reveal as="p" className="sub-hero__lines" delay={0.2}>
             {t('Рафтингую между софтом Адобе, Figma и Нано Бананами более 12 лет.')}
             <br />
             {t('Играюсь с шрифтами и кривыми Безье.')}
@@ -160,6 +115,7 @@ export function DesignPage() {
             {t('Кстати, рафтингую между софтом Адобе, Figma и Нано Бананами более 12 лет..')}
           </Reveal>
 
+          {/* Plain open meta layout — NO rounded box */}
           <div className="sub-hero__meta">
             <div className="sub-hero__meta-chips">
               <span className="sub-eyebrow">{t('Перечень выполняемых работ')}</span>
@@ -185,34 +141,32 @@ export function DesignPage() {
         </div>
       </section>
 
-      {/* 2. Fishblock — "Дизайн не стухнет" */}
+      {/* 2. Fishblock — "Дизайн не стухнет" (NO rounded box; fish centered right above text like original) */}
       <section className="sub-section content sub-fishblock">
-        <div className="sub-fishblock__card">
-          <img
-            className="sub-fishblock__fish"
-            src="./assets/fish/group4.svg"
-            alt=""
-            aria-hidden="true"
-          />
-          <div className="sub-narrow">
-            <span className="sub-eyebrow">{t('Почему это работает')}</span>
-            <Reveal as="h2" className="sub-heading">
-              {t('Дизайн не стухнет')}
-            </Reveal>
-            <Reveal as="p" className="sub-lead" delay={0.08}>
-              {t(
-                'Каждый проект начинается с глубокого погружения: я анализирую контекст, изучаю актуальные направления в дизайне и собираю референсы, чтобы выстроить чёткую визуальную стратегию ещё до первого эскиза. Я не работаю в режиме «скажите – сделаю». Вместо этого предлагаю обоснованные решения, опираясь на психологию восприятия и механику внимания, и готов отстаивать свою позицию, подкрепляя её логикой и фактами.'
-              )}
-            </Reveal>
-            <div className="sub-cta-row">
-              <a
-                className="v2-pill-btn v2-pill-btn--lime"
-                href="#request"
-                onClick={scrollToForm}
-              >
-                {t('Обсудить проект')}
-              </a>
-            </div>
+        <img
+          className="sub-fishblock__fish"
+          src="./assets/fish/group4.svg"
+          alt=""
+          aria-hidden="true"
+        />
+        <div className="sub-narrow">
+          <span className="sub-eyebrow">{t('Почему это работает')}</span>
+          <Reveal as="h2" className="sub-heading">
+            {t('Дизайн не стухнет')}
+          </Reveal>
+          <Reveal as="p" className="sub-lead" delay={0.08}>
+            {t(
+              'Каждый проект начинается с глубокого погружения: я анализирую контекст, изучаю актуальные направления в дизайне и собираю референсы, чтобы выстроить чёткую визуальную стратегию ещё до первого эскиза. Я не работаю в режиме «скажите – сделаю». Вместо этого предлагаю обоснованные решения, опираясь на психологию восприятия и механику внимания, и готов отстаивать свою позицию, подкрепляя её логикой и фактами.'
+            )}
+          </Reveal>
+          <div className="sub-cta-row">
+            <a
+              className="v2-pill-btn v2-pill-btn--lime"
+              href="#request"
+              onClick={scrollToForm}
+            >
+              {t('Обсудить проект')}
+            </a>
           </div>
         </div>
       </section>
@@ -310,7 +264,7 @@ export function DesignPage() {
 
         <FlowCarousel
           items={cms.design.identityGallery}
-          variant="portrait"
+          variant="card"
           ariaLabel="Галерея айдентики"
           onSelect={setLightboxItem}
         />
@@ -332,7 +286,7 @@ export function DesignPage() {
 
         <FlowCarousel
           items={cms.design.infographicGallery}
-          variant="portrait"
+          variant="card"
           ariaLabel="Галерея инфографики"
           onSelect={setLightboxItem}
         />

@@ -57,8 +57,8 @@ function NavItem({ link, active, onSelect, t }) {
         onSelect(link);
       }}
     >
-      {active && <span className="menu__active-pill" />}
-      <span>{t(link.label)}</span>
+      {active && <span className="menu__active-pill" aria-hidden="true" />}
+      <span className="menu__item-text">{t(link.label)}</span>
     </a>
   );
 }
@@ -74,8 +74,8 @@ function ResumeLink({ active, compact, onSelect, t }) {
         onSelect();
       }}
     >
-      {active && <span className="menu__active-pill" />}
-      <span>{t(RESUME_ITEM.label)}</span>
+      {active && <span className="menu__active-pill" aria-hidden="true" />}
+      <span className="menu__item-text">{t(RESUME_ITEM.label)}</span>
     </a>
   );
 }

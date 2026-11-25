@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useCms } from '../data/CmsContext';
 import { useI18n } from '../i18n/I18nContext';
 import { useStillMode } from '../hooks/useA11y';
+import { useSubHeroMotion } from '../hooks/useSubHeroMotion';
 import { Lightbox } from '../components/Lightbox';
 import { PinnedSteps } from '../components/PinnedSteps';
 import { RequestBuilder } from '../components/RequestBuilder';
@@ -21,11 +22,11 @@ const AR_CHIPS = [
 ];
 
 const CLIENTS = [
-  { name: 'Mobile Legends', src: './assets/clients/mobile-legends.png', inv: false },
-  { name: 'OSCARxFRANK', src: './assets/clients/oscarxfrank.png', inv: true },
-  { name: 'H&M Beauty', src: './assets/clients/hm-beauty.png', inv: false },
-  { name: 'SLA Paris', src: './assets/clients/sla.png', inv: false },
-  { name: 'Glamnetic', src: './assets/clients/glamnetic.png', inv: false },
+  { name: 'Mobile Legends', src: './assets/clients/mobile-legends.png' },
+  { name: 'OSCARxFRANK', src: './assets/clients/oscarxfrank.png' },
+  { name: 'H&M Beauty', src: './assets/clients/hm-beauty.png' },
+  { name: 'SLA Paris', src: './assets/clients/sla.png' },
+  { name: 'Glamnetic', src: './assets/clients/glamnetic.png' },
 ];
 
 const AR_APPLICATIONS = [
@@ -83,15 +84,17 @@ export function ArPage() {
   const { cms } = useCms();
   const { t } = useI18n();
   const [lightboxItem, setLightboxItem] = useState(null);
+  const heroRef = useSubHeroMotion();
 
   const marqueeSet = [...CLIENTS, ...CLIENTS, ...CLIENTS, ...CLIENTS];
 
   return (
     <div className="subpage subpage--ar">
-      {/* 1. Hero section + 9:16 Video Carousel + Glass bio */}
-      <section className="sub-hero sub-hero--ar">
+      {/* 1. Hero section + 9:16 Video Carousel + Glass bio + ×3 scroll bg zoom */}
+      <section className="sub-hero sub-hero--ar" ref={heroRef} data-hero>
         <div
           className="sub-hero__bg"
+          data-bg
           aria-hidden="true"
           style={{ backgroundImage: 'url(./assets/bg/bg_ar.svg)' }}
         />

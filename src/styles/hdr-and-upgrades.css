@@ -140,19 +140,56 @@
   box-shadow: var(--hdr-white-soft);
 }
 
-/* Active menu pill & pressed controls */
-.menu__active-pill,
-.menu__item.is-active,
-.menu__settings.is-active,
-.menu__settings--unfold.is-active,
-.menu__toggle.is-active,
-.menu__control.is-active {
+/* Active menu pill & pressed controls — ensure label text ALWAYS stays above pill in desktop & mobile */
+.menu__item,
+.menu__logo,
+.menu__settings,
+.menu__toggle,
+.menu__control {
   position: relative;
+  isolation: isolate;
 }
 
 .menu__active-pill {
   position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 1000px;
+  background: var(--pressed-fill);
   box-shadow: var(--pressed-shadow);
+  pointer-events: none;
+}
+
+.menu-wrap--desktop {
+  width: max-content;
+  min-width: 788.502px;
+  max-width: calc(100vw - 32px);
+}
+
+.menu__item > :not(.menu__active-pill),
+.menu__item-text {
+  position: relative;
+  z-index: 4;
+}
+
+.menu__logo > :not(.menu__active-pill) {
+  z-index: 4;
+}
+
+.menu--desktop .menu__item.is-active:not(.menu__settings),
+.menu--mobile .menu__item.is-active:not(.menu__settings),
+.menu__unfold .menu__item.is-active:not(.menu__settings) {
+  background: transparent;
+  box-shadow: none;
+  color: #ffffff;
+}
+
+.menu__item.is-active > :not(.menu__active-pill),
+.menu__item.is-active .menu__item-text,
+[data-theme='light'] .menu__unfold .menu__item.is-active .menu__item-text {
+  color: #ffffff !important;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 .menu__active-pill:after,
@@ -165,7 +202,7 @@
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
-  z-index: 2;
+  z-index: 0;
   mix-blend-mode: plus-lighter;
   box-shadow: var(--hdr-white-btn);
 }
@@ -838,19 +875,31 @@
 :root[data-theme='light'] .menu__panel--dark,
 :root[data-theme='light'] .menu__lang-dropdown {
   background: #333333;
-  color: #ffffff;
+  color: #ffffff !important;
 }
 
+:root[data-theme='light'] .menu__panel--dark *,
+:root[data-theme='light'] .menu__lang-dropdown *,
 :root[data-theme='light'] .menu__lang-option,
 :root[data-theme='light'] .menu__lang-label,
 :root[data-theme='light'] .menu__control--lang-btn {
-  color: #ffffff;
+  color: #ffffff !important;
+  text-shadow: 0 0 12px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* Keep physics box, horizontal carousels & marquees LTR internally even in RTL Arabic */
+:root[data-theme='light'] .menu__lang-option.is-active .menu__lang-label {
+  color: var(--lime) !important;
+}
+
+:root[data-theme='light'] .menu__panel--dark .menu__icon > svg {
+  filter: none !important;
+}
+
+/* Keep physics box, horizontal carousels, progress rail & marquees LTR internally even in RTL Arabic */
 :root[dir='rtl'] .footer__pucks,
 :root[dir='rtl'] .v2-flow,
 :root[dir='rtl'] .v2-ar-carousel,
+:root[dir='rtl'] .v2-rail,
 :root[dir='rtl'] .sub-clients__track {
   direction: ltr;
 }
