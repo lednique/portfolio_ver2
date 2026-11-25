@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useCms } from '../data/CmsContext';
+import { useI18n } from '../i18n/I18nContext';
 import { useStillMode } from '../hooks/useA11y';
 import { Lightbox } from '../components/Lightbox';
 import { PinnedSteps } from '../components/PinnedSteps';
@@ -80,13 +81,14 @@ const AR_PIPELINE = [
 export function ArPage() {
   const still = useStillMode();
   const { cms } = useCms();
+  const { t } = useI18n();
   const [lightboxItem, setLightboxItem] = useState(null);
 
   const marqueeSet = [...CLIENTS, ...CLIENTS, ...CLIENTS, ...CLIENTS];
 
   return (
     <div className="subpage subpage--ar">
-      {/* 1. Hero section + 9:16 Video Carousel (CMS-managed via Admin Tab 3) + Glass bio */}
+      {/* 1. Hero section + 9:16 Video Carousel + Glass bio */}
       <section className="sub-hero sub-hero--ar">
         <div
           className="sub-hero__bg"
@@ -96,7 +98,7 @@ export function ArPage() {
 
         <div className="content sub-hero__inner">
           <Reveal as="h1" className="sub-hero__title" immediate delay={0.08} stagger={0.055}>
-            AR-эффекты в соцсетях
+            {t('AR-эффекты в соцсетях')}
           </Reveal>
         </div>
 
@@ -113,22 +115,22 @@ export function ArPage() {
           >
             <div className="sub-aboutglass__text">
               <p>
-                Создаю цифровую эстетику с технологическим бэкграундом. Специализируюсь на
-                разработке AR-эффектов, которые объединяют дополненную реальность и физический
-                продукт в единый покупательский опыт.
+                {t(
+                  'Создаю цифровую эстетику с технологическим бэкграундом. Специализируюсь на разработке AR-эффектов, которые объединяют дополненную реальность и физический продукт в единый покупательский опыт.'
+                )}
               </p>
               <p>
-                Проектирую всё: от высокоточных виртуальных примерок (Try-on) до сложных
-                3D-аватаров и Digital MUA. Мои решения помогают брендам выделяться в ленте и
-                выстраивать глубокую эмоциональную связь с аудиторией.
+                {t(
+                  'Проектирую всё: от высокоточных виртуальных примерок (Try-on) до сложных 3D-аватаров и Digital MUA. Мои решения помогают брендам выделяться в ленте и выстраивать глубокую эмоциональную связь с аудиторией.'
+                )}
               </p>
             </div>
             <div className="sub-aboutglass__chips">
-              <span className="sub-eyebrow">Перечень выполняемых работ</span>
+              <span className="sub-eyebrow">{t('Перечень выполняемых работ')}</span>
               <div className="sub-chips">
                 {AR_CHIPS.map((chip) => (
                   <span className="tag" key={chip}>
-                    {chip}
+                    {t(chip)}
                   </span>
                 ))}
               </div>
@@ -138,9 +140,9 @@ export function ArPage() {
       </section>
 
       {/* 2. Clients Marquee */}
-      <section className="sub-section sub-clients" aria-label="Клиенты">
+      <section className="sub-section sub-clients" aria-label={t('Клиенты')}>
         <div className="content">
-          <span className="sub-eyebrow">Клиенты</span>
+          <span className="sub-eyebrow">{t('Клиенты')}</span>
         </div>
         <div className="sub-clients__marquee">
           <div className={`sub-clients__track${still ? ' is-still' : ''}`}>
@@ -159,7 +161,7 @@ export function ArPage() {
         </div>
       </section>
 
-      {/* 3. 4 Main AR Applications (PinnedSteps) */}
+      {/* 3. 4 Main AR Applications */}
       <PinnedSteps
         title="4 основных применения AR для бизнеса"
         subtitle="От виртуальной примерки до оживающей упаковки — AR решает реальные маркетинговые задачи."
@@ -170,9 +172,9 @@ export function ArPage() {
       {/* 4. 4-Card Pipeline */}
       <section className="sub-section content sub-pipe">
         <div className="sub-section__head">
-          <span className="sub-eyebrow">Пайплайн</span>
+          <span className="sub-eyebrow">{t('Пайплайн')}</span>
           <Reveal as="h2" className="sub-heading">
-            От брифа до публикации
+            {t('От брифа до публикации')}
           </Reveal>
         </div>
 
@@ -188,14 +190,14 @@ export function ArPage() {
               transition={{ duration: 0.5, delay: i * 0.08, ease: EASE_OUT }}
             >
               <span className="sub-pipe__num">{step.n}</span>
-              <h3 className="sub-pipe__title">{step.title}</h3>
-              <p className="sub-pipe__text">{step.text}</p>
+              <h3 className="sub-pipe__title">{t(step.title)}</h3>
+              <p className="sub-pipe__text">{t(step.text)}</p>
             </motion.article>
           ))}
         </div>
       </section>
 
-      {/* 5. v2 Request Builder (replaces old form) */}
+      {/* 5. v2 Request Builder */}
       <RequestBuilder defaultTopic="AR-Эффект" />
 
       <Lightbox item={lightboxItem} onClose={() => setLightboxItem(null)} />

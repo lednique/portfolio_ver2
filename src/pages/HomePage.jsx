@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { DotLottie } from '@lottiefiles/dotlottie-web';
 import { useCms } from '../data/CmsContext';
+import { useI18n } from '../i18n/I18nContext';
 import { useStillMode } from '../hooks/useA11y';
 import { useRouter } from '../router';
 import { DiscussButtons } from '../components/DiscussButtons';
@@ -129,6 +130,7 @@ function ShaderCanvas() {
 
 function HeroSection() {
   const still = useStillMode();
+  const { t } = useI18n();
   const [isMobile, setIsMobile] = useState(
     () => typeof window !== 'undefined' && window.matchMedia('(max-width: 1000px)').matches
   );
@@ -156,7 +158,7 @@ function HeroSection() {
   }, [still, isMobile]);
 
   return (
-    <section className="hero canvas" aria-label="LEDNIQUE — главная" id="top">
+    <section className="hero canvas" aria-label={t('LEDNIQUE — главная')} id="top">
       <div className="hero__bg" aria-hidden="true">
         <img
           className="hero__bg-fallback"
@@ -196,8 +198,10 @@ function HeroSection() {
           </p>
           <p className="meta">
             GMT +3
-            <br />/ удаленная работа / релокация
-            <br />/ гибрид ижевск
+            <br />
+            {t('/ удаленная работа / релокация')}
+            <br />
+            {t('/ гибрид ижевск')}
           </p>
         </div>
 
@@ -228,6 +232,7 @@ const CASE_SHORT_H = 141;
 function TodaySection() {
   const still = useStillMode();
   const { cms, resolveUrl } = useCms();
+  const { t } = useI18n();
   const { navigate } = useRouter();
   const [isMobile, setIsMobile] = useState(false);
   const [openIdx, setOpenIdx] = useState(0);
@@ -261,12 +266,12 @@ function TodaySection() {
   return (
     <section className="section content" id="design">
       <Reveal as="h2" className="section-title" stagger={0.045}>
-        сегодня в меню – избранные позиции
+        {t('сегодня в меню – избранные позиции')}
       </Reveal>
       <Reveal as="p" className="section-lead" delay={0.15} stagger={0.03}>
-        Актуальные и показательные проекты, над которыми я работал!
+        {t('Актуальные и показательные проекты, над которыми я работал!')}
         <br />
-        Брендинг, дополненная реальность, UI/UX, авторское.
+        {t('Брендинг, дополненная реальность, UI/UX, авторское.')}
       </Reveal>
 
       <div className="cases__grid">
@@ -274,6 +279,8 @@ function TodaySection() {
           const isOpen = !isMobile || openIdx === i;
           const isShort = isMobile && !isOpen;
           const imgSrc = resolveUrl(card.image);
+          const cardTitle = t(card.title);
+          const cardTag = card.tag ? t(card.tag) : '';
 
           return (
             <motion.article
@@ -309,15 +316,15 @@ function TodaySection() {
               }}
               whileHover={!still && !isMobile ? { y: -6 } : undefined}
             >
-              {imgSrc && <img src={imgSrc} alt={card.title} loading="lazy" />}
+              {imgSrc && <img src={imgSrc} alt={cardTitle} loading="lazy" />}
               <div className="case__label">
-                {card.tag && (
+                {cardTag && (
                   <Reveal as="p" className="case__tag" stagger={0.025}>
-                    {card.tag}
+                    {cardTag}
                   </Reveal>
                 )}
                 <Reveal as="p" className="case__title" stagger={0.025}>
-                  {card.title}
+                  {cardTitle}
                 </Reveal>
               </div>
             </motion.article>
@@ -330,10 +337,11 @@ function TodaySection() {
 
 /* ───────── 3. Statement (oS) ───────── */
 function StatementSection() {
+  const { t } = useI18n();
   return (
     <section className="section content statement">
       <Reveal as="p" stagger={0.055}>
-        моя главная задача — разбор психологии пользователя и создание пути к целям проекта
+        {t('моя главная задача — разбор психологии пользователя и создание пути к целям проекта')}
       </Reveal>
     </section>
   );
@@ -341,6 +349,7 @@ function StatementSection() {
 
 /* ───────── 4. Branding (mS + DotLottie + links to /design) ───────── */
 function BrandingLottie({ still }) {
+  const { t } = useI18n();
   const hostRef = useRef(null);
   const playerRef = useRef(null);
   const inViewRef = useRef(true);
@@ -420,7 +429,7 @@ function BrandingLottie({ still }) {
     <div
       className="branding__lottie"
       ref={hostRef}
-      aria-label="45-секундная анимация брендинга"
+      aria-label={t('45-секундная анимация брендинга')}
       role="img"
     />
   );
@@ -428,31 +437,39 @@ function BrandingLottie({ still }) {
 
 function BrandingSection() {
   const still = useStillMode();
+  const { t } = useI18n();
 
   return (
     <section className="section" id="branding">
       <div className="branding__layout">
         <div className="branding__head">
           <Reveal as="h2" className="h2" stagger={0.055}>
-            Брендинг для бизнес решений
+            {t('Брендинг для бизнес решений')}
           </Reveal>
           <div className="about__copy">
             <Reveal as="p" delay={0.12} stagger={0.028}>
-              <strong>Hello! Меня зовут Виктор. Я – мультидисциплинарный дизайнер</strong>, который
-              собирает айдентику и визуальную систему бренда: <strong>фирменный стиль</strong>,
-              логотипы, <strong>оформление соцсетей</strong> и мастер-макеты публикаций. Отдельно
-              веду продуктовый <strong>дизайн упаковки</strong> и отдельно –{' '}
-              <strong>сайты и лендинги</strong>, которые презентуют компанию и продукт. Беру на себя
-              как точечные задачи, так и полный визуальный пакет.
+              <strong>{t('Hello! Меня зовут Виктор. Я – мультидисциплинарный дизайнер')}</strong>
+              {t(', который собирает айдентику и визуальную систему бренда: ')}
+              <strong>{t('фирменный стиль')}</strong>
+              {t(', логотипы, ')}
+              <strong>{t('оформление соцсетей')}</strong>
+              {t(' и мастер-макеты публикаций. Отдельно веду продуктовый ')}
+              <strong>{t('дизайн упаковки')}</strong>
+              {t(' и отдельно – ')}
+              <strong>{t('сайты и лендинги')}</strong>
+              {t(
+                ', которые презентуют компанию и продукт. Беру на себя как точечные задачи, так и полный визуальный пакет.'
+              )}
             </Reveal>
             <Reveal as="p" delay={0.24} stagger={0.028}>
-              Вместе с вами мы доведем вашу идею до “твердого тела”, благодаря которому с помощью
-              образов и смыслов начнем новый разговор с вашей аудиторией.
+              {t(
+                'Вместе с вами мы доведем вашу идею до “твердого тела”, благодаря которому с помощью образов и смыслов начнем новый разговор с вашей аудиторией.'
+              )}
             </Reveal>
             <Reveal as="p" delay={0.36} stagger={0.028}>
-              Проектирую решения так, чтобы визуальный код был консистентным, идейно содержательным
-              и удобным для развития. На выходе – современная айдентика, которая легко
-              масштабируется под разные носители и говорит с аудиторией одним визуальным языком.
+              {t(
+                'Проектирую решения так, чтобы визуальный код был консистентным, идейно содержательным и удобным для развития. На выходе – современная айдентика, которая легко масштабируется под разные носители и говорит с аудиторией одним визуальным языком.'
+              )}
             </Reveal>
           </div>
           <DiscussButtons worksPath="/design" />
@@ -491,6 +508,7 @@ function AiRail({ still, step, total }) {
 function AiSection() {
   const still = useStillMode();
   const { cms, resolveUrl } = useCms();
+  const { t } = useI18n();
   const [isMobile, setIsMobile] = useState(false);
   const [step, setStep] = useState(0);
   const [panelCollapsed, setPanelCollapsed] = useState(false);
@@ -548,7 +566,7 @@ function AiSection() {
   const railProps = {
     role: 'slider',
     tabIndex: 0,
-    'aria-label': 'Прогресс слайдов AI',
+    'aria-label': t('Прогресс слайдов AI'),
     'aria-valuemin': 0,
     'aria-valuemax': Math.max(0, total - 1),
     'aria-valuenow': safeStep,
@@ -573,7 +591,7 @@ function AiSection() {
                 key={item.id || idx}
                 className="ai__slide"
                 src={src}
-                alt={item.alt || ''}
+                alt={item.alt ? t(item.alt) : ''}
                 draggable={false}
                 style={{
                   opacity: isCurrent ? 1 : 0,
@@ -606,15 +624,15 @@ function AiSection() {
               >
                 <div className="feature__panel-top">
                   <Reveal as="h2" className="h2" stagger={0.05}>
-                    AI-Продакшн
+                    {t('AI-Продакшн')}
                   </Reveal>
                   <button
                     type="button"
                     className="discuss__button ai__toggle-btn"
                     onClick={() => setPanelCollapsed(true)}
                     aria-expanded="true"
-                    aria-label="Свернуть описание, чтобы рассмотреть фото"
-                    title="Свернуть описание"
+                    aria-label={t('Свернуть описание, чтобы рассмотреть фото')}
+                    title={t('Свернуть описание')}
                   >
                     <ChatSlashIcon size={20} />
                   </button>
@@ -630,9 +648,9 @@ function AiSection() {
                   >
                     {para.map((seg, sIdx) =>
                       seg.b ? (
-                        <strong key={sIdx}>{seg.t}</strong>
+                        <strong key={sIdx}>{t(seg.t)}</strong>
                       ) : (
-                        <span key={sIdx}>{seg.t}</span>
+                        <span key={sIdx}>{t(seg.t)}</span>
                       )
                     )}
                   </Reveal>
@@ -650,7 +668,6 @@ function AiSection() {
           )}
         </div>
 
-        {/* Floating button to show description again (Chat.svg) */}
         <AnimatePresence>
           {panelCollapsed && (
             <motion.button
@@ -659,15 +676,15 @@ function AiSection() {
               className="discuss__button ai__toggle-btn ai__toggle-btn--floating is-collapsed"
               onClick={() => setPanelCollapsed(false)}
               aria-expanded="false"
-              aria-label="Показать описание AI-Продакшн"
-              title="Показать описание"
+              aria-label={t('Показать описание AI-Продакшн')}
+              title={t('Показать описание')}
               initial={still ? false : { opacity: 0, scale: 0.9, y: 8 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={still ? undefined : { opacity: 0, scale: 0.9, y: 8 }}
               transition={{ duration: still ? 0 : 0.25, ease: EASE_OUT }}
             >
               <ChatIcon size={20} />
-              <span>описание</span>
+              <span>{t('описание')}</span>
             </motion.button>
           )}
         </AnimatePresence>
@@ -679,6 +696,7 @@ function AiSection() {
 /* ───────── 6. AR эффекты (xS + BearZero + QR + links to /ar) ───────── */
 function ArSection() {
   const still = useStillMode();
+  const { t } = useI18n();
   const mediaRef = useRef(null);
 
   const onPointerMove = (e) => {
@@ -710,7 +728,7 @@ function ArSection() {
               <div className="ar__media-card">
                 <img
                   src="./assets/figma/_dc/41327d7c1c823061b4b971c492ca17241a880881.webp"
-                  alt="AR-эффект BearZero"
+                  alt={t('AR-эффект BearZero')}
                   loading="lazy"
                 />
               </div>
@@ -719,29 +737,31 @@ function ArSection() {
               <img
                 className="ar__qr-img"
                 src="./assets/figma/46a83.svg"
-                alt="QR-код AR-эффекта"
+                alt={t('QR-код AR-эффекта')}
               />
               <Reveal as="p" className="ar__qr-copy ar__qr-copy--desktop" stagger={0.03}>
-                Отсканируйте
+                {t('Отсканируйте')}
                 <br />
-                QR-код на телефоне
+                {t('QR-код на телефоне')}
                 <br />
                 <br />
-                AR в браузере
+                {t('AR в браузере')}
               </Reveal>
               <Reveal as="p" className="ar__qr-copy ar__qr-copy--mobile" stagger={0.03}>
-                откройте эту страницу
-                <br /> на компьютере
-                <br />и Отсканируйте
+                {t('откройте эту страницу')}
                 <br />
-                QR-код на телефоне
+                {t('на компьютере')}
+                <br />
+                {t('и Отсканируйте')}
+                <br />
+                {t('QR-код на телефоне')}
               </Reveal>
             </div>
           </div>
 
           <div className="feature__copy">
             <Reveal as="h2" className="h2" stagger={0.05}>
-              AR эффекты
+              {t('AR эффекты')}
             </Reveal>
             {AR_COPY.map((para, pIdx) => (
               <Reveal
@@ -753,9 +773,9 @@ function ArSection() {
               >
                 {para.map((seg, sIdx) =>
                   seg.b ? (
-                    <strong key={sIdx}>{seg.t}</strong>
+                    <strong key={sIdx}>{t(seg.t)}</strong>
                   ) : (
-                    <span key={sIdx}>{seg.t}</span>
+                    <span key={sIdx}>{t(seg.t)}</span>
                   )
                 )}
               </Reveal>
@@ -808,41 +828,51 @@ function ToolRow({ items }) {
 
 function AboutSection() {
   const still = useStillMode();
+  const { t } = useI18n();
 
   return (
     <section className="section content" id="about">
       <div className="about">
         <div className="about__copy">
           <Reveal as="h2" className="h2" stagger={0.05}>
-            обо мне
+            {t('обо мне')}
           </Reveal>
           <Reveal as="p" delay={0.12} stagger={0.022}>
-            <strong>Мультидиcциплинарный дизайнер с практичным мышлением.</strong> За плечами
-            художественная школа + высшее по художественной и промышленной технологии обработки
-            материалов – создаю дизайн, который не просто красив, а технически грамотен и работает
-            на результат.
+            <strong>{t('Мультидиcциплинарный дизайнер с практичным мышлением.')}</strong>
+            {t(
+              ' За плечами художественная школа + высшее по художественной и промышленной технологии обработки материалов – создаю дизайн, который не просто красив, а технически грамотен и работает на результат.'
+            )}
           </Reveal>
           <Reveal as="p" delay={0.24} stagger={0.045}>
-            <strong>Что делаю:</strong>
+            <strong>{t('Что делаю:')}</strong>
           </Reveal>
           <Reveal as="p" delay={0.36} stagger={0.022}>
-            – Визуальное оформление – карточки, баннеры, обложки, контент
-            <br />– Полиграфия и айдентика – от визиток до упаковки, с учётом допечатной подготовки
-            <br />– Инфографика для маркетплейсов, соцсетей и презентаций
-            <br />– Графический дизайн любой сложности – графические редакторы на продвинутом уровне
-            <br />– 3D-визуализация в Blender и AR-проекты – когда задаче нужен объём и интерактив
+            {t('– Визуальное оформление – карточки, баннеры, обложки, контент')}
+            <br />
+            {t('– Полиграфия и айдентика – от визиток до упаковки, с учётом допечатной подготовки')}
+            <br />
+            {t('– Инфографика для маркетплейсов, соцсетей и презентаций')}
+            <br />
+            {t('– Графический дизайн любой сложности – графические редакторы на продвинутом уровне')}
+            <br />
+            {t('– 3D-визуализация в Blender и AR-проекты – когда задаче нужен объём и интерактив')}
           </Reveal>
           <Reveal as="p" delay={0.48} stagger={0.045}>
-            <strong>Почему я:</strong>
+            <strong>{t('Почему я:')}</strong>
           </Reveal>
           <Reveal as="p" delay={0.6} stagger={0.022}>
-            – Понимаю, как дизайн будет жить в реальности → минимум правок
-            <br />– Внедряю нейросети → быстрее и дешевле для вас
-            <br />– Я закрываю задачи, на которые обычно нужно несколько специалистов
-            <br />– Не пропадаю, слышу задачу, довожу до конца
+            {t('– Понимаю, как дизайн будет жить в реальности → минимум правок')}
+            <br />
+            {t('– Внедряю нейросети → быстрее и дешевле для вас')}
+            <br />
+            {t('– Я закрываю задачи, на которые обычно нужно несколько специалистов')}
+            <br />
+            {t('– Не пропадаю, слышу задачу, довожу до конца')}
           </Reveal>
           <Reveal as="p" delay={0.72} stagger={0.03}>
-            <strong>Напишите – обсудим, что нужно сделать, и подберу лучшее решение</strong>
+            <strong>
+              {t('Напишите – обсудим, что нужно сделать, и подберу лучшее решение')}
+            </strong>
           </Reveal>
         </div>
 
@@ -857,22 +887,22 @@ function AboutSection() {
         >
           <motion.div className="about__person" variants={ITEM_VARIANTS}>
             <motion.div className="about__avatar" variants={ITEM_VARIANTS}>
-              <img src="./assets/figma/06a14.png" alt="Виктор Власов" loading="lazy" />
+              <img src="./assets/figma/06a14.png" alt={t('Виктор Власов')} loading="lazy" />
             </motion.div>
             <motion.div className="about__name" variants={ROW_VARIANTS}>
               <Reveal as="strong" stagger={0.06}>
-                <span>Виктор</span>
-                <span>Власов</span>
+                <span>{t('Виктор')}</span>
+                <span>{t('Власов')}</span>
               </Reveal>
               <Reveal as="span" className="about__age" stagger={0.06}>
-                26 лет
+                {t('26 лет')}
               </Reveal>
             </motion.div>
           </motion.div>
 
           <motion.div variants={ITEM_VARIANTS}>
             <Reveal as="h3" className="about__tools-title" stagger={0.05}>
-              инструментарий
+              {t('инструментарий')}
             </Reveal>
           </motion.div>
 
@@ -881,7 +911,7 @@ function AboutSection() {
               <ToolRow items={TOOLS.graphic} />
               <motion.div variants={ITEM_VARIANTS}>
                 <Reveal as="p" className="tools__caption" stagger={0.06}>
-                  Графика
+                  {t('Графика')}
                 </Reveal>
               </motion.div>
             </motion.div>
@@ -891,7 +921,7 @@ function AboutSection() {
                 <ToolRow items={[TOOLS.video]} />
                 <motion.div variants={ITEM_VARIANTS}>
                   <Reveal as="p" className="tools__caption" stagger={0.06}>
-                    Видео
+                    {t('Видео')}
                   </Reveal>
                 </motion.div>
               </motion.div>
@@ -900,7 +930,7 @@ function AboutSection() {
                 <ToolRow items={TOOLS.ar} />
                 <motion.div variants={ITEM_VARIANTS}>
                   <Reveal as="p" className="tools__caption" stagger={0.06}>
-                    AR эффекты
+                    {t('AR эффекты')}
                   </Reveal>
                 </motion.div>
               </motion.div>
@@ -919,7 +949,7 @@ function AboutSection() {
               <ToolRow items={TOOLS.neural} />
               <motion.div variants={ITEM_VARIANTS}>
                 <Reveal as="p" className="tools__caption" stagger={0.06}>
-                  Нейросети
+                  {t('Нейросети')}
                 </Reveal>
               </motion.div>
             </motion.div>

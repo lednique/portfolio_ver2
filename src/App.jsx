@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { MotionConfig, motion, useScroll, useSpring } from 'framer-motion';
 import { CmsProvider } from './data/CmsContext';
+import { I18nProvider, useI18n } from './i18n/I18nContext';
 import { RouterProvider, useRouter } from './router';
 import { Footer } from './components/Footer';
 import { Menu } from './components/Menu';
@@ -22,6 +23,7 @@ const ROUTE_TITLES = {
 
 function AppShell() {
   const { path } = useRouter();
+  const { t, lang } = useI18n();
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 120,
@@ -30,8 +32,9 @@ function AppShell() {
   });
 
   useEffect(() => {
-    document.title = ROUTE_TITLES[path] || ROUTE_TITLES['/'];
-  }, [path]);
+    const rawTitle = ROUTE_TITLES[path] || ROUTE_TITLES['/'];
+    document.title = t(rawTitle);
+  }, [path, lang, t]);
 
   const renderPage = () => {
     switch (path) {
@@ -78,11 +81,13 @@ function AppShell() {
 
 export function App() {
   return (
-    <CmsProvider>
-      <RouterProvider>
-        <AppShell />
-      </RouterProvider>
-    </CmsProvider>
+    <I18nProvider>
+      <CmsProvider>
+        <RouterProvider>
+          <AppShell />
+        </RouterProvider>
+      </CmsProvider>
+    </I18nProvider>
   );
 }
 

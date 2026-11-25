@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import Matter from 'matter-js';
+import { useI18n } from '../i18n/I18nContext';
 import { useStillMode } from '../hooks/useA11y';
 import { EASE_OUT, Reveal } from './Reveal';
 
@@ -515,6 +516,7 @@ function usePuckPhysics(containerRef, enabled) {
 
 export function Footer() {
   const still = useStillMode();
+  const { t } = useI18n();
   const pucksRef = useRef(null);
 
   usePuckPhysics(pucksRef, !still);
@@ -532,7 +534,7 @@ export function Footer() {
       </div>
 
       <Reveal as="h2" className="footer__sauce" delay={0.24} stagger={0.055}>
-        не забудьте соус
+        {t('не забудьте соус')}
       </Reveal>
 
       <motion.div

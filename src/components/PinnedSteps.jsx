@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useI18n } from '../i18n/I18nContext';
 import { useStillMode } from '../hooks/useA11y';
 import { EASE_OUT, Reveal } from './Reveal';
 
 export function PinnedSteps({ title, subtitle, steps = [], onImageClick }) {
   const still = useStillMode();
+  const { t } = useI18n();
   const [active, setActive] = useState(0);
   const stepRefs = useRef([]);
 
@@ -42,11 +44,11 @@ export function PinnedSteps({ title, subtitle, steps = [], onImageClick }) {
     <section className="sub-section content v2-pinned">
       <div className="sub-section__head">
         <Reveal as="h2" className="sub-heading">
-          {title}
+          {t(title)}
         </Reveal>
         {subtitle && (
           <Reveal as="p" className="sub-lead" delay={0.08}>
-            {subtitle}
+            {t(subtitle)}
           </Reveal>
         )}
       </div>
@@ -55,6 +57,8 @@ export function PinnedSteps({ title, subtitle, steps = [], onImageClick }) {
         <div className="v2-pinned__list">
           {steps.map((step, i) => {
             const isActive = i === active;
+            const stTitle = t(step.title);
+            const stText = t(step.text);
             return (
               <div
                 key={step.number || i}
@@ -75,19 +79,19 @@ export function PinnedSteps({ title, subtitle, steps = [], onImageClick }) {
               >
                 <div className="v2-pinned__step-head">
                   <span className="v2-pinned__num">{step.number}</span>
-                  <h3 className="v2-pinned__title">{step.title}</h3>
+                  <h3 className="v2-pinned__title">{stTitle}</h3>
                 </div>
-                <p className="v2-pinned__text">{step.text}</p>
+                <p className="v2-pinned__text">{stText}</p>
 
                 {/* Mobile inline preview */}
                 <div className="v2-pinned__mobile-img">
                   <img
                     src={step.img}
-                    alt={step.title}
+                    alt={stTitle}
                     loading="lazy"
                     onClick={(e) => {
                       e.stopPropagation();
-                      onImageClick?.({ src: step.img, alt: step.title, caption: step.title });
+                      onImageClick?.({ src: step.img, alt: stTitle, caption: stTitle });
                     }}
                   />
                 </div>
@@ -111,15 +115,15 @@ export function PinnedSteps({ title, subtitle, steps = [], onImageClick }) {
                   onClick={() =>
                     onImageClick?.({
                       src: current.img,
-                      alt: current.title,
-                      caption: `${current.number} — ${current.title}`,
+                      alt: t(current.title),
+                      caption: `${current.number} — ${t(current.title)}`,
                     })
                   }
-                  aria-label={`Открыть: ${current.title}`}
+                  aria-label={`${t('Открыть')}: ${t(current.title)}`}
                 >
-                  <img src={current.img} alt={current.title} />
+                  <img src={current.img} alt={t(current.title)} />
                   <span className="v2-pinned__stage-badge">
-                    {current.number} · {current.title}
+                    {current.number} · {t(current.title)}
                   </span>
                 </motion.button>
               )}

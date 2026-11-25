@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useCms } from '../data/CmsContext';
+import { useI18n } from '../i18n/I18nContext';
 
 export function FlowCarousel({
   items = [],
@@ -8,6 +9,7 @@ export function FlowCarousel({
   onSelect,
 }) {
   const { resolveUrl } = useCms();
+  const { t } = useI18n();
   const trackRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const dragRef = useRef({ active: false, startX: 0, startScroll: 0, moved: false });
@@ -84,7 +86,7 @@ export function FlowCarousel({
   if (!items.length) {
     return (
       <div className="v2-empty-gallery">
-        Галерея пуста — добавьте работы в личном кабинете
+        {t('Галерея пуста — добавьте работы в личном кабинете')}
       </div>
     );
   }
@@ -93,7 +95,7 @@ export function FlowCarousel({
     <div
       className={`v2-flow v2-flow--${variant}`}
       role="region"
-      aria-label={ariaLabel}
+      aria-label={t(ariaLabel)}
     >
       <div
         className="v2-flow__track"
@@ -108,6 +110,7 @@ export function FlowCarousel({
         {items.map((item, idx) => {
           const src = resolveUrl(item.src);
           const isCurrent = idx === activeIndex;
+          const label = item.alt ? t(item.alt) : '';
           return (
             <div
               key={item.id || `${item.src}-${idx}`}
@@ -119,15 +122,15 @@ export function FlowCarousel({
                 onClick={() => {
                   if (dragRef.current.moved) return;
                   if (onSelect && src) {
-                    onSelect({ src, alt: item.alt || ariaLabel, caption: item.alt || '' });
+                    onSelect({ src, alt: label || t(ariaLabel), caption: label });
                   }
                 }}
-                aria-label={item.alt ? `Открыть: ${item.alt}` : 'Открыть изображение'}
+                aria-label={label ? `${t('Открыть')}: ${label}` : t('Открыть изображение')}
               >
                 {src ? (
                   <img
                     src={src}
-                    alt={item.alt || ''}
+                    alt={label}
                     loading="lazy"
                     decoding="async"
                     draggable={false}
@@ -148,18 +151,18 @@ export function FlowCarousel({
             className="v2-flow__nav"
             onClick={() => scrollToIndex(activeIndex - 1)}
             disabled={activeIndex <= 0}
-            aria-label="Предыдущий слайд"
+            aria-label={t('Предыдущий слайд')}
           >
             ←
           </button>
-          <div className="v2-flow__dots" role="tablist" aria-label="Слайды">
+          <div className="v2-flow__dots" role="tablist" aria-label={t('Слайды')}>
             {items.map((item, idx) => (
               <button
                 key={item.id || idx}
                 type="button"
                 className={`v2-flow__dot${idx === activeIndex ? ' is-active' : ''}`}
                 onClick={() => scrollToIndex(idx)}
-                aria-label={`Слайд ${idx + 1}`}
+                aria-label={t('Слайд {n}', { n: idx + 1 })}
                 aria-selected={idx === activeIndex}
               />
             ))}
@@ -169,7 +172,7 @@ export function FlowCarousel({
             className="v2-flow__nav"
             onClick={() => scrollToIndex(activeIndex + 1)}
             disabled={activeIndex >= items.length - 1}
-            aria-label="Следующий слайд"
+            aria-label={t('Следующий слайд')}
           >
             →
           </button>

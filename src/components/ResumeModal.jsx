@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useI18n } from '../i18n/I18nContext';
 import { useStillMode } from '../hooks/useA11y';
 import { EASE_OUT } from './Reveal';
 
@@ -7,6 +8,7 @@ const RESUME_PDF = './assets/resume/resume.pdf';
 
 export function ResumeModal({ onClose, pdfUrl = RESUME_PDF, filename = 'Виктор_Власов_резюме.pdf' }) {
   const still = useStillMode();
+  const { t } = useI18n();
 
   useEffect(() => {
     const onKey = (e) => {
@@ -37,7 +39,7 @@ export function ResumeModal({ onClose, pdfUrl = RESUME_PDF, filename = 'Викт
         className="resume__sheet"
         role="dialog"
         aria-modal="true"
-        aria-label="Резюме — Виктор Власов"
+        aria-label={t('Резюме — Виктор Власов')}
         initial={still ? false : { opacity: 0, y: 32, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={still ? undefined : { opacity: 0, y: 20, scale: 0.98 }}
@@ -47,18 +49,18 @@ export function ResumeModal({ onClose, pdfUrl = RESUME_PDF, filename = 'Викт
           className="resume__close"
           type="button"
           onClick={onClose}
-          aria-label="Закрыть резюме"
+          aria-label={t('Закрыть резюме')}
         >
           ×
         </button>
         <iframe
           className="resume__pdf"
           src={pdfUrl}
-          title="Предпросмотр резюме — Виктор Власов"
+          title={t('Предпросмотр резюме — Виктор Власов')}
         />
         <div className="resume__actions">
           <a className="resume__download" href={pdfUrl} download={filename}>
-            скачать pdf
+            {t('скачать pdf')}
           </a>
         </div>
       </motion.div>

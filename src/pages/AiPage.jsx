@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useCms } from '../data/CmsContext';
+import { useI18n } from '../i18n/I18nContext';
 import { useStillMode } from '../hooks/useA11y';
 import { FlowCarousel } from '../components/FlowCarousel';
 import { Lightbox } from '../components/Lightbox';
@@ -58,6 +59,7 @@ const AI_ADVANTAGES = [
 export function AiPage() {
   const still = useStillMode();
   const { cms } = useCms();
+  const { t } = useI18n();
   const [lightboxItem, setLightboxItem] = useState(null);
 
   const scrollToForm = (e) => {
@@ -67,7 +69,7 @@ export function AiPage() {
 
   return (
     <div className="subpage subpage--ai">
-      {/* 1. Hero section + wide carousel (CMS-managed via Admin Tab 4) */}
+      {/* 1. Hero section + wide carousel */}
       <section className="sub-hero sub-hero--ai">
         <div
           className="sub-hero__bg"
@@ -77,7 +79,7 @@ export function AiPage() {
 
         <div className="content sub-hero__inner">
           <Reveal as="h1" className="sub-hero__title" immediate delay={0.08} stagger={0.055}>
-            AI-продакшн фото и видео
+            {t('AI-продакшн фото и видео')}
           </Reveal>
         </div>
 
@@ -91,48 +93,48 @@ export function AiPage() {
         <div className="content">
           <div className="sub-hero__meta">
             <div className="sub-hero__meta-chips">
-              <span className="sub-eyebrow">Перечень выполняемых работ</span>
+              <span className="sub-eyebrow">{t('Перечень выполняемых работ')}</span>
               <div className="sub-chips">
                 {AI_CHIPS.map((chip) => (
                   <span className="tag" key={chip}>
-                    {chip}
+                    {t(chip)}
                   </span>
                 ))}
               </div>
             </div>
             <div className="sub-kv">
               <div className="sub-kv__item">
-                <span>Сроки</span>
-                <b>от 1 дня</b>
+                <span>{t('Сроки')}</span>
+                <b>{t('от 1 дня')}</b>
               </div>
               <div className="sub-kv__item">
-                <span>Формат</span>
-                <b>без съёмочного дня и студии</b>
+                <span>{t('Формат')}</span>
+                <b>{t('без съёмочного дня и студии')}</b>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 2. Story block — "Съёмка без съёмочного дня" */}
+      {/* 2. Story block */}
       <section className="sub-section content">
         <div className="sub-glass-panel">
           <div className="sub-narrow">
-            <span className="sub-eyebrow">Почему это работает</span>
+            <span className="sub-eyebrow">{t('Почему это работает')}</span>
             <Reveal as="h2" className="sub-heading">
-              Съёмка без съёмочного дня
+              {t('Съёмка без съёмочного дня')}
             </Reveal>
             <Reveal as="p" className="sub-lead" delay={0.08}>
-              Обычная предметная съёмка – это студия, свет, фотограф, модель, реквизит, день работы
-              и бюджет, который надо согласовать. И в лучшем случае получится пять кадров, из
-              которых будет утверждено два.
+              {t(
+                'Обычная предметная съёмка – это студия, свет, фотограф, модель, реквизит, день работы и бюджет, который надо согласовать. И в лучшем случае получится пять кадров, из которых будет утверждено два.'
+              )}
             </Reveal>
             <Reveal as="p" className="sub-lead" delay={0.14}>
-              Нейрофотосессия даёт{' '}
-              <b>десятки сцен в разных локациях и с разным светом за сутки</b> – и вы выбираете из
-              готового, а не из того, что успели снять. При этом товар остаётся собой: силуэт, цвет,
-              фактура и детали не «додумываются» нейросетью, потому что я контролирую материал на
-              каждом шаге.
+              {t('Нейрофотосессия даёт')}{' '}
+              <b>{t('десятки сцен в разных локациях и с разным светом за сутки')}</b>{' '}
+              {t(
+                '– и вы выбираете из готового, а не из того, что успели снять. При этом товар остаётся собой: силуэт, цвет, фактура и детали не «додумываются» нейросетью, потому что я контролирую материал на каждом шаге.'
+              )}
             </Reveal>
             <div className="sub-cta-row">
               <a
@@ -140,25 +142,24 @@ export function AiPage() {
                 href="#request"
                 onClick={scrollToForm}
               >
-                Обсудить проект
+                {t('Обсудить проект')}
               </a>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 3. Product Neuro-Photoshoots (CMS-managed via Admin Tab 4) */}
+      {/* 3. Product Neuro-Photoshoots */}
       <section className="sub-section sub-section--accent">
         <div className="content sub-narrow">
-          <span className="sub-eyebrow">Почему это работает</span>
+          <span className="sub-eyebrow">{t('Почему это работает')}</span>
           <Reveal as="h2" className="sub-heading">
-            Нейрофотосессии товаров
+            {t('Нейрофотосессии товаров')}
           </Reveal>
           <Reveal as="p" className="sub-lead" delay={0.08}>
-            Работаю в разных товарных категориях – от предметов интерьера и одежды до детских
-            игрушек и инструментов. Под каждый кейс продумываю концепцию, которая передаст
-            характеристики товара близкие к реальному продукту. Придирчив к материалу: мех,
-            прозрачный пластик, мягкий ворс, стекло, металл.
+            {t(
+              'Работаю в разных товарных категориях – от предметов интерьера и одежды до детских игрушек и инструментов. Под каждый кейс продумываю концепцию, которая передаст характеристики товара близкие к реальному продукту. Придирчив к материалу: мех, прозрачный пластик, мягкий ворс, стекло, металл.'
+            )}
           </Reveal>
         </div>
 
@@ -170,18 +171,17 @@ export function AiPage() {
         />
       </section>
 
-      {/* 4. Model Neuro-Photoshoots (CMS-managed via Admin Tab 4) */}
+      {/* 4. Model Neuro-Photoshoots */}
       <section className="sub-section">
         <div className="content sub-narrow">
-          <span className="sub-eyebrow">Почему это работает</span>
+          <span className="sub-eyebrow">{t('Почему это работает')}</span>
           <Reveal as="h2" className="sub-heading">
-            Нейрофотосессии модели
+            {t('Нейрофотосессии модели')}
           </Reveal>
           <Reveal as="p" className="sub-lead" delay={0.08}>
-            Подбираю AI-модель под ваш бренд: типаж, возраст, образ и манеру позировать – так, чтобы
-            она говорила с вашей аудиторией. Одежда садится по фигуре и тянется там, где должна, а
-            один и тот же персонаж проходит через десятки локаций, ракурсов и настроений – от
-            студийного каталога до уличного лукбука. Без кастинга, агентства и съёмочной группы.
+            {t(
+              'Подбираю AI-модель под ваш бренд: типаж, возраст, образ и манеру позировать – так, чтобы она говорила с вашей аудиторией. Одежда садится по фигуре и тянется там, где должна, а один и тот же персонаж проходит через десятки локаций, ракурсов и настроений – от студийного каталога до уличного лукбука. Без кастинга, агентства и съёмочной группы.'
+            )}
           </Reveal>
         </div>
 
@@ -212,11 +212,12 @@ export function AiPage() {
             viewport={{ once: true, margin: '-60px' }}
             transition={{ duration: 0.5, ease: EASE_OUT }}
           >
-            <span className="sub-eyebrow">Классическая съёмка</span>
-            <h3 className="sub-cmp__title">Неделю на все процессы, студия, бюджет</h3>
+            <span className="sub-eyebrow">{t('Классическая съёмка')}</span>
+            <h3 className="sub-cmp__title">{t('Неделю на все процессы, студия, бюджет')}</h3>
             <p className="sub-cmp__body">
-              Свет, фотограф, модель, реквизит. 5–10 кадров, из них в работу идут 2–3. Срок –
-              неделя и больше. Переснять «в другом настроении» – снова день и снова бюджет.
+              {t(
+                'Свет, фотограф, модель, реквизит. 5–10 кадров, из них в работу идут 2–3. Срок – неделя и больше. Переснять «в другом настроении» – снова день и снова бюджет.'
+              )}
             </p>
           </motion.article>
 
@@ -228,29 +229,29 @@ export function AiPage() {
             viewport={{ once: true, margin: '-60px' }}
             transition={{ duration: 0.5, delay: 0.1, ease: EASE_OUT }}
           >
-            <span className="sub-eyebrow">Нейрофотосессия</span>
-            <h3 className="sub-cmp__title">Сутки, десятки сцен</h3>
+            <span className="sub-eyebrow">{t('Нейрофотосессия')}</span>
+            <h3 className="sub-cmp__title">{t('Сутки, десятки сцен')}</h3>
             <p className="sub-cmp__body">
-              Разные локации, свет и настроения из одного набора исходников товара. Вы выбираете из
-              готового. Правки – не пересъёмка, а корректировка. Дешевле в разы при том же уровне
-              контроля.
+              {t(
+                'Разные локации, свет и настроения из одного набора исходников товара. Вы выбираете из готового. Правки – не пересъёмка, а корректировка. Дешевле в разы при том же уровне контроля.'
+              )}
             </p>
           </motion.article>
         </div>
 
         <div className="sub-tools">
-          <span className="sub-eyebrow">Для чего подходит</span>
+          <span className="sub-eyebrow">{t('Для чего подходит')}</span>
           <div className="sub-chips">
             {USE_CASE_CHIPS.map((chip) => (
               <span className="tag" key={chip}>
-                {chip}
+                {t(chip)}
               </span>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 7. v2 Request Builder (replaces old form) */}
+      {/* 7. v2 Request Builder */}
       <RequestBuilder defaultTopic="AI-Продакшн" />
 
       <Lightbox item={lightboxItem} onClose={() => setLightboxItem(null)} />

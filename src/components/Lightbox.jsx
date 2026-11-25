@@ -1,11 +1,13 @@
 import React, { useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useI18n } from '../i18n/I18nContext';
 import { useStillMode } from '../hooks/useA11y';
 import { CloseIcon } from './Icons';
 import { EASE_OUT } from './Reveal';
 
 export function Lightbox({ item, onClose }) {
   const still = useStillMode();
+  const { t } = useI18n();
 
   useEffect(() => {
     if (!item) return;
@@ -28,7 +30,7 @@ export function Lightbox({ item, onClose }) {
           className="v2-lightbox"
           role="dialog"
           aria-modal="true"
-          aria-label={item.alt || 'Просмотр изображения'}
+          aria-label={item.alt ? t(item.alt) : t('Просмотр изображения')}
           initial={still ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={still ? undefined : { opacity: 0 }}
@@ -47,15 +49,15 @@ export function Lightbox({ item, onClose }) {
               className="v2-lightbox__close"
               type="button"
               onClick={onClose}
-              aria-label="Закрыть"
+              aria-label={t('Закрыть')}
             >
               <CloseIcon />
             </button>
             <div className="v2-lightbox__stage">
-              <img src={item.src} alt={item.alt || ''} />
+              <img src={item.src} alt={item.alt ? t(item.alt) : ''} />
             </div>
             {(item.caption || item.alt) && (
-              <div className="v2-lightbox__caption">{item.caption || item.alt}</div>
+              <div className="v2-lightbox__caption">{t(item.caption || item.alt)}</div>
             )}
           </motion.div>
         </motion.div>

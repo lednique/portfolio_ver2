@@ -678,3 +678,185 @@
   opacity: 0.45;
   cursor: not-allowed;
 }
+
+/* ==========================================================================
+   7. LANGUAGE PICKER BUTTON & DARK-GRAY DROPDOWN (p BODY TEXT) + RTL SAFETY
+   ========================================================================== */
+
+.menu__popover--desktop {
+  width: max-content;
+  min-width: 256px;
+}
+
+.menu__popover--desktop .menu__panel {
+  flex-wrap: nowrap;
+  width: auto;
+  gap: 8px;
+}
+
+.menu__panel-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  width: 100%;
+}
+
+.menu__control--lang-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 40px;
+  padding: 6px 14px;
+  border-radius: 1000px;
+  border: 0;
+  background: transparent;
+  color: #ffffff;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.18s var(--ease), transform 0.18s var(--ease-back);
+}
+
+.menu__control--lang-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.menu__control--lang-btn.is-active {
+  background: var(--pressed-fill);
+  box-shadow: var(--pressed-shadow);
+}
+
+.menu__lang-btn-emoji {
+  font-size: 17px;
+  line-height: 1;
+  flex: none;
+}
+
+.menu__lang-btn-name {
+  line-height: 1;
+}
+
+/* Dark-gray dropdown matching .menu__panel--dark */
+.menu__lang-dropdown {
+  position: relative;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 28px;
+  background: #333333;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 220px;
+  box-shadow:
+    0 6px 24px rgba(0, 0, 0, 0.4),
+    -1px 0 0 rgba(0, 0, 0, 0.3),
+    1px 0 1px rgba(0, 0, 0, 0.3),
+    inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(calc(16px * var(--effects)));
+  -webkit-backdrop-filter: blur(calc(16px * var(--effects)));
+  overflow: hidden;
+  z-index: 3;
+}
+
+.menu__lang-dropdown:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+  mix-blend-mode: plus-lighter;
+  box-shadow: var(--hdr-white-glass);
+}
+
+.menu__popover--mobile .menu__lang-dropdown {
+  margin-top: 0;
+  width: 100%;
+}
+
+/* Language option styled explicitly as p (body text) */
+.menu__lang-option {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  border: 0;
+  border-radius: 1000px;
+  background: transparent;
+  color: #ffffff;
+  cursor: pointer;
+  text-align: start;
+  transition: background 0.18s var(--ease), color 0.18s var(--ease);
+}
+
+.menu__lang-option:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.menu__lang-option.is-active {
+  background: var(--pressed-fill);
+  box-shadow: var(--pressed-shadow);
+}
+
+.menu__lang-option.is-active:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  mix-blend-mode: plus-lighter;
+  box-shadow: var(--hdr-white-btn);
+}
+
+.menu__lang-emoji {
+  font-size: 18px;
+  line-height: 1;
+  flex: none;
+}
+
+.menu__lang-label {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: normal;
+  text-transform: none;
+  color: #ffffff;
+}
+
+.menu__lang-option.is-active .menu__lang-label {
+  font-weight: 600;
+  color: var(--lime);
+}
+
+:root[data-theme='light'] .menu__panel--dark,
+:root[data-theme='light'] .menu__lang-dropdown {
+  background: #333333;
+  color: #ffffff;
+}
+
+:root[data-theme='light'] .menu__lang-option,
+:root[data-theme='light'] .menu__lang-label,
+:root[data-theme='light'] .menu__control--lang-btn {
+  color: #ffffff;
+}
+
+/* Keep physics box, horizontal carousels & marquees LTR internally even in RTL Arabic */
+:root[dir='rtl'] .footer__pucks,
+:root[dir='rtl'] .v2-flow,
+:root[dir='rtl'] .v2-ar-carousel,
+:root[dir='rtl'] .sub-clients__track {
+  direction: ltr;
+}
+
+:root[dir='rtl'] .menu__popover--desktop {
+  right: auto;
+  left: 0;
+}
+

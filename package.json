@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "vite build && node scripts/sync-build.mjs",
-    "serve": "node scripts/serve-root.mjs"
+    "serve": "node scripts/serve-root.mjs",
+    "admin": "node scripts/serve-root.mjs --open-admin",
+    "build:lang": "node scripts/build-lang-dicts.mjs"
   },
   "dependencies": {
     "@lottiefiles/dotlottie-web": "^0.45.0",

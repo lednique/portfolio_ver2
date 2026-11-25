@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useCms } from '../data/CmsContext';
+import { useI18n } from '../i18n/I18nContext';
 import { useStillMode } from '../hooks/useA11y';
 
 function ArVideoSlide({ item, isActive, globalMuted, onToggleMute, onActivate }) {
   const { resolveUrl } = useCms();
+  const { t } = useI18n();
   const still = useStillMode();
   const videoRef = useRef(null);
   const [paused, setPaused] = useState(false);
@@ -53,13 +55,13 @@ function ArVideoSlide({ item, isActive, globalMuted, onToggleMute, onActivate })
             preload={isActive ? 'metadata' : 'none'}
           />
         ) : posterSrc ? (
-          <img src={posterSrc} alt={item.title || ''} />
+          <img src={posterSrc} alt={item.title ? t(item.title) : ''} />
         ) : (
-          <div className="v2-ar-slide__empty">Видео не загружено</div>
+          <div className="v2-ar-slide__empty">{t('Видео не загружено')}</div>
         )}
 
         <div className="v2-ar-slide__top-badges">
-          {item.tag && <span className="v2-ar-slide__tag">{item.tag}</span>}
+          {item.tag && <span className="v2-ar-slide__tag">{t(item.tag)}</span>}
           {isActive && videoSrc && (
             <button
               type="button"
@@ -68,8 +70,8 @@ function ArVideoSlide({ item, isActive, globalMuted, onToggleMute, onActivate })
                 e.stopPropagation();
                 onToggleMute();
               }}
-              aria-label={globalMuted ? 'Включить звук' : 'Выключить звук'}
-              title={globalMuted ? 'Включить звук' : 'Выключить звук'}
+              aria-label={globalMuted ? t('Включить звук') : t('Выключить звук')}
+              title={globalMuted ? t('Включить звук') : t('Выключить звук')}
             >
               {globalMuted ? '🔇' : '🔊'}
             </button>
@@ -79,8 +81,8 @@ function ArVideoSlide({ item, isActive, globalMuted, onToggleMute, onActivate })
         <div className="v2-ar-slide__gradient" aria-hidden="true" />
 
         <div className="v2-ar-slide__meta">
-          <h3 className="v2-ar-slide__title">{item.title}</h3>
-          {item.subtitle && <p className="v2-ar-slide__sub">{item.subtitle}</p>}
+          <h3 className="v2-ar-slide__title">{t(item.title)}</h3>
+          {item.subtitle && <p className="v2-ar-slide__sub">{t(item.subtitle)}</p>}
         </div>
 
         {(paused || !isActive || still) && videoSrc && (
@@ -94,6 +96,7 @@ function ArVideoSlide({ item, isActive, globalMuted, onToggleMute, onActivate })
 }
 
 export function VideoCarousel({ items = [] }) {
+  const { t } = useI18n();
   const trackRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [muted, setMuted] = useState(true);
@@ -137,13 +140,13 @@ export function VideoCarousel({ items = [] }) {
   if (!items.length) {
     return (
       <div className="v2-empty-gallery">
-        Видео AR-эффектов пока нет — добавьте их в личном кабинете
+        {t('Видео AR-эффектов пока нет — добавьте их в личном кабинете')}
       </div>
     );
   }
 
   return (
-    <div className="v2-ar-carousel" role="region" aria-label="Галерея AR-эффектов">
+    <div className="v2-ar-carousel" role="region" aria-label={t('Галерея AR-эффектов')}>
       <div className="v2-ar-carousel__track" ref={trackRef} onScroll={updateActive}>
         {items.map((item, idx) => (
           <ArVideoSlide
@@ -164,7 +167,7 @@ export function VideoCarousel({ items = [] }) {
             className="v2-flow__nav"
             onClick={() => scrollToIndex(activeIndex - 1)}
             disabled={activeIndex <= 0}
-            aria-label="Предыдущий эффект"
+            aria-label={t('Предыдущий эффект')}
           >
             ←
           </button>
@@ -175,7 +178,7 @@ export function VideoCarousel({ items = [] }) {
                 type="button"
                 className={`v2-flow__dot${idx === activeIndex ? ' is-active' : ''}`}
                 onClick={() => scrollToIndex(idx)}
-                aria-label={item.title || `Эффект ${idx + 1}`}
+                aria-label={item.title ? t(item.title) : t('Слайд {n}', { n: idx + 1 })}
               />
             ))}
           </div>
@@ -184,7 +187,7 @@ export function VideoCarousel({ items = [] }) {
             className="v2-flow__nav"
             onClick={() => scrollToIndex(activeIndex + 1)}
             disabled={activeIndex >= items.length - 1}
-            aria-label="Следующий эффект"
+            aria-label={t('Следующий эффект')}
           >
             →
           </button>

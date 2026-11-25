@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useI18n } from '../i18n/I18nContext';
 import { useStillMode } from '../hooks/useA11y';
 
 const ASSETS = {
@@ -10,13 +11,13 @@ const ASSETS = {
 
 export function InvitationShowcase() {
   const still = useStillMode();
+  const { t } = useI18n();
   const [code, setCode] = useState('A5');
   const [opened, setOpened] = useState(true);
   const [flipped, setFlipped] = useState(false);
   const [rot, setRot] = useState({ x: 7, y: -14 });
   const dragRef = useRef(null);
 
-  // Authentic A5 demo typing sequence on initial view (unless reduced motion)
   useEffect(() => {
     if (still) return;
     setOpened(false);
@@ -84,10 +85,17 @@ export function InvitationShowcase() {
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
         role="region"
-        aria-label="Интерактивное 3D-приглашение: код A5 вводится автоматически, открытку можно поворачивать"
+        aria-label={t(
+          'Интерактивное 3D-приглашение: код A5 вводится автоматически, открытку можно поворачивать'
+        )}
       >
         {!opened ? (
-          <div className="v2-inv__postbox" onClick={() => setOpened(true)} role="button" tabIndex={0}>
+          <div
+            className="v2-inv__postbox"
+            onClick={() => setOpened(true)}
+            role="button"
+            tabIndex={0}
+          >
             <img
               className="v2-inv__postbox-flap"
               src={ASSETS.postboxFlap}
@@ -97,10 +105,12 @@ export function InvitationShowcase() {
             <img
               className="v2-inv__postbox-body"
               src={ASSETS.postboxBody}
-              alt="Почтовый ящик с приглашением"
+              alt={t('Почтовый ящик с приглашением')}
               draggable={false}
             />
-            <span className="v2-inv__postbox-badge">Код: {code || '…'}</span>
+            <span className="v2-inv__postbox-badge">
+              {t('Код:')} {code || '…'}
+            </span>
           </div>
         ) : (
           <div
@@ -113,7 +123,7 @@ export function InvitationShowcase() {
               <img
                 className="v2-inv__layer"
                 src={ASSETS.front}
-                alt="Лицевая сторона приглашения"
+                alt={t('Лицевая сторона приглашения')}
                 draggable={false}
               />
             </div>
@@ -121,7 +131,7 @@ export function InvitationShowcase() {
               <img
                 className="v2-inv__layer"
                 src={ASSETS.back}
-                alt="Обратная сторона приглашения"
+                alt={t('Обратная сторона приглашения')}
                 draggable={false}
               />
             </div>
@@ -130,16 +140,17 @@ export function InvitationShowcase() {
       </div>
 
       <div className="v2-inv__panel">
-        <div className="v2-inv__badge">Интерактивный кейс · 3D-открытка</div>
-        <h3 className="v2-inv__title">Цифровое приглашение с кодом доступа</h3>
+        <div className="v2-inv__badge">{t('Интерактивный кейс · 3D-открытка')}</div>
+        <h3 className="v2-inv__title">{t('Цифровое приглашение с кодом доступа')}</h3>
         <p className="v2-inv__desc">
-          Гость вводит персональный код ящика (например, <b>A5</b>) — ящик открывается и достаёт
-          объёмную двустороннюю открытку. Вращайте её мышью или пальцем и переворачивайте на оборот.
+          {t(
+            'Гость вводит персональный код ящика (например, A5) — ящик открывается и достаёт объёмную двустороннюю открытку. Вращайте её мышью или пальцем и переворачивайте на оборот.'
+          )}
         </p>
 
         <form className="v2-inv__code-form" onSubmit={handleUnlock}>
           <label className="v2-inv__field">
-            <span>Код ячейки (буква + цифра)</span>
+            <span>{t('Код ячейки (буква + цифра)')}</span>
             <input
               type="text"
               value={code}
@@ -149,7 +160,7 @@ export function InvitationShowcase() {
             />
           </label>
           <button type="submit" className="v2-pill-btn">
-            Открыть
+            {t('Открыть')}
           </button>
         </form>
 
@@ -162,17 +173,17 @@ export function InvitationShowcase() {
               setFlipped((f) => !f);
             }}
           >
-            {flipped ? 'Лицевая сторона' : 'Перевернуть 180°'}
+            {flipped ? t('Лицевая сторона') : t('Перевернуть 180°')}
           </button>
           <button
             type="button"
             className="v2-pill-btn"
             onClick={() => setOpened((o) => !o)}
           >
-            {opened ? 'Показать ящик' : 'Открыть открытку'}
+            {opened ? t('Показать ящик') : t('Открыть открытку')}
           </button>
           <button type="button" className="v2-pill-btn" onClick={resetView}>
-            Сбросить
+            {t('Сбросить')}
           </button>
         </div>
       </div>

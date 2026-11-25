@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useI18n } from '../i18n/I18nContext';
 import { useStillMode } from '../hooks/useA11y';
 import { RequestBuilder } from '../components/RequestBuilder';
 import { ResumeModal } from '../components/ResumeModal';
@@ -30,7 +31,10 @@ const EXPERIENCE_BULLETS = [
 
 export function ResumePage() {
   const still = useStillMode();
+  const { t, lang } = useI18n();
   const [pdfOpen, setPdfOpen] = useState(false);
+
+  const previewPdf = lang === 'ru' ? './assets/resume/resume.pdf' : './assets/resume/resume-en.pdf';
 
   return (
     <div className="subpage subpage--resume">
@@ -43,12 +47,12 @@ export function ResumePage() {
           transition={{ duration: 0.55, ease: EASE_OUT }}
         >
           <div className="v2-cv__identity">
-            <span className="sub-eyebrow">@lednique · Резюме · 2026</span>
+            <span className="sub-eyebrow">{t('@lednique · Резюме · 2026')}</span>
             <Reveal as="h1" className="v2-cv__name" immediate delay={0.06}>
-              Виктор Власов
+              {t('Виктор Власов')}
             </Reveal>
-            <p className="v2-cv__role">Графический дизайнер · AI / AR-продакшн</p>
-            <p className="v2-cv__location">Ижевск · удалённо или гибридно</p>
+            <p className="v2-cv__role">{t('Графический дизайнер · AI / AR-продакшн')}</p>
+            <p className="v2-cv__location">{t('Ижевск · удалённо или гибридно')}</p>
 
             <div className="v2-cv__actions">
               <button
@@ -56,14 +60,14 @@ export function ResumePage() {
                 className="v2-pill-btn v2-pill-btn--lime"
                 onClick={() => setPdfOpen(true)}
               >
-                Открыть PDF
+                {t('Открыть PDF')}
               </button>
               <a
                 className="v2-pill-btn"
                 href="./assets/resume/resume.pdf"
                 download="LEDNIQUE-Resume-RU.pdf"
               >
-                Скачать PDF (RU)
+                {t('Скачать PDF (RU)')}
               </a>
               <a
                 className="v2-pill-btn"
@@ -76,7 +80,7 @@ export function ResumePage() {
           </div>
 
           <div className="v2-cv__portrait">
-            <img src="./assets/profile.jpg" alt="Виктор Власов" />
+            <img src="./assets/profile.jpg" alt={t('Виктор Власов')} />
           </div>
         </motion.header>
 
@@ -107,43 +111,41 @@ export function ResumePage() {
             target="_blank"
             rel="noreferrer noopener"
           >
-            Портфолио ↗
+            {t('Портфолио')} ↗
           </a>
         </div>
 
         {/* CV Body Sections */}
         <div className="v2-cv__sections">
           <article className="v2-cv__card">
-            <h2 className="v2-cv__h2">Профиль</h2>
+            <h2 className="v2-cv__h2">{t('Профиль')}</h2>
             <p className="v2-cv__p">
-              Графический дизайнер с 12-летним опытом. С 2019 года – AR/XR-проекты, с 2023 года –
-              AI-продакшн. Специализация: айдентика, digital- и печатные материалы,
-              маркетплейс-инфографика, сайты, UI/UX и презентации. Создание AR-эффектов, AI-фото и
-              видео; ведение проекта от брифа и визуальной концепции до файлов, готовых к публикации
-              или печати. Портфолио включает проекты для более чем 20 брендов и компаний.
+              {t(
+                'Графический дизайнер с 12-летним опытом. С 2019 года – AR/XR-проекты, с 2023 года – AI-продакшн. Специализация: айдентика, digital- и печатные материалы, маркетплейс-инфографика, сайты, UI/UX и презентации. Создание AR-эффектов, AI-фото и видео; ведение проекта от брифа и визуальной концепции до файлов, готовых к публикации или печати. Портфолио включает проекты для более чем 20 брендов и компаний.'
+              )}
             </p>
           </article>
 
           <article className="v2-cv__card">
-            <h2 className="v2-cv__h2">Ключевые компетенции</h2>
+            <h2 className="v2-cv__h2">{t('Ключевые компетенции')}</h2>
             <div className="v2-cv__skills">
               {SKILL_GROUPS.map((g) => (
                 <div className="v2-cv__skill" key={g.title}>
-                  <h3>{g.title}</h3>
-                  <p>{g.text}</p>
+                  <h3>{t(g.title)}</h3>
+                  <p>{t(g.text)}</p>
                 </div>
               ))}
             </div>
           </article>
 
           <article className="v2-cv__card">
-            <h2 className="v2-cv__h2">Инструменты</h2>
+            <h2 className="v2-cv__h2">{t('Инструменты')}</h2>
             <div className="v2-cv__stack">
               <p>
-                <b>Дизайн:</b> Figma, Photoshop, Illustrator, InDesign.
+                <b>{t('Дизайн:')}</b> Figma, Photoshop, Illustrator, InDesign.
               </p>
               <p>
-                <b>3D и видео:</b> Blender, After Effects, Premiere Pro.
+                <b>{t('3D и видео:')}</b> Blender, After Effects, Premiere Pro.
               </p>
               <p>
                 <b>AR:</b> Lens Studio, Effect House. <b>AI:</b> Midjourney, Nano Banana, ChatGPT,
@@ -153,40 +155,44 @@ export function ResumePage() {
           </article>
 
           <article className="v2-cv__card">
-            <h2 className="v2-cv__h2">Опыт работы</h2>
+            <h2 className="v2-cv__h2">{t('Опыт работы')}</h2>
             <div className="v2-cv__job-head">
-              <h3>Независимый дизайнер · LEDNIQUE</h3>
-              <span className="tag">2014 – настоящее время</span>
+              <h3>{t('Независимый дизайнер · LEDNIQUE')}</h3>
+              <span className="tag">{t('2014 – настоящее время')}</span>
             </div>
             <ul className="v2-cv__list">
               {EXPERIENCE_BULLETS.map((b) => (
-                <li key={b}>{b}</li>
+                <li key={b}>{t(b)}</li>
               ))}
             </ul>
           </article>
 
           <article className="v2-cv__card">
-            <h2 className="v2-cv__h2">Выбранные бренды</h2>
+            <h2 className="v2-cv__h2">{t('Выбранные бренды')}</h2>
             <p className="v2-cv__p v2-cv__brands">
               Glamnetic · OSCAR&amp;FRANK · SLA Paris · H&amp;M Beauty
             </p>
-            <p className="v2-cv__note">Также – локальные компании и проекты под NDA.</p>
+            <p className="v2-cv__note">{t('Также – локальные компании и проекты под NDA.')}</p>
           </article>
 
           <article className="v2-cv__card">
-            <h2 className="v2-cv__h2">Образование и языки</h2>
+            <h2 className="v2-cv__h2">{t('Образование и языки')}</h2>
             <div className="v2-cv__stack">
               <p>
-                <b>Образование:</b> ИжГТУ им. М.Т. Калашникова, специальность «Технология
-                художественной и промышленной обработки материалов».
+                <b>{t('Образование:')}</b>{' '}
+                {t(
+                  'ИжГТУ им. М.Т. Калашникова, специальность «Технология художественной и промышленной обработки материалов».'
+                )}
               </p>
               <p>
-                <b>Русский:</b> родной. <b>Английский:</b> рабочее общение – брифы, переписка и
-                созвоны.
+                <b>{t('Русский:')}</b> {t('родной.')} <b>{t('Английский:')}</b>{' '}
+                {t('рабочее общение – брифы, переписка и созвоны.')}
               </p>
               <p>
-                <b>Формат:</b> проектная работа, фриланс или частичная занятость; удалённо или
-                гибридно в Ижевске.
+                <b>{t('Формат:')}</b>{' '}
+                {t(
+                  'проектная работа, фриланс или частичная занятость; удалённо или гибридно в Ижевске.'
+                )}
               </p>
             </div>
           </article>
@@ -194,9 +200,17 @@ export function ResumePage() {
       </section>
 
       {/* v2 Request Builder */}
-      <RequestBuilder />
+      <RequestBuilder defaultTopic="Графика" />
 
-      <ResumeModal open={pdfOpen} onClose={() => setPdfOpen(false)} />
+      <AnimatePresence>
+        {pdfOpen && (
+          <ResumeModal
+            pdfUrl={previewPdf}
+            filename={lang === 'ru' ? 'LEDNIQUE-Resume-RU.pdf' : 'LEDNIQUE-Resume-EN.pdf'}
+            onClose={() => setPdfOpen(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useI18n } from '../i18n/I18nContext';
 import { useStillMode } from '../hooks/useA11y';
 import { useRouter } from '../router';
 import { EASE_OUT } from './Reveal';
@@ -7,6 +8,7 @@ import { EASE_OUT } from './Reveal';
 export function DiscussButtons({ worksPath, showWorks = true, extraButton = null }) {
   const still = useStillMode();
   const { navigate } = useRouter();
+  const { t } = useI18n();
 
   const scrollToRequest = () => {
     const el = document.getElementById('request');
@@ -29,7 +31,7 @@ export function DiscussButtons({ worksPath, showWorks = true, extraButton = null
       transition={{ duration: still ? 0 : 0.65, ease: EASE_OUT }}
     >
       <button className="discuss__button" type="button" onClick={scrollToRequest}>
-        обсудить проект
+        {t('обсудить проект')}
       </button>
       {showWorks && worksPath && (
         <a
@@ -40,7 +42,7 @@ export function DiscussButtons({ worksPath, showWorks = true, extraButton = null
             navigate(worksPath);
           }}
         >
-          смотреть работы
+          {t('смотреть работы')}
         </a>
       )}
       {extraButton}
