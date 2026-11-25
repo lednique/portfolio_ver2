@@ -1,7 +1,8 @@
 (() => {
-const HEIGHT_DATA="/portfolio_ver2/bg/height.webp";
-const HDRI_DATA="/portfolio_ver2/bg/hdri.jpg";
-const ALU_DATA="/portfolio_ver2/bg/aluminum.jpg";
+function bootShader() {
+const HEIGHT_DATA="./bg/height.webp";
+const HDRI_DATA="./bg/hdri.jpg";
+const ALU_DATA="./bg/aluminum.jpg";
 // Настройки со скриншота
 const P={normalScale:0.60,roughness:0.43,metalness:1.00,exposure:0.39,mouseInfluence:0.80,lightIntensity:0.80,hdriRot:1.26,flipY:1,autoRotate:false};
 const canvas=document.getElementById('gl');
@@ -197,24 +198,28 @@ canvas.addEventListener('pointerdown',e=>{
   const pos=pointerToHeight(e);lastPos=pos;lastPosTime=performance.now();
   stampBig(pos.x,pos.y,DRAW_ALPHA);
 });
-addEventListener('pointerup',e=>{if(e.button===0){leftDown=false;lastPos=null;}});
-addEventListener('pointercancel',()=>{leftDown=false;lastPos=null;});
-canvas.addEventListener('pointerleave',()=>{if(!leftDown)lastPos=null;});
-addEventListener('keydown',e=>{
+const onPointerUp=e=>{if(e.button===0){leftDown=false;lastPos=null;}};
+const onPointerCancel=()=>{leftDown=false;lastPos=null;};
+const onKeyDown=e=>{
   const t=e.target;
   if(t&&(t.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)))return;
   if((e.key==='r'||e.key==='R'||e.key==='к'||e.key==='К')&&hW){pCtx.fillStyle='#000';pCtx.fillRect(0,0,hW,hH);bgHidden=false;paintDirty=true;}
   if((e.key==='c'||e.key==='C'||e.key==='с'||e.key==='С')&&hW){pCtx.fillStyle='#000';pCtx.fillRect(0,0,hW,hH);bgHidden=true;paintDirty=true;}
-});
+};
+addEventListener('pointerup',onPointerUp);
+addEventListener('pointercancel',onPointerCancel);
+canvas.addEventListener('pointerleave',()=>{if(!leftDown)lastPos=null;});
+addEventListener('keydown',onKeyDown);
 
 let tm={x:0,y:0},m={x:0,y:0},last=performance.now(),ang=0;
-addEventListener('pointermove',e=>{
+const onWinPointerMove=e=>{
   const r=canvas.getBoundingClientRect();
   if(!r.width||!r.height)return;
   tm.x=((e.clientX-r.left)/r.width)*2-1;
   tm.y=-(((e.clientY-r.top)/r.height)*2-1);
   last=performance.now();
-},{passive:true});
+};
+addEventListener('pointermove',onWinPointerMove,{passive:true});
 function resize(){
   const rect=canvas.getBoundingClientRect();
   const d=Math.min(devicePixelRatio||1,2);
@@ -225,13 +230,22 @@ function resize(){
   gl.viewport(0,0,canvas.width,canvas.height);
 }
 addEventListener('resize',resize);
-if('ResizeObserver'in window)new ResizeObserver(resize).observe(canvas);
+let ro=null;
+if('ResizeObserver'in window){ro=new ResizeObserver(resize);ro.observe(canvas);}
 resize();
+function cleanup(){
+  removeEventListener('pointerup',onPointerUp);
+  removeEventListener('pointercancel',onPointerCancel);
+  removeEventListener('keydown',onKeyDown);
+  removeEventListener('pointermove',onWinPointerMove);
+  removeEventListener('resize',resize);
+  if(ro)ro.disconnect();
+}
 let prev=performance.now();
 const motionQuery=matchMedia('(prefers-reduced-motion: reduce)');
 let lastDrawX=NaN,lastDrawY=NaN,lastDrawW=0,lastDrawH=0;
 function frame(now){
-if(!canvas.isConnected||canvas.dataset.shaderReady!=='1')return;
+if(!canvas.isConnected||canvas.dataset.shaderReady!=='1'){cleanup();return;}
 const dt=Math.min((now-prev)/1000,.05);prev=now;
 const still=motionQuery.matches||document.documentElement.dataset.a11y==='true';
 // No automatic rotation: only real pointer movement drives the metal lighting.
@@ -260,4 +274,7 @@ gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
 lastDrawX=m.x;lastDrawY=m.y;lastDrawW=canvas.width;lastDrawH=canvas.height;
 requestAnimationFrame(frame);}
 requestAnimationFrame(frame);
+}
+window.__bootLedniqueShader=bootShader;
+bootShader();
 })();
