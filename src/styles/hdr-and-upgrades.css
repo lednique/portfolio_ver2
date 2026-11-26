@@ -1,0 +1,1009 @@
+/* ==========================================================================
+   LEDNIQUE v2 UPGRADES:
+   1. HDR White Shadows (ported from old portfolio, blur = 1px on ALL white shadows)
+   2. Menu Logo exact Figma glass/inner-shadow/drop-shadow/backdrop-blur style
+   3. AI Gallery description collapse/expand button (.discuss__button style)
+   4. Today Menu 1–6 cards responsive support
+   5. Fixed Footer Pucks layout & explicit sizing
+   6. Shared tokens & utilities for subpages + personal cabinet
+   ========================================================================== */
+
+/* Restore signature lime green text selection across homepage and all subpages */
+::selection {
+  background: var(--lime);
+  color: #000000;
+  text-shadow: none;
+}
+
+::-moz-selection {
+  background: var(--lime);
+  color: #000000;
+  text-shadow: none;
+}
+
+:root {
+  --bg-rgb: 0, 0, 0;
+  --ink-rgb: 255, 255, 255;
+  --ink-muted: rgba(255, 255, 255, 0.72);
+  --surface: rgba(255, 255, 255, 0.06);
+  --surface-strong: rgba(255, 255, 255, 0.11);
+  --glass-bg: rgba(0, 0, 0, 0.44);
+  --glass-border: rgba(255, 255, 255, 0.16);
+  --glass-dark-shadow:
+    -1px 0 0 rgba(0, 0, 0, 0.3),
+    1px 0 1px rgba(0, 0, 0, 0.3),
+    inset 0 2px 3px rgba(0, 0, 0, 0.3),
+    0 6px 18px rgba(0, 0, 0, 0.32);
+  --radius-pill: 999px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-back: cubic-bezier(0.01, 1.43, 0.46, 1.85);
+  --max-w: 1120px;
+
+  /* ── HDR White Highlight Tokens (blur = 1px everywhere) ── */
+  --hdr-white: #ffffff;
+  --hdr-white-80: rgba(255, 255, 255, 0.8);
+  --hdr-white-75: rgba(255, 255, 255, 0.75);
+  --hdr-white-60: rgba(255, 255, 255, 0.6);
+  --hdr-white-50: rgba(255, 255, 255, 0.5);
+  --hdr-white-45: rgba(255, 255, 255, 0.45);
+  --hdr-white-35: rgba(255, 255, 255, 0.35);
+  --hdr-white-25: rgba(255, 255, 255, 0.25);
+  --hdr-white-18: rgba(255, 255, 255, 0.18);
+
+  /* HDR blur-1 white shadow stacks (used on ::after with mix-blend-mode: plus-lighter) */
+  --hdr-white-glass:
+    inset 0 8px 1px -5px var(--hdr-white-35),
+    inset 0 8px 1px -5px var(--hdr-white-60),
+    inset 0 -8px 1px -5px var(--hdr-white-35),
+    inset 0 1px 1px var(--hdr-white-45),
+    inset 0 -1px 1px var(--hdr-white-25);
+
+  --hdr-white-btn:
+    inset 0 -6px 1px -4px var(--hdr-white-45),
+    inset 0 6px 1px -4px var(--hdr-white-60),
+    inset 0 1px 1px var(--hdr-white-80),
+    inset 0 -1px 1px var(--hdr-white-45);
+
+  --hdr-white-soft:
+    inset 0 1px 1px var(--hdr-white-75),
+    inset 0 -1px 1px var(--hdr-white-35);
+
+  /* Override v2 pressed-shadow so dark shadows stay on element & white shadows use blur 1 */
+  --pressed-shadow:
+    -1px 0 0 rgba(0, 0, 0, 0.3),
+    1px 0 1px rgba(0, 0, 0, 0.3),
+    inset 0 2px 2px rgba(0, 0, 0, 0.3),
+    inset 0 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+/* Extended Display-P3 HDR white (> 100% SDR white) on HDR-capable screens */
+@supports (color: color(display-p3 1 1 1)) {
+  @media (dynamic-range: high) {
+    :root {
+      --hdr-white: color(display-p3 1.8 1.8 1.8);
+      --hdr-white-80: color(display-p3 1.8 1.8 1.8 / 0.85);
+      --hdr-white-75: color(display-p3 1.8 1.8 1.8 / 0.78);
+      --hdr-white-60: color(display-p3 1.8 1.8 1.8 / 0.675);
+      --hdr-white-50: color(display-p3 1.8 1.8 1.8 / 0.6);
+      --hdr-white-45: color(display-p3 1.8 1.8 1.8 / 0.55);
+      --hdr-white-35: color(display-p3 1.8 1.8 1.8 / 0.45);
+      --hdr-white-25: color(display-p3 1.8 1.8 1.8 / 0.36);
+      --hdr-white-18: color(display-p3 1.8 1.8 1.8 / 0.28);
+    }
+  }
+}
+
+[data-theme='light'] {
+  --bg-rgb: 255, 255, 255;
+  --ink-rgb: 10, 10, 10;
+  --ink-muted: rgba(10, 10, 10, 0.68);
+  --surface: rgba(0, 0, 0, 0.035);
+  --surface-strong: rgba(0, 0, 0, 0.075);
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(0, 0, 0, 0.12);
+  --glass-dark-shadow:
+    -1px 0 0 rgba(0, 0, 0, 0.16),
+    1px 0 1px rgba(0, 0, 0, 0.16),
+    inset 0 2px 3px rgba(0, 0, 0, 0.12),
+    0 8px 22px rgba(0, 0, 0, 0.1);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ==========================================================================
+   1. PORT HDR WHITE SHADOWS (BLUR = 1px, plus-lighter) TO ALL v2 WHITE SHADOWS
+   ========================================================================== */
+
+/* Menu island, unfold, settings panel & glass-island */
+.menu,
+.glass-island {
+  box-shadow:
+    -2px 0 2px rgba(0, 0, 0, 0.3),
+    2px 0 2px rgba(0, 0, 0, 0.3),
+    0 6px 10px rgba(0, 0, 0, 0.2),
+    inset 0 4px 20px rgba(0, 0, 0, 0.3),
+    inset 0 6px 20px -4px rgba(0, 0, 0, 0.3);
+}
+
+.menu:after,
+.glass-island:after {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  mix-blend-mode: plus-lighter;
+  box-shadow: var(--hdr-white-glass);
+}
+
+.menu__unfold:after,
+.menu__panel:after {
+  mix-blend-mode: plus-lighter;
+  box-shadow: var(--hdr-white-soft);
+}
+
+/* Active menu pill & pressed controls — ensure label text ALWAYS stays above pill in desktop & mobile */
+.menu__item,
+.menu__logo,
+.menu__settings,
+.menu__toggle,
+.menu__control {
+  position: relative;
+  isolation: isolate;
+}
+
+.menu__active-pill {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 1000px;
+  background: var(--pressed-fill);
+  box-shadow: var(--pressed-shadow);
+  pointer-events: none;
+}
+
+.menu-wrap--desktop {
+  width: max-content;
+  min-width: 788.502px;
+  max-width: calc(100vw - 32px);
+}
+
+.menu__unfold {
+  height: auto;
+  min-height: 212px;
+}
+
+.menu__item:not(.menu__settings) > :not(.menu__active-pill),
+.menu__item-text {
+  position: relative;
+  z-index: 4;
+}
+
+.menu__logo > :not(.menu__active-pill) {
+  z-index: 4;
+}
+
+/* Keep settings gear icon perfectly centered inside both desktop & mobile unfold buttons */
+.menu__settings > .menu__icon,
+.menu__settings--unfold > .menu__icon {
+  position: absolute;
+  inset: auto;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 62px;
+  height: 60px;
+  max-width: none;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.menu__settings > .menu__icon svg,
+.menu__settings--unfold > .menu__icon svg {
+  display: block;
+  width: 62px;
+  height: 60px;
+  flex: none;
+}
+
+.menu__control--a11y > .menu__icon {
+  position: absolute;
+  inset: auto;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 60px;
+  max-width: none;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.menu--desktop .menu__item.is-active:not(.menu__settings),
+.menu--mobile .menu__item.is-active:not(.menu__settings),
+.menu__unfold .menu__item.is-active:not(.menu__settings) {
+  background: transparent;
+  box-shadow: none;
+  color: #ffffff;
+}
+
+.menu__item.is-active > :not(.menu__active-pill),
+.menu__item.is-active .menu__item-text,
+[data-theme='light'] .menu__unfold .menu__item.is-active .menu__item-text {
+  color: #ffffff !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.menu__active-pill:after,
+.menu__settings.is-active:after,
+.menu__settings--unfold.is-active:after,
+.menu__toggle.is-active:after,
+.menu__control.is-active:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+  mix-blend-mode: plus-lighter;
+  box-shadow: var(--hdr-white-btn);
+}
+
+/* Hero title plate — keep original .hero__title framing without extra double box */
+.hero__title-plate {
+  position: relative;
+}
+
+/* Case cards & labels ("сегодня в меню") — preserve position:absolute on .case__label & crisp 36px corners on hover */
+.case {
+  overflow: hidden;
+  overflow: clip;
+  clip-path: inset(0 round 36px);
+}
+
+.case:after {
+  mix-blend-mode: plus-lighter;
+  box-shadow: var(--hdr-white-soft);
+}
+
+.case__label {
+  overflow: hidden;
+  clip-path: inset(0 round 28px);
+  box-shadow:
+    -2px 0 1px rgba(0, 0, 0, 0.3),
+    2px 0 1px rgba(0, 0, 0, 0.3),
+    0 6px 10px rgba(0, 0, 0, 0.2),
+    inset 0 4px 20px -4px rgba(0, 0, 0, 0.3);
+}
+
+.case__label:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+  mix-blend-mode: plus-lighter;
+  box-shadow: var(--hdr-white-btn);
+}
+
+/* AI gallery rail, active glow & frosted feature panel */
+.ai__rail {
+  box-shadow:
+    -1px 0 0 rgba(0, 0, 0, 0.3),
+    1px 0 1px rgba(0, 0, 0, 0.3),
+    0 4px 4px rgba(0, 0, 0, 0.25),
+    inset 0 2px 2px rgba(0, 0, 0, 0.3);
+}
+
+.ai__visual .ai__rail {
+  position: relative;
+}
+
+.ai__rail:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  mix-blend-mode: plus-lighter;
+  box-shadow: var(--hdr-white-soft);
+}
+
+.ai__rail-bar--active:after {
+  background: var(--hdr-white);
+  box-shadow: 0 0 1px 1px var(--hdr-white-80);
+}
+
+.feature--ai .feature__panel {
+  box-shadow:
+    -2px 0 1px rgba(0, 0, 0, 0.3),
+    2px 0 1px rgba(0, 0, 0, 0.3),
+    0 6px 10px rgba(0, 0, 0, 0.2),
+    inset 0 4px 10px rgba(0, 0, 0, 0.3),
+    inset 0 4px 20px -4px rgba(0, 0, 0, 0.3);
+}
+
+.feature--ai .feature__panel:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+  mix-blend-mode: plus-lighter;
+  box-shadow: var(--hdr-white-glass);
+}
+
+/* AR QR card — preserve position:absolute from v2-core.css */
+.ar__qr {
+  box-shadow:
+    -2px 0 1px rgba(0, 0, 0, 0.3),
+    2px 0 1px rgba(0, 0, 0, 0.3),
+    0 6px 10px rgba(0, 0, 0, 0.2),
+    inset 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.ar__qr:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+  mix-blend-mode: plus-lighter;
+  box-shadow: var(--hdr-white-glass);
+}
+
+/* About tools cards */
+.about__side:after {
+  mix-blend-mode: plus-lighter;
+  box-shadow: var(--hdr-white-soft);
+}
+
+/* Request Builder shells, chips, preview & send button */
+.builder__form:after,
+.builder__preview-shell:after {
+  mix-blend-mode: plus-lighter;
+  box-shadow: var(--hdr-white-soft);
+}
+
+.chip {
+  position: relative;
+  box-shadow:
+    -2px 0 2px rgba(0, 0, 0, 0.3),
+    2px 0 2px rgba(0, 0, 0, 0.3),
+    0 6px 10px rgba(0, 0, 0, 0.2),
+    inset 0 4px 20px rgba(0, 0, 0, 0.3),
+    inset 0 6px 20px -4px rgba(0, 0, 0, 0.3);
+}
+
+.chip:after {
+  mix-blend-mode: plus-lighter;
+  box-shadow: var(--hdr-white-btn);
+}
+
+.builder__preview {
+  position: relative;
+  box-shadow:
+    -1px 0 0 rgba(0, 0, 0, 0.3),
+    1px 0 1px rgba(0, 0, 0, 0.3),
+    0 4px 4px rgba(0, 0, 0, 0.25),
+    inset 0 2px 2px rgba(0, 0, 0, 0.3);
+}
+
+.builder__preview:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  mix-blend-mode: plus-lighter;
+  box-shadow: var(--hdr-white-soft);
+}
+
+.builder__send-wrap {
+  box-shadow:
+    -2px 0 2px rgba(0, 0, 0, 0.3),
+    2px 0 2px rgba(0, 0, 0, 0.3),
+    0 6px 10px rgba(0, 0, 0, 0.2),
+    inset 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.builder__send-wrap:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+  mix-blend-mode: plus-lighter;
+  box-shadow: var(--hdr-white-glass);
+}
+
+.builder__send,
+.discuss__button,
+.resume__btn {
+  position: relative;
+  box-shadow:
+    -1px 0 0 rgba(0, 0, 0, 0.3),
+    1px 0 1px rgba(0, 0, 0, 0.3),
+    0 4px 4px rgba(0, 0, 0, 0.25),
+    inset 0 2px 2px rgba(0, 0, 0, 0.3);
+}
+
+.builder__send:after,
+.discuss__button:after,
+.resume__btn:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+  mix-blend-mode: plus-lighter;
+  box-shadow: var(--hdr-white-btn);
+}
+
+.resume__sheet {
+  box-shadow:
+    inset 0 4px 20px rgba(0, 0, 0, 0.3),
+    0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+.resume__sheet:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+  mix-blend-mode: plus-lighter;
+  box-shadow: var(--hdr-white-soft);
+}
+
+/* ==========================================================================
+   2. MENU LOGO EXACT FIGMA GLASS STYLE
+   ========================================================================== */
+
+.menu__logo .menu__logo-fx {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 56px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  filter:
+    drop-shadow(1px 0 1px rgba(0, 0, 0, 0.3))
+    drop-shadow(-1px 0 0 rgba(0, 0, 0, 0.3));
+  transition: transform 0.25s var(--ease-back);
+}
+
+.menu__logo:hover .menu__logo-fx {
+  transform: translate(-50%, -50%) scale(1.06);
+}
+
+.menu__logo-glass {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  background:
+    linear-gradient(0deg, #ffffff 0%, #ffffff 100%),
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.4) 0%,
+      rgba(0, 0, 0, 0.16) 31.73%,
+      rgba(255, 255, 255, 0.28) 100%
+    ),
+    rgba(255, 0, 0, 0.2);
+  background-blend-mode: normal, overlay, saturation;
+  box-shadow:
+    0 1px 0.5px 0 rgba(255, 255, 255, 0.25) inset,
+    0 0.5px 0.5px 0 rgba(255, 255, 255, 0.6) inset,
+    0 -1px 1px 0 rgba(255, 255, 255, 0.3) inset,
+    0 2px 3px 0 rgba(0, 0, 0, 0.2) inset,
+    0 1px 6px 0 rgba(0, 0, 0, 0.3) inset;
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+
+.menu__logo-svg {
+  position: relative;
+  z-index: 1;
+  width: 56px;
+  height: 32px;
+  pointer-events: none;
+}
+
+.menu__control--admin .menu__icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ==========================================================================
+   3. AI GALLERY COLLAPSE / SHOW BUTTON (.discuss__button style)
+   ========================================================================== */
+
+.ai__slide {
+  transition: opacity 0.65s var(--ease-out), transform 0.8s var(--ease-out);
+}
+
+.ai__slide--hero-pan {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ai__panel-col {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  z-index: 2;
+}
+
+.ai__toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 38px;
+  padding: 0;
+  z-index: 4;
+  background: var(--pressed-fill);
+  color: #ffffff;
+  transition: transform 0.22s var(--ease-back), background 0.2s var(--ease), color 0.2s var(--ease);
+}
+
+.ai__toggle-btn:hover {
+  transform: scale(1.06);
+  background: var(--pressed-fill);
+}
+
+.ai__toggle-btn--floating {
+  position: absolute;
+  right: max(20px, calc((100vw - 1120px) / 2));
+  bottom: 28px;
+  z-index: 5;
+}
+
+.feature--ai .feature__panel-top {
+  display: block;
+  width: 100%;
+}
+
+.feature--ai .feature__panel-top .h2 {
+  padding-right: 48px;
+}
+
+/* Flush right up against the top-right inner border of the glass container */
+.feature--ai .feature__panel-top .ai__toggle-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  margin: 0;
+  padding: 0;
+  width: 42px;
+  height: 38px;
+}
+
+@media (max-width: 1000px) {
+  .ai__toggle-btn--floating {
+    right: 20px;
+    bottom: 72px;
+    width: 42px;
+    height: 38px;
+    padding: 0;
+  }
+
+  .feature--ai .feature__panel-top .h2 {
+    padding-inline: 44px;
+  }
+
+  .feature--ai .feature__panel-top .ai__toggle-btn {
+    top: 6px;
+    right: 6px;
+    width: 42px;
+    height: 38px;
+    padding: 0;
+  }
+
+  /* Guarantee 20px horizontal side margins on mobile text across homepage */
+  .hero__info {
+    padding-inline: 20px;
+  }
+
+  .section.content,
+  .statement,
+  #about.section,
+  #request.section,
+  #design.section {
+    padding-inline: 20px;
+  }
+
+  #branding.section {
+    padding-inline: 0;
+  }
+
+  #branding .branding__layout {
+    padding-inline: 20px;
+  }
+
+  .footer__top {
+    padding-inline: 20px;
+  }
+}
+
+/* ==========================================================================
+   4. TODAY MENU EXTENDED GRID (1–6 CARDS)
+   ========================================================================== */
+
+.cases__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.case {
+  cursor: pointer;
+}
+
+@media (max-width: 1000px) {
+  .cases__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   5. FOOTER PUCKS — EXPLICIT ASPECT-RATIO & ZERO-CLUMPING SUPPORT
+   ========================================================================== */
+
+.footer__pucks {
+  position: relative;
+  height: 430px;
+  overflow: hidden;
+  clip-path: inset(0);
+}
+
+.puck {
+  position: absolute;
+  display: block;
+}
+
+.puck img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.puck.is-dragging {
+  cursor: grabbing;
+  z-index: 12;
+  filter: drop-shadow(0 16px 28px rgba(0, 0, 0, 0.48)) brightness(1.05);
+}
+
+:root[data-a11y='true'] .footer__pucks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  height: auto;
+  padding: 32px 16px;
+}
+
+:root[data-a11y='true'] .puck {
+  position: relative;
+  left: auto !important;
+  top: auto !important;
+  transform: none !important;
+}
+
+/* ==========================================================================
+   6. SHARED PILL BUTTON & TAG STYLES (for Subpages & Admin matching v2)
+   ========================================================================== */
+
+.tag {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 16px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--card-frost);
+  border: 1px solid var(--card-border);
+  color: var(--ink);
+  backdrop-filter: blur(calc(12px * var(--effects)));
+  -webkit-backdrop-filter: blur(calc(12px * var(--effects)));
+}
+
+.tag:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  mix-blend-mode: plus-lighter;
+  box-shadow: var(--hdr-white-soft);
+}
+
+.v2-pill-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 22px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-nav);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  background: var(--pressed-fill);
+  color: #ffffff;
+  border: 0;
+  cursor: pointer;
+  box-shadow:
+    -1px 0 0 rgba(0, 0, 0, 0.3),
+    1px 0 1px rgba(0, 0, 0, 0.3),
+    0 4px 4px rgba(0, 0, 0, 0.25),
+    inset 0 2px 2px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s var(--ease-back), background 0.2s var(--ease), opacity 0.2s;
+}
+
+.v2-pill-btn:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+  mix-blend-mode: plus-lighter;
+  box-shadow: var(--hdr-white-btn);
+}
+
+.v2-pill-btn--lime {
+  background: var(--lime);
+  color: #0a0a0a;
+}
+
+.v2-pill-btn:hover:not(:disabled) {
+  transform: scale(1.035);
+}
+
+.v2-pill-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ==========================================================================
+   7. LANGUAGE PICKER BUTTON & DARK-GRAY DROPDOWN (p BODY TEXT) + RTL SAFETY
+   ========================================================================== */
+
+.menu__popover--desktop {
+  width: max-content;
+  min-width: 256px;
+}
+
+.menu__popover--desktop .menu__panel {
+  flex-wrap: nowrap;
+  width: auto;
+  gap: 8px;
+}
+
+.menu__panel-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  width: 100%;
+}
+
+.menu__control--lang-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 40px;
+  padding: 6px 14px;
+  border-radius: 1000px;
+  border: 0;
+  background: transparent;
+  color: #ffffff;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.18s var(--ease), transform 0.18s var(--ease-back);
+}
+
+.menu__control--lang-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.menu__control--lang-btn.is-active {
+  background: var(--pressed-fill);
+  box-shadow: var(--pressed-shadow);
+}
+
+.menu__lang-btn-emoji {
+  font-size: 17px;
+  line-height: 1;
+  flex: none;
+}
+
+.menu__lang-btn-name {
+  line-height: 1;
+}
+
+/* Dark-gray dropdown matching .menu__panel--dark */
+.menu__lang-dropdown {
+  position: relative;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 28px;
+  background: #333333;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 220px;
+  box-shadow:
+    0 6px 24px rgba(0, 0, 0, 0.4),
+    -1px 0 0 rgba(0, 0, 0, 0.3),
+    1px 0 1px rgba(0, 0, 0, 0.3),
+    inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(calc(16px * var(--effects)));
+  -webkit-backdrop-filter: blur(calc(16px * var(--effects)));
+  overflow: hidden;
+  z-index: 3;
+}
+
+.menu__lang-dropdown:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+  mix-blend-mode: plus-lighter;
+  box-shadow: var(--hdr-white-glass);
+}
+
+.menu__popover--mobile .menu__lang-dropdown {
+  margin-top: 0;
+  width: 100%;
+}
+
+/* Language option styled explicitly as p (body text) */
+.menu__lang-option {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  border: 0;
+  border-radius: 1000px;
+  background: transparent;
+  color: #ffffff;
+  cursor: pointer;
+  text-align: start;
+  transition: background 0.18s var(--ease), color 0.18s var(--ease);
+}
+
+.menu__lang-option:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.menu__lang-option.is-active {
+  background: var(--pressed-fill);
+  box-shadow: var(--pressed-shadow);
+}
+
+.menu__lang-option.is-active:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  mix-blend-mode: plus-lighter;
+  box-shadow: var(--hdr-white-btn);
+}
+
+.menu__lang-emoji {
+  font-size: 18px;
+  line-height: 1;
+  flex: none;
+}
+
+.menu__lang-label {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: normal;
+  text-transform: none;
+  color: #ffffff;
+}
+
+.menu__lang-option.is-active .menu__lang-label {
+  font-weight: 600;
+  color: var(--lime);
+}
+
+:root[data-theme='light'] .menu__panel--dark,
+:root[data-theme='light'] .menu__lang-dropdown {
+  background: #333333;
+  color: #ffffff !important;
+}
+
+:root[data-theme='light'] .menu__panel--dark *,
+:root[data-theme='light'] .menu__lang-dropdown *,
+:root[data-theme='light'] .menu__lang-option,
+:root[data-theme='light'] .menu__lang-label,
+:root[data-theme='light'] .menu__control--lang-btn {
+  color: #ffffff !important;
+  text-shadow: 0 0 12px rgba(0, 0, 0, 0.5) !important;
+}
+
+:root[data-theme='light'] .menu__lang-option.is-active .menu__lang-label {
+  color: var(--lime) !important;
+}
+
+:root[data-theme='light'] .menu__panel--dark .menu__icon > svg {
+  filter: none !important;
+}
+
+/* Keep physics box, horizontal carousels, progress rail & marquees LTR internally even in RTL Arabic */
+:root[dir='rtl'] .footer__pucks,
+:root[dir='rtl'] .v2-flow,
+:root[dir='rtl'] .v2-ar-carousel,
+:root[dir='rtl'] .v2-rail,
+:root[dir='rtl'] .sub-clients__track {
+  direction: ltr;
+}
+
+:root[dir='rtl'] .menu__popover--desktop {
+  right: auto;
+  left: 0;
+}
+

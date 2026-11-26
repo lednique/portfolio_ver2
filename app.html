@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>lednique – portfolio</title>
+    <link rel="icon" href="./assets/logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Roboto+Condensed:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('lednique-theme');
+          if (t === 'light' || t === 'dark') {
+            document.documentElement.dataset.theme = t;
+          }
+          var L = ['ru', 'en', 'zh', 'ja', 'pt', 'fr', 'ar'];
+          var savedLang = localStorage.getItem('lednique-lang');
+          var nav = (navigator.languages || [navigator.language || 'ru']).map(function (x) {
+            return String(x).toLowerCase().slice(0, 2);
+          });
+          var lang =
+            L.indexOf(savedLang) >= 0
+              ? savedLang
+              : nav.find(function (c) {
+                  return L.indexOf(c) >= 0;
+                }) || 'ru';
+          document.documentElement.lang = lang;
+          document.documentElement.dataset.lang = lang;
+          document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="./shader.js" defer></script>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
