@@ -8,6 +8,19 @@
    6. Shared tokens & utilities for subpages + personal cabinet
    ========================================================================== */
 
+/* Restore signature lime green text selection across homepage and all subpages */
+::selection {
+  background: var(--lime);
+  color: #000000;
+  text-shadow: none;
+}
+
+::-moz-selection {
+  background: var(--lime);
+  color: #000000;
+  text-shadow: none;
+}
+
 :root {
   --bg-rgb: 0, 0, 0;
   --ink-rgb: 255, 255, 255;
@@ -164,6 +177,11 @@
   width: max-content;
   min-width: 788.502px;
   max-width: calc(100vw - 32px);
+}
+
+.menu__unfold {
+  height: auto;
+  min-height: 212px;
 }
 
 .menu__item:not(.menu__settings) > :not(.menu__active-pill),

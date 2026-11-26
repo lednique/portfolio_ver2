@@ -81,15 +81,18 @@
   margin: 0;
 }
 
-/* Primary body text — pure white in dark mode (var(--ink)), NO grey tones */
+/* Primary body text — exact match to homepage (.about__copy p / .feature__copy p / .section-lead) */
 .sub-lead {
-  font-size: clamp(15px, 1.6vw, 18px);
-  line-height: 1.6;
+  font-family: var(--font-ui);
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.1;
   color: var(--ink);
   margin: 0;
 }
 
-.sub-lead b {
+.sub-lead b,
+.sub-lead strong {
   color: var(--ink);
   font-weight: 700;
 }
@@ -337,8 +340,10 @@
 .sub-hero__lines {
   max-width: 780px;
   text-align: center;
-  font-size: clamp(15px, 1.7vw, 19px);
-  line-height: 1.65;
+  font-family: var(--font-ui);
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.1;
   color: var(--ink);
   margin: 0;
 }
@@ -629,7 +634,7 @@
 .v2-flow__viewport {
   width: 100%;
   overflow: hidden;
-  padding: 8px 0 14px;
+  padding: 14px 0 24px;
   cursor: grab;
   touch-action: pan-y;
   user-select: none;
@@ -653,7 +658,7 @@
   width: auto;
 }
 
-/* Uniform height per carousel so wide & tall/square photos NEVER create uneven vertical gaps */
+/* Previous styling restored: smaller corner radius, dark outer shadow + light HDR inner glass shadow, uniform height */
 .v2-flow__card {
   position: relative;
   display: block;
@@ -661,12 +666,22 @@
   height: clamp(300px, 34vw, 434px);
   margin: 0;
   padding: 0;
-  border-radius: 36px;
+  border-radius: 24px;
   overflow: hidden;
-  clip-path: inset(0 round 36px);
-  border: 0;
+  border: 1px solid var(--glass-border);
   background: transparent;
   box-shadow: var(--glass-dark-shadow);
+}
+
+.v2-flow__card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+  box-shadow: var(--hdr-white-glass);
+  mix-blend-mode: plus-lighter;
 }
 
 .v2-flow--wide .v2-flow__card {
@@ -753,7 +768,7 @@
 .v2-ar-slide__frame {
   position: relative;
   aspect-ratio: 9 / 16;
-  border-radius: 28px;
+  border-radius: 24px;
   overflow: hidden;
   background: #0d0d10;
   border: 1px solid var(--glass-border);
@@ -867,41 +882,37 @@
   color: #ffffff;
 }
 
-/* ───────── AR About Glass + Clients Marquee ───────── */
+/* ───────── AR About Block (plain open layout — NO rounded box, border or shadows) + Clients Marquee ───────── */
 .sub-aboutglass {
   position: relative;
   z-index: 2;
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-  gap: 32px;
-  padding: 36px;
-  border-radius: 32px;
-  background: var(--surface);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-dark-shadow);
-}
-
-.sub-aboutglass::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  box-shadow: var(--hdr-white-glass);
-  mix-blend-mode: plus-lighter;
+  gap: 36px;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
 }
 
 .sub-aboutglass__text {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
+  font-family: var(--font-ui);
+  font-weight: 500;
   font-size: 16px;
-  line-height: 1.6;
+  line-height: 1.1;
   color: var(--ink);
 }
 
 .sub-aboutglass__text p {
   margin: 0;
+  font-family: var(--font-ui);
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.1;
   color: var(--ink);
 }
 
@@ -1046,8 +1057,10 @@
 
 .v2-pinned__text {
   margin: 0;
-  font-size: 15px;
-  line-height: 1.6;
+  font-family: var(--font-ui);
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.1;
   color: var(--ink);
 }
 
@@ -1164,8 +1177,10 @@
 
 .sub-cmp__body {
   margin: 0;
+  font-family: var(--font-ui);
+  font-weight: 500;
   font-size: 16px;
-  line-height: 1.6;
+  line-height: 1.1;
   color: var(--ink);
 }
 
@@ -1226,8 +1241,10 @@
 
 .sub-pipe__text {
   margin: 0;
-  font-size: 14px;
-  line-height: 1.6;
+  font-family: var(--font-ui);
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.1;
   color: var(--ink);
 }
 
@@ -1660,8 +1677,10 @@
   .v2-cv__skill p,
   .v2-cv__stack,
   .v2-cv__list {
+    font-family: var(--font-ui);
+    font-weight: 500;
     font-size: 14px;
-    line-height: 1.25;
+    line-height: 1;
     color: var(--ink);
     text-align: center;
   }
@@ -1748,22 +1767,19 @@
   .v2-flow--card .v2-flow__card {
     width: auto;
     height: clamp(230px, 58vw, 300px);
-    border-radius: 28px;
-    clip-path: inset(0 round 28px);
+    border-radius: 20px;
   }
 
   .v2-flow--wide .v2-flow__card {
     width: auto;
     height: clamp(230px, 58vw, 310px);
-    border-radius: 28px;
-    clip-path: inset(0 round 28px);
+    border-radius: 20px;
   }
 
   .v2-flow--photo .v2-flow__card {
     width: auto;
     height: clamp(300px, 74vw, 380px);
-    border-radius: 28px;
-    clip-path: inset(0 round 28px);
+    border-radius: 20px;
   }
 
   .v2-flow--card .v2-flow__card img,
@@ -1774,10 +1790,14 @@
     max-width: none;
   }
 
-  /* AR aboutglass, pinned, compare, pipeline, CV single-column centered */
+  /* AR about block (open, no rounded box or shadows), pinned, compare, pipeline, CV single-column centered */
   .sub-aboutglass {
     grid-template-columns: 1fr;
-    padding: 22px 20px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
     gap: 20px;
     text-align: center;
   }

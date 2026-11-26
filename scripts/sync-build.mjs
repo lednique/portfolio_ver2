@@ -44,7 +44,7 @@ for (const [file, hash] of Object.entries(redirects)) {
 <head>
   <meta charset="UTF-8" />
   <meta http-equiv="refresh" content="0; url=./index.html${hash}" />
-  <title>LEDNIQUE — Redirecting…</title>
+  <title>lednique – portfolio</title>
   <script>location.replace('./index.html${hash}');</script>
 </head>
 <body style="background:#000;color:#fff;font-family:sans-serif;padding:40px;">

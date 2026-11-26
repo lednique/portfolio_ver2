@@ -1,35 +1,42 @@
-import React, { useEffect } from 'react';
-import { MotionConfig, motion, useScroll, useSpring } from 'framer-motion';
+import React, { useCallback, useEffect, useState } from 'react';
+import { AnimatePresence, MotionConfig, motion, useScroll, useSpring } from 'framer-motion';
 import { CmsProvider } from './data/CmsContext';
 import { I18nProvider, useI18n } from './i18n/I18nContext';
 import { RouterProvider, useRouter } from './router';
 import { Footer } from './components/Footer';
 import { Menu } from './components/Menu';
+import { ResumeModal } from './components/ResumeModal';
 import { AdminPage } from './pages/AdminPage';
 import { AiPage } from './pages/AiPage';
 import { ArPage } from './pages/ArPage';
 import { DesignPage } from './pages/DesignPage';
 import { HomePage } from './pages/HomePage';
-import { ResumePage } from './pages/ResumePage';
 
-const ROUTE_TITLES = {
-  '/': 'LEDNIQUE — Design küchen',
-  '/design': 'Графический дизайн — LEDNIQUE',
-  '/ai': 'AI-продакшн — LEDNIQUE',
-  '/ar': 'AR-эффекты — LEDNIQUE',
-  '/resume': 'Резюме — Виктор Власов · LEDNIQUE',
-  '/admin': 'Личный кабинет — LEDNIQUE',
-};
+const SITE_TITLE = 'lednique – portfolio';
 
 function AppShell() {
-  const { path } = useRouter();
-  const { t, lang } = useI18n();
+  const { path, navigate } = useRouter();
+  const { lang } = useI18n();
+  const [resumeOpen, setResumeOpen] = useState(false);
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 120,
     damping: 25,
     mass: 0.3,
   });
+
+  const isResumeVisible = resumeOpen || path === '/resume';
+
+  const handleOpenResume = useCallback(() => {
+    setResumeOpen(true);
+  }, []);
+
+  const handleCloseResume = useCallback(() => {
+    setResumeOpen(false);
+    if (path === '/resume') {
+      navigate('/');
+    }
+  }, [navigate, path]);
 
   useEffect(() => {
     let triggered = false;
@@ -64,9 +71,8 @@ function AppShell() {
   }, []);
 
   useEffect(() => {
-    const rawTitle = ROUTE_TITLES[path] || ROUTE_TITLES['/'];
-    document.title = t(rawTitle);
-  }, [path, lang, t]);
+    document.title = SITE_TITLE;
+  }, [path, lang]);
 
   const renderPage = () => {
     switch (path) {
@@ -76,10 +82,9 @@ function AppShell() {
         return <AiPage />;
       case '/ar':
         return <ArPage />;
-      case '/resume':
-        return <ResumePage />;
       case '/admin':
         return <AdminPage />;
+      case '/resume':
       case '/':
       default:
         return <HomePage />;
@@ -102,11 +107,14 @@ function AppShell() {
           zIndex: 300,
         }}
       />
-      <Menu />
+      <Menu onOpenResume={handleOpenResume} />
       <div className="site">
         <main>{renderPage()}</main>
         <Footer />
       </div>
+      <AnimatePresence>
+        {isResumeVisible && <ResumeModal onClose={handleCloseResume} />}
+      </AnimatePresence>
     </MotionConfig>
   );
 }
