@@ -4,11 +4,16 @@ import { useI18n } from '../i18n/I18nContext';
 import { useStillMode } from '../hooks/useA11y';
 import { EASE_OUT } from './Reveal';
 
-const RESUME_PDF = './assets/resume/resume.pdf';
+const RESUME_PDF_RU = './assets/resume/resume.pdf';
+const RESUME_PDF_EN = './assets/resume/resume-en.pdf';
 
-export function ResumeModal({ onClose, pdfUrl = RESUME_PDF, filename = 'Виктор_Власов_резюме.pdf' }) {
+export function ResumeModal({ onClose, pdfUrl, filename }) {
   const still = useStillMode();
-  const { t } = useI18n();
+  const { lang, t } = useI18n();
+
+  const resolvedPdf = pdfUrl || (lang === 'ru' ? RESUME_PDF_RU : RESUME_PDF_EN);
+  const resolvedFilename =
+    filename || (lang === 'ru' ? 'Виктор_Власов_резюме.pdf' : 'Viktor_Vlasov_Resume.pdf');
 
   useEffect(() => {
     const onKey = (e) => {
@@ -55,11 +60,11 @@ export function ResumeModal({ onClose, pdfUrl = RESUME_PDF, filename = 'Викт
         </button>
         <iframe
           className="resume__pdf"
-          src={pdfUrl}
+          src={resolvedPdf}
           title={t('Предпросмотр резюме — Виктор Власов')}
         />
         <div className="resume__actions">
-          <a className="resume__download" href={pdfUrl} download={filename}>
+          <a className="resume__download" href={resolvedPdf} download={resolvedFilename}>
             {t('скачать pdf')}
           </a>
         </div>

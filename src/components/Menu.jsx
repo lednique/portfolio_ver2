@@ -22,8 +22,9 @@ const DESKTOP_LINKS = [
   { type: 'route', path: '/ar', label: 'AR-Эффекты', minWidth: 152 },
 ];
 
+const MOBILE_ABOUT_LINK = { type: 'anchor', path: '/', anchor: 'about', label: 'обо мне' };
+
 const MOBILE_LINKS = [
-  { type: 'anchor', path: '/', anchor: 'about', label: 'обо мне', minWidth: 111 },
   { type: 'route', path: '/design', label: 'дизайн', minWidth: 105 },
   { type: 'route', path: '/ai', label: 'AI-Продакшн', minWidth: 161 },
   { type: 'route', path: '/ar', label: 'AR Эффекты', minWidth: 150 },
@@ -45,13 +46,13 @@ const MOBILE_POPOVER_ANIM = {
   transition: { duration: 0.28, ease: EASE_OUT },
 };
 
-function NavItem({ link, active, onSelect, t }) {
+function NavItem({ link, active, compact, onSelect, t }) {
   const href = link.anchor ? `#${link.path}#${link.anchor}` : `#${link.path}`;
   return (
     <a
       className={`menu__item nav-label${active ? ' is-active' : ''}`}
       href={href}
-      style={{ minWidth: link.minWidth }}
+      style={{ minWidth: compact ? undefined : link.minWidth }}
       onClick={(e) => {
         e.preventDefault();
         onSelect(link);
@@ -63,20 +64,16 @@ function NavItem({ link, active, onSelect, t }) {
   );
 }
 
-function ResumeLink({ active, compact, onSelect, t }) {
+function ResumeButton({ compact, onOpen, t }) {
   return (
-    <a
-      className={`menu__item nav-label menu__resume${active ? ' is-active' : ''}`}
-      href="#/resume"
+    <button
+      className="menu__item nav-label menu__resume"
+      type="button"
       style={{ minWidth: compact ? undefined : RESUME_ITEM.minWidth }}
-      onClick={(e) => {
-        e.preventDefault();
-        onSelect();
-      }}
+      onClick={onOpen}
     >
-      {active && <span className="menu__active-pill" aria-hidden="true" />}
       <span className="menu__item-text">{t(RESUME_ITEM.label)}</span>
-    </a>
+    </button>
   );
 }
 
@@ -182,7 +179,7 @@ function LanguageDropdown({ languages, currentCode, onSelect, still, t }) {
   );
 }
 
-export function Menu() {
+export function Menu({ onOpenResume }) {
   const still = useStillMode();
   const { path, navigate } = useRouter();
   const { canShowAdminInMenu } = useCms();
@@ -321,7 +318,7 @@ export function Menu() {
 
   const handleResumeClick = () => {
     closeAll();
-    navigate('/resume');
+    onOpenResume?.();
   };
 
   const handleAdminOpen = () => {
@@ -391,11 +388,7 @@ export function Menu() {
             />
           ))}
 
-          <ResumeLink
-            active={!settingsOpen && path === '/resume'}
-            onSelect={handleResumeClick}
-            t={t}
-          />
+          <ResumeButton onOpen={handleResumeClick} t={t} />
 
           <button
             className={`menu__settings${settingsOpen || isAdmin ? ' is-active' : ''}`}
@@ -465,10 +458,11 @@ export function Menu() {
             <MenuLogoMark />
           </a>
 
-          <ResumeLink
-            active={!anyMobilePanel && path === '/resume'}
+          <NavItem
+            link={MOBILE_ABOUT_LINK}
             compact
-            onSelect={handleResumeClick}
+            active={!anyMobilePanel && isLinkActive(MOBILE_ABOUT_LINK)}
+            onSelect={handleLinkSelect}
             t={t}
           />
 
@@ -513,6 +507,9 @@ export function Menu() {
                       />
                     </div>
                   ))}
+                  <div>
+                    <ResumeButton onOpen={handleResumeClick} t={t} />
+                  </div>
                   <button
                     className={`menu__item nav-label menu__settings menu__settings--unfold${
                       settingsOpen ? ' is-active' : ''
