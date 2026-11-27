@@ -96,17 +96,23 @@ const SOCIAL_PUCKS = [
 const MAX_THROW_SPEED = 26;
 const MAX_DRAG_SPEED = 32;
 
-function usePuckPhysics(containerRef, enabled) {
+function usePuckPhysics(containerRef, stageSpaceRef, enabled) {
   const [sizeBucket, setSizeBucket] = useState(0);
-  const lastWidthRef = useRef(0);
+  const lastSizeRef = useRef({ w: 0, h: 0 });
 
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
     const ro = new ResizeObserver((entries) => {
-      const w = entries[0]?.contentRect?.width || el.clientWidth;
-      if (w > 40 && Math.abs(w - lastWidthRef.current) > 24) {
-        lastWidthRef.current = w;
+      const rect = entries[0]?.contentRect;
+      const w = rect?.width || el.clientWidth;
+      const h = rect?.height || el.clientHeight;
+      if (
+        w > 40 &&
+        h > 40 &&
+        (Math.abs(w - lastSizeRef.current.w) > 24 || Math.abs(h - lastSizeRef.current.h) > 24)
+      ) {
+        lastSizeRef.current = { w, h };
         setSizeBucket((n) => n + 1);
       }
     });
@@ -121,9 +127,20 @@ function usePuckPhysics(containerRef, enabled) {
     const W = container.clientWidth;
     const H = container.clientHeight;
     if (W < 60 || H < 60) return;
-    lastWidthRef.current = W;
+    lastSizeRef.current = { w: W, h: H };
 
     const isMobile = W <= 640;
+
+    // Measure the lower resting zone under the footer headings so pucks start cleanly
+    // below "@lednique" & "не забудьте соус", while physics walls cover the ENTIRE footer.
+    const containerRect = container.getBoundingClientRect();
+    const stageEl = stageSpaceRef?.current;
+    const stageRect = stageEl ? stageEl.getBoundingClientRect() : null;
+    const stageTop = stageRect
+      ? Math.max(0, stageRect.top - containerRect.top)
+      : Math.max(0, H - (isMobile ? 460 : 430));
+    const stageH =
+      stageRect && stageRect.height > 60 ? stageRect.height : Math.max(60, H - stageTop);
 
     const engine = Matter.Engine.create({
       gravity: { x: 0, y: 0, scale: 0 },
@@ -164,6 +181,16 @@ function usePuckPhysics(containerRef, enabled) {
       return {
         x: Math.max(hx, Math.min(W - hx, x)),
         y: Math.max(hy, Math.min(H - hy, y)),
+      };
+    };
+
+    const clampToStage = (item, x, y) => {
+      const { hx, hy } = getHalfExtents(item);
+      const minY = stageTop + hy;
+      const maxY = Math.min(H - hy, stageTop + stageH - hy);
+      return {
+        x: Math.max(hx, Math.min(W - hx, x)),
+        y: minY <= maxY ? Math.max(minY, Math.min(maxY, y)) : Math.max(hy, Math.min(H - hy, y)),
       };
     };
 
@@ -213,7 +240,7 @@ function usePuckPhysics(containerRef, enabled) {
 
       const angle = (spec.angleDeg * Math.PI) / 180;
       const initX = W * (isMobile ? spec.mobX : spec.deskX);
-      const initY = H * (isMobile ? spec.mobY : spec.deskY);
+      const initY = stageTop + stageH * (isMobile ? spec.mobY : spec.deskY);
 
       const chamferR = Math.min(spec.chamfer, Math.min(rectW, rectH) * 0.42);
       const body = Matter.Bodies.rectangle(initX, initY, rectW, rectH, {
@@ -229,7 +256,7 @@ function usePuckPhysics(containerRef, enabled) {
       });
 
       const item = { el, body, w: rectW, h: rectH };
-      const clamped = clampPoint(item, initX, initY);
+      const clamped = clampToStage(item, initX, initY);
       Matter.Body.setPosition(body, clamped);
       items.push(item);
     });
@@ -265,7 +292,7 @@ function usePuckPhysics(containerRef, enabled) {
         }
       }
       for (const item of items) {
-        const p = clampPoint(item, item.body.position.x, item.body.position.y);
+        const p = clampToStage(item, item.body.position.x, item.body.position.y);
         Matter.Body.setPosition(item.body, p);
       }
       if (!anyOverlap) break;
@@ -473,34 +500,39 @@ function usePuckPhysics(containerRef, enabled) {
         el.style.removeProperty('transform-origin');
       }
     };
-  }, [containerRef, enabled, sizeBucket]);
+  }, [containerRef, stageSpaceRef, enabled, sizeBucket]);
 }
 
 export function Footer() {
   const still = useStillMode();
   const { t } = useI18n();
   const pucksRef = useRef(null);
+  const stageSpaceRef = useRef(null);
 
-  usePuckPhysics(pucksRef, !still);
+  usePuckPhysics(pucksRef, stageSpaceRef, !still);
 
   return (
-    <footer className="footer content" id="contact">
-      <div className="footer__top">
-        <Reveal as="p" className="footer__handle" stagger={0.06}>
-          @lednique
-        </Reveal>
-        <Reveal as="p" className="footer__role" delay={0.12} stagger={0.04}>
-          graphic designer / AI
-          <br />/ e-commerce / AR
+    <footer className={`footer${still ? ' footer--still' : ''}`} id="contact">
+      <div className="footer__inner content">
+        <div className="footer__top">
+          <Reveal as="p" className="footer__handle" stagger={0.06}>
+            @lednique
+          </Reveal>
+          <Reveal as="p" className="footer__role" delay={0.12} stagger={0.04}>
+            graphic designer / AI
+            <br />/ e-commerce / AR
+          </Reveal>
+        </div>
+
+        <Reveal as="h2" className="footer__sauce" delay={0.24} stagger={0.055}>
+          {t('не забудьте соус')}
         </Reveal>
       </div>
 
-      <Reveal as="h2" className="footer__sauce" delay={0.24} stagger={0.055}>
-        {t('не забудьте соус')}
-      </Reveal>
+      <div className="footer__stage-space" ref={stageSpaceRef} aria-hidden="true" />
 
       <motion.div
-        className="footer__pucks"
+        className={`footer__pucks${still ? ' footer__pucks--still' : ''}`}
         ref={pucksRef}
         initial={still ? false : { opacity: 0 }}
         animate={still ? { opacity: 1 } : undefined}
