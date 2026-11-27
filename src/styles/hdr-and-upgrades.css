@@ -199,8 +199,8 @@
 }
 
 .menu__logo {
-  flex: 0 0 80px;
-  width: 80px;
+  flex: 0 0 70px;
+  width: 70px;
   height: 40px;
 }
 
@@ -428,7 +428,9 @@
 
 .ai__rail-bar--active:after {
   background: var(--hdr-white);
-  box-shadow: 0 0 1px 1px var(--hdr-white-80);
+  box-shadow:
+    0 0 14px 3px rgba(255, 255, 255, 0.9),
+    0 0 1px 1px var(--hdr-white-80);
 }
 
 .feature--ai .feature__panel {
@@ -721,8 +723,8 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 56px;
-  height: 32px;
+  width: 45.5px;
+  height: 26px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -772,8 +774,8 @@
 .menu__logo-svg {
   position: relative;
   z-index: 1;
-  width: 56px;
-  height: 32px;
+  width: 45.5px;
+  height: 26px;
   pointer-events: none;
 }
 
@@ -836,14 +838,14 @@
 }
 
 .feature--ai .feature__panel-top .h2 {
-  padding-right: 48px;
+  padding-right: 52px;
 }
 
-/* Flush right up against the top-right inner border of the glass container */
+/* Offset 10px from top & right edges of the glass container (concentric with 28px corner) */
 .feature--ai .feature__panel-top .ai__toggle-btn {
   position: absolute;
-  top: 6px;
-  right: 6px;
+  top: 10px;
+  right: 10px;
   margin: 0;
   padding: 0;
   width: 42px;
@@ -860,12 +862,12 @@
   }
 
   .feature--ai .feature__panel-top .h2 {
-    padding-inline: 44px;
+    padding-inline: 50px;
   }
 
   .feature--ai .feature__panel-top .ai__toggle-btn {
-    top: 6px;
-    right: 6px;
+    top: 10px;
+    right: 10px;
     width: 42px;
     height: 38px;
     padding: 0;
@@ -918,19 +920,47 @@
 }
 
 /* ==========================================================================
-   5. FOOTER PUCKS — EXPLICIT ASPECT-RATIO & ZERO-CLUMPING SUPPORT
+   5. FOOTER PUCKS — FULL-WIDTH FOOTER ARENA OVER HEADINGS & ZERO-CLUMPING
    ========================================================================== */
 
-.footer__pucks {
+.footer {
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+  padding-inline: 0;
+}
+
+.footer__inner {
   position: relative;
+  z-index: 2;
+}
+
+.footer__stage-space {
   height: 430px;
+  pointer-events: none;
+}
+
+@media (max-width: 1000px) {
+  .footer__stage-space {
+    height: 460px;
+  }
+}
+
+.footer__pucks {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
   overflow: hidden;
   clip-path: inset(0);
+  pointer-events: none;
 }
 
 .puck {
   position: absolute;
   display: block;
+  pointer-events: auto;
 }
 
 .puck img {
@@ -945,17 +975,27 @@
   filter: drop-shadow(0 16px 28px rgba(0, 0, 0, 0.48)) brightness(1.05);
 }
 
-:root[data-a11y='true'] .footer__pucks {
+:root[data-a11y='true'] .footer__stage-space,
+.footer--still .footer__stage-space {
+  display: none;
+}
+
+:root[data-a11y='true'] .footer__pucks,
+.footer__pucks--still {
+  position: relative;
+  inset: auto;
+  height: auto;
+  pointer-events: auto;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
   gap: 20px;
-  height: auto;
   padding: 32px 16px;
 }
 
-:root[data-a11y='true'] .puck {
+:root[data-a11y='true'] .puck,
+.footer__pucks--still .puck {
   position: relative;
   left: auto !important;
   top: auto !important;

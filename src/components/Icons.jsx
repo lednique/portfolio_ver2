@@ -23,8 +23,8 @@ export function MenuLogoMark() {
       />
       <svg
         className="menu__logo-svg"
-        width="56"
-        height="32"
+        width="45.5"
+        height="26"
         viewBox="0 0 56 32"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
