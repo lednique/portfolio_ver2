@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { AnimatePresence, MotionConfig, motion, useScroll, useSpring } from 'framer-motion';
+import { AnimatePresence, MotionConfig } from 'framer-motion';
 import { CmsProvider } from './data/CmsContext';
 import { I18nProvider, useI18n } from './i18n/I18nContext';
 import { RouterProvider, useRouter } from './router';
@@ -18,12 +18,6 @@ function AppShell() {
   const { path, navigate } = useRouter();
   const { lang } = useI18n();
   const [resumeOpen, setResumeOpen] = useState(false);
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, {
-    stiffness: 120,
-    damping: 25,
-    mass: 0.3,
-  });
 
   const isResumeVisible = resumeOpen || path === '/resume';
 
@@ -93,20 +87,6 @@ function AppShell() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <motion.div
-        aria-hidden="true"
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: 2,
-          transformOrigin: '0%',
-          scaleX,
-          background: 'var(--lime)',
-          zIndex: 300,
-        }}
-      />
       <Menu onOpenResume={handleOpenResume} />
       <div className="site">
         <main>{renderPage()}</main>

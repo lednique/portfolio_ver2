@@ -273,24 +273,6 @@ function usePuckPhysics(containerRef, enabled) {
 
     Matter.Composite.add(engine.world, [...walls, ...items.map((it) => it.body)]);
 
-    // Collision hit sound
-    const hitAudio = new Audio('./audio/socials_hit.mp3');
-    let audioUnlocked = false;
-    let lastSoundTs = 0;
-    const unlockAudio = () => {
-      if (audioUnlocked) return;
-      audioUnlocked = true;
-      hitAudio.volume = 0;
-      hitAudio
-        .play()
-        ?.then(() => {
-          hitAudio.pause();
-          hitAudio.currentTime = 0;
-          hitAudio.volume = 0.25;
-        })
-        .catch(() => {});
-    };
-
     const clampSpeed = (vx, vy, max) => {
       const mag = Math.hypot(vx, vy);
       if (mag <= max) return { x: vx, y: vy };
@@ -340,7 +322,6 @@ function usePuckPhysics(containerRef, enabled) {
         // Ignore
       }
       el.classList.add('is-dragging');
-      unlockAudio();
       e.preventDefault();
     };
 
@@ -429,23 +410,6 @@ function usePuckPhysics(containerRef, enabled) {
     }
     container.addEventListener('click', onClickCapture, true);
 
-    const onCollision = ({ pairs }) => {
-      if (!audioUnlocked) return;
-      let maxRel = 0;
-      for (const pair of pairs) {
-        const va = pair.bodyA.velocity;
-        const vb = pair.bodyB.velocity;
-        maxRel = Math.max(maxRel, Math.hypot(va.x - vb.x, va.y - vb.y));
-      }
-      const now = performance.now();
-      if (maxRel >= 1.2 && now - lastSoundTs >= 140) {
-        lastSoundTs = now;
-        hitAudio.currentTime = 0;
-        hitAudio.play().catch(() => {});
-      }
-    };
-    Matter.Events.on(engine, 'collisionStart', onCollision);
-
     // Prepare DOM positioning so transforms map 1:1 from top-left (0, 0)
     for (const item of items) {
       item.el.style.left = '0px';
@@ -490,7 +454,6 @@ function usePuckPhysics(containerRef, enabled) {
 
     return () => {
       cancelAnimationFrame(rafId);
-      Matter.Events.off(engine, 'collisionStart', onCollision);
       Matter.Composite.clear(engine.world, false);
       Matter.Engine.clear(engine);
       container.removeEventListener('pointerdown', onPointerDown);
@@ -502,7 +465,6 @@ function usePuckPhysics(containerRef, enabled) {
         item.el.removeEventListener('lostpointercapture', onLostCapture);
       }
       container.removeEventListener('click', onClickCapture, true);
-      hitAudio.pause();
       for (const { el } of items) {
         el.classList.remove('is-dragging');
         el.style.removeProperty('transform');
