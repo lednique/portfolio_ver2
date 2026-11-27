@@ -60,9 +60,9 @@ export function useSubHeroMotion() {
       fish.parentElement.style.rotate = prevRotate;
       if (prevShift) layer.style.setProperty('--fish-mobile-shift', prevShift);
 
-      // group1.svg has transparent top padding (~29.3%); align visible silhouette.
+      // group1.svg has transparent top padding (~29.3%); align visible silhouette (+100px downward shift).
       const visibleTop = fishBox.top + fishBox.height * 0.293;
-      const targetTop = titleBox.top - 55;
+      const targetTop = titleBox.top + 45;
       layer.style.setProperty('--fish-mobile-shift', `${(targetTop - visibleTop).toFixed(2)}px`);
     };
 

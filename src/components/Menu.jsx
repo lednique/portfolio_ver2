@@ -16,21 +16,21 @@ import {
 import { EASE_OUT } from './Reveal';
 
 const DESKTOP_LINKS = [
-  { type: 'anchor', path: '/', anchor: 'about', label: 'Обо мне', minWidth: 111 },
-  { type: 'route', path: '/design', label: 'Дизайн', minWidth: 105 },
-  { type: 'route', path: '/ai', label: 'AI-ПРодакшн', minWidth: 161 },
-  { type: 'route', path: '/ar', label: 'AR-Эффекты', minWidth: 152 },
+  { type: 'anchor', path: '/', anchor: 'about', label: 'Обо мне' },
+  { type: 'route', path: '/design', label: 'Дизайн' },
+  { type: 'route', path: '/ai', label: 'AI-ПРодакшн' },
+  { type: 'route', path: '/ar', label: 'AR-Эффекты' },
 ];
 
 const MOBILE_ABOUT_LINK = { type: 'anchor', path: '/', anchor: 'about', label: 'обо мне' };
 
 const MOBILE_LINKS = [
-  { type: 'route', path: '/design', label: 'дизайн', minWidth: 105 },
-  { type: 'route', path: '/ai', label: 'AI-Продакшн', minWidth: 161 },
-  { type: 'route', path: '/ar', label: 'AR Эффекты', minWidth: 150 },
+  { type: 'route', path: '/design', label: 'дизайн' },
+  { type: 'route', path: '/ai', label: 'AI-Продакшн' },
+  { type: 'route', path: '/ar', label: 'AR Эффекты' },
 ];
 
-const RESUME_ITEM = { path: '/resume', label: 'резюме', minWidth: 105 };
+const RESUME_ITEM = { path: '/resume', label: 'резюме' };
 
 const POPOVER_ANIM = {
   initial: { opacity: 0, y: -6 },
@@ -46,13 +46,12 @@ const MOBILE_POPOVER_ANIM = {
   transition: { duration: 0.28, ease: EASE_OUT },
 };
 
-function NavItem({ link, active, compact, onSelect, t }) {
+function NavItem({ link, active, onSelect, t }) {
   const href = link.anchor ? `#${link.path}#${link.anchor}` : `#${link.path}`;
   return (
     <a
       className={`menu__item nav-label${active ? ' is-active' : ''}`}
       href={href}
-      style={{ minWidth: compact ? undefined : link.minWidth }}
       onClick={(e) => {
         e.preventDefault();
         onSelect(link);
@@ -64,12 +63,11 @@ function NavItem({ link, active, compact, onSelect, t }) {
   );
 }
 
-function ResumeButton({ compact, onOpen, t }) {
+function ResumeButton({ onOpen, t }) {
   return (
     <button
       className="menu__item nav-label menu__resume"
       type="button"
-      style={{ minWidth: compact ? undefined : RESUME_ITEM.minWidth }}
       onClick={onOpen}
     >
       <span className="menu__item-text">{t(RESUME_ITEM.label)}</span>
@@ -460,7 +458,6 @@ export function Menu({ onOpenResume }) {
 
           <NavItem
             link={MOBILE_ABOUT_LINK}
-            compact
             active={!anyMobilePanel && isLinkActive(MOBILE_ABOUT_LINK)}
             onSelect={handleLinkSelect}
             t={t}

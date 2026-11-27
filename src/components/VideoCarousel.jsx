@@ -45,7 +45,14 @@ function ArVideoSlide({ item, isActive, shouldPreload, onActivate }) {
         if (!isActive) onActivate?.();
       }}
     >
-      <div className="v2-ar-slide__frame">
+      <div
+        className="v2-ar-slide__frame"
+        style={
+          posterSrc
+            ? { background: `url("${posterSrc}") lightgray 50% / cover no-repeat` }
+            : undefined
+        }
+      >
         {posterSrc && (
           <img
             className="v2-ar-slide__poster"

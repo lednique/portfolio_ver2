@@ -388,7 +388,14 @@ export function FlowCarousel({
                 className="v2-flow__slide"
                 aria-hidden={isClone ? 'true' : undefined}
               >
-                <figure className="v2-flow__card">
+                <figure
+                  className="v2-flow__card"
+                  style={
+                    src
+                      ? { background: `url("${src}") lightgray 50% / cover no-repeat` }
+                      : undefined
+                  }
+                >
                   {src ? (
                     <img
                       src={src}
