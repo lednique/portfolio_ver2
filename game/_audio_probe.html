@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>audio probe</title>
+<style>body{background:#000;color:#0f0;font:13px monospace;padding:12px}</style>
+</head><body>
+<pre id="out">starting...</pre>
+<script src="index.js"></script>
+<script>
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":false,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":17282464,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const log = (m) => { document.getElementById('out').textContent += '\n' + m; (window.__probe = window.__probe || []).push(m); };
+// capture the real URLs the engine asks for
+const origFetch = window.fetch;
+window.fetch = function (input, init) {
+  const url = typeof input === 'string' ? input : (input && input.url) || '';
+  if (/worklet|index\.(wasm|pck)/.test(url)) log('FETCH ' + url.split('/').pop());
+  return origFetch.call(this, input, init);
+};
+window.addEventListener('error', e => log('WINDOW_ERROR ' + e.message));
+window.addEventListener('unhandledrejection', e => log('REJECTION ' + (e.reason && e.reason.message || e.reason)));
+// patch audioWorklet.addModule to record results
+const AC = window.AudioContext || window.webkitAudioContext;
+if (AC) {
+  const proto = AC.prototype;
+  const addModule = proto.audioWorklet ? Object.getOwnPropertyDescriptor(Object.getPrototypeOf(proto.audioWorklet), 'addModule') : null;
+  log('AudioContext available, audioWorklet=' + !!proto.audioWorklet);
+} else { log('NO AudioContext'); }
+const wrapAC = function (...a) {
+  const c = new AC(...a);
+  log('CTX created state=' + c.state + ' sr=' + c.sampleRate);
+  if (c.audioWorklet && !c.__wrapAdd) {
+    c.__wrapAdd = true;
+    const origAdd = c.audioWorklet.addModule.bind(c.audioWorklet);
+    c.audioWorklet.addModule = (url) => {
+      log('addModule START ' + String(url).split('/').pop());
+      return origAdd(url).then(r => { log('addModule OK ' + String(url).split('/').pop()); return r; },
+                             e => { log('addModule FAIL ' + String(url).split('/').pop() + ' :: ' + e); throw e; });
+    };
+  }
+  c.addEventListener('statechange', () => log('CTX state=' + c.state));
+  window.__actx = c;
+  return c;
+};
+wrapAC.prototype = AC.prototype;
+window.AudioContext = wrapAC;
+if (window.webkitAudioContext) window.webkitAudioContext = wrapAC;
+
+(async () => {
+  const engine = new Engine(GODOT_CONFIG);
+  log('engine created');
+  try {
+    await engine.startGame({ onProgress: () => {} });
+    log('GAME STARTED');
+  } catch (e) { log('START FAILED ' + e); }
+  setTimeout(() => {
+    const c = window.__actx;
+    log('FINAL ctx.state=' + (c ? c.state : 'none'));
+    document.title = 'DONE';
+  }, 3000);
+})();
+</script>
+</body></html>

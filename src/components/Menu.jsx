@@ -4,7 +4,6 @@ import { useCms } from '../data/CmsContext';
 import { useI18n } from '../i18n/I18nContext';
 import { useStillMode } from '../hooks/useA11y';
 import { useRouter } from '../router';
-import { warmUpGameOnIntent } from '../gameWarmup';
 import {
   A11yIcon,
   AdminIcon,
@@ -47,34 +46,9 @@ const MOBILE_POPOVER_ANIM = {
   transition: { duration: 0.28, ease: EASE_OUT },
 };
 
-/* Extra menu: the panel unfolds from the top edge downwards (clip reveal),
-   then each row lands on its own beat so the labels read like falling dominoes. */
-const UNFOLD_ANIM = {
-  initial: { opacity: 0, clipPath: 'inset(0% 0% 100% 0%)' },
-  animate: { opacity: 1, clipPath: 'inset(0% 0% 0% 0%)' },
-  exit: { opacity: 0, clipPath: 'inset(0% 0% 100% 0%)' },
-  transition: { duration: 0.42, ease: EASE_OUT },
-};
-
-const UNFOLD_LIST = {
-  animate: { transition: { delayChildren: 0.14, staggerChildren: 0.065 } },
-  exit: { opacity: 0, transition: { duration: 0.14 } },
-};
-
-const DOMINO_ITEM = {
-  initial: { opacity: 0, y: -16, rotateX: -48, transformPerspective: 700 },
-  animate: {
-    opacity: 1,
-    y: 0,
-    rotateX: 0,
-    transition: { duration: 0.46, ease: EASE_OUT },
-  },
-  exit: { opacity: 0, y: -8, transition: { duration: 0.12 } },
-};
-
-function NavItem({ link, active, onSelect, t, domino = false }) {
+function NavItem({ link, active, onSelect, t }) {
   const href = link.anchor ? `#${link.path}#${link.anchor}` : `#${link.path}`;
-  const link_ = (
+  return (
     <a
       className={`menu__item nav-label${active ? ' is-active' : ''}`}
       href={href}
@@ -86,16 +60,6 @@ function NavItem({ link, active, onSelect, t, domino = false }) {
       {active && <span className="menu__active-pill" aria-hidden="true" />}
       <span className="menu__item-text">{t(link.label)}</span>
     </a>
-  );
-
-  if (!domino) return <div>{link_}</div>;
-
-  // Domino row: the panel reveals top→bottom first, then rows drop in one after
-  // another (same feel as the paragraph reveal used across the site).
-  return (
-    <motion.div className="menu__unfold-row" variants={DOMINO_ITEM}>
-      {link_}
-    </motion.div>
   );
 }
 
@@ -340,9 +304,6 @@ export function Menu({ onOpenResume }) {
     if (link.type === 'anchor') {
       navigate('/', { anchor: link.anchor });
     } else {
-      // Cliking /ar is a clear signal of interest: start pulling the game files
-      // in parallel with the page transition instead of waiting for the iframe.
-      if (link.path === '/ar') warmUpGameOnIntent();
       navigate(link.path);
     }
   };
@@ -526,32 +487,26 @@ export function Menu({ onOpenResume }) {
           {(mobileOpen || settingsOpen) && (
             <motion.div
               className="menu__popover menu__popover--mobile"
-              initial={still ? false : UNFOLD_ANIM.initial}
-              animate={still ? undefined : UNFOLD_ANIM.animate}
-              exit={still ? undefined : UNFOLD_ANIM.exit}
-              transition={UNFOLD_ANIM.transition}
+              initial={still ? false : MOBILE_POPOVER_ANIM.initial}
+              animate={still ? undefined : MOBILE_POPOVER_ANIM.animate}
+              exit={still ? undefined : MOBILE_POPOVER_ANIM.exit}
+              transition={MOBILE_POPOVER_ANIM.transition}
             >
               {mobileOpen && (
-                <motion.div
-                  className="menu__unfold menu__unfold--static"
-                  variants={still ? undefined : UNFOLD_LIST}
-                  initial={still ? false : 'initial'}
-                  animate={still ? undefined : 'animate'}
-                  exit={still ? undefined : 'exit'}
-                >
+                <div className="menu__unfold menu__unfold--static">
                   {MOBILE_LINKS.map((link) => (
-                    <NavItem
-                      key={link.label}
-                      link={link}
-                      active={isLinkActive(link)}
-                      onSelect={handleLinkSelect}
-                      t={t}
-                      domino
-                    />
+                    <div key={link.label}>
+                      <NavItem
+                        link={link}
+                        active={isLinkActive(link)}
+                        onSelect={handleLinkSelect}
+                        t={t}
+                      />
+                    </div>
                   ))}
-                  <motion.div className="menu__unfold-row" variants={DOMINO_ITEM}>
+                  <div>
                     <ResumeButton onOpen={handleResumeClick} t={t} />
-                  </motion.div>
+                  </div>
                   <button
                     className={`menu__item nav-label menu__settings menu__settings--unfold${
                       settingsOpen ? ' is-active' : ''
@@ -571,7 +526,7 @@ export function Menu({ onOpenResume }) {
                   >
                     <SettingsIcon />
                   </button>
-                </motion.div>
+                </div>
               )}
 
               {settingsOpen && (
