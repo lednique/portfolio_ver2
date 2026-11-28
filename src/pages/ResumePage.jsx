@@ -80,7 +80,7 @@ export function ResumePage() {
           </div>
 
           <div className="v2-cv__portrait">
-            <img src="./assets/profile.webp" alt={t('Виктор Власов')} />
+            <img src="./assets/profile.jpg" alt={t('Виктор Власов')} />
           </div>
         </motion.header>
 

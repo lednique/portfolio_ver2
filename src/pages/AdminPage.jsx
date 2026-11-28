@@ -496,7 +496,7 @@ function HomeTab({ onNotify }) {
         tag: 'новый проект – 2026',
         title: 'Новая карточка',
         href: '#/design',
-        image: './assets/figma/e37af.webp',
+        image: './assets/figma/e37af.png',
       },
     ]);
     onNotify('Карточка добавлена в «Сегодня в меню»');

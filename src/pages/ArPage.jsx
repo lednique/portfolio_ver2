@@ -23,11 +23,11 @@ const AR_CHIPS = [
 ];
 
 const CLIENTS = [
-  { name: 'Mobile Legends', src: './assets/clients/mobile-legends.webp' },
-  { name: 'OSCARxFRANK', src: './assets/clients/oscarxfrank.webp' },
-  { name: 'H&M Beauty', src: './assets/clients/hm-beauty.webp' },
-  { name: 'SLA Paris', src: './assets/clients/sla.webp' },
-  { name: 'Glamnetic', src: './assets/clients/glamnetic.webp' },
+  { name: 'Mobile Legends', src: './assets/clients/mobile-legends.png' },
+  { name: 'OSCARxFRANK', src: './assets/clients/oscarxfrank.png' },
+  { name: 'H&M Beauty', src: './assets/clients/hm-beauty.png' },
+  { name: 'SLA Paris', src: './assets/clients/sla.png' },
+  { name: 'Glamnetic', src: './assets/clients/glamnetic.png' },
 ];
 
 const AR_APPLICATIONS = [
@@ -35,25 +35,25 @@ const AR_APPLICATIONS = [
     number: '01',
     title: 'Виртуальная примерка',
     text: 'Покупатели могут примерить очки, аксессуары или косметику через камеру до покупки. Это помогает оценить товар на себе и принять более уверенное решение.',
-    img: './assets/ar/business-tryon.webp',
+    img: './assets/ar/business-tryon.jpg',
   },
   {
     number: '02',
     title: 'Продвижение бренда в соцсетях',
     text: 'Интерактивные эффекты вовлекают аудиторию в кампанию и дают пользователям повод создавать собственный контент с элементами бренда. Это помогает расширять охват и повышать узнаваемость.',
-    img: './assets/ar/business-social.webp',
+    img: './assets/ar/business-social.jpg',
   },
   {
     number: '03',
     title: 'Интерактивная упаковка и рекламные материалы',
     text: 'AR добавляет цифровой контент к упаковке, плакатам и другим носителям: например, демонстрацию продукта, анимацию или дополнительную информацию. Компания получает новый способ взаимодействовать с клиентом после контакта с физическим объектом.',
-    img: './assets/ar/business-packaging.webp',
+    img: './assets/ar/business-packaging.jpg',
   },
   {
     number: '04',
     title: 'Демонстрация продуктов и пространств',
     text: 'AR позволяет показать продукт в окружении пользователя или представить его особенности в интерактивном формате. Это помогает компании объяснить преимущества предложения и поддержать процесс выбора.',
-    img: './assets/ar/business-product.webp',
+    img: './assets/ar/business-product.jpg',
   },
 ];
 
