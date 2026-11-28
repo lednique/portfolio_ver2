@@ -146,6 +146,13 @@
   opacity: 0.34;
 }
 
+/* AR hero: lift the artwork 100px so its top edge is not clipped by the section
+   top. Offset via background-position (not transform) because the scroll-zoom
+   hook writes an inline transform on this element. */
+.sub-hero--ar .sub-hero__bg {
+  background-position: center -100px;
+}
+
 .sub-hero__fishes-bg {
   position: absolute;
   inset: 0;
