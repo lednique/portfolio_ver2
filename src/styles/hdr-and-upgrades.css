@@ -258,10 +258,19 @@
   gap: 2px;
 }
 
-.menu__unfold > div {
+.menu__unfold > div,
+.menu__unfold-row {
   width: 100%;
   display: flex;
   justify-content: center;
+}
+
+/* Domino rows: keep the 3D flip flat-ish and give the reveal a transform origin
+   at the top so each label drops in from the unfolding edge. */
+.menu__unfold-row {
+  transform-origin: top center;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
 }
 
 /* Settings panel (#808080) */

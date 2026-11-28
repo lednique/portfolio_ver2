@@ -85,6 +85,58 @@ export function ArPage() {
   const { cms } = useCms();
   const { t } = useI18n();
   const [lightboxItem, setLightboxItem] = useState(null);
+  const frameRef = useRef(null);
+
+  // Browsers keep an AudioContext suspended until the page has seen a real user
+  // gesture. The game is autoloaded (no click required), so without this the
+  // engine boots with a suspended context and stays silent until the visitor
+  // happens to tap the canvas. Forward the first gesture into the iframe and
+  // resume the context the engine already created.
+  useEffect(() => {
+    const frame = frameRef.current;
+    if (!frame) return undefined;
+
+    let done = false;
+    const resumeInFrame = () => {
+      try {
+        const win = frame.contentWindow;
+        if (!win) return;
+        // The engine mirrors its own unlock logic on the iframe window.
+        if (typeof win.__unlockAudio === 'function') {
+          win.__unlockAudio();
+          done = true;
+          return;
+        }
+        const ctx = win.__actx;
+        if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
+        if (ctx) done = true;
+      } catch {
+        // cross-origin / not ready yet: try again on the next gesture
+      }
+    };
+
+    const onGesture = () => {
+      resumeInFrame();
+      if (done) {
+        window.removeEventListener('pointerdown', onGesture, true);
+        window.removeEventListener('keydown', onGesture, true);
+        window.removeEventListener('touchstart', onGesture, true);
+      }
+    };
+
+    window.addEventListener('pointerdown', onGesture, true);
+    window.addEventListener('keydown', onGesture, true);
+    window.addEventListener('touchstart', onGesture, true);
+    // The engine may also be ready long after the first gesture.
+    const poll = window.setInterval(resumeInFrame, 1500);
+
+    return () => {
+      window.removeEventListener('pointerdown', onGesture, true);
+      window.removeEventListener('keydown', onGesture, true);
+      window.removeEventListener('touchstart', onGesture, true);
+      window.clearInterval(poll);
+    };
+  }, []);
   const heroRef = useSubHeroMotion();
 
   const marqueeSet = [...CLIENTS, ...CLIENTS, ...CLIENTS, ...CLIENTS];
@@ -96,10 +148,11 @@ export function ArPage() {
              — в фоне, когда сайт уже прогрузился (см. useGameWarmup в App.jsx). */}
       <section className="ar-game-hero" aria-label="Живая web-игра">
         <iframe
+          ref={frameRef}
           src={GAME_URL}
           title="Kotik Sakura Run — web-игра"
           className="ar-game-hero__frame"
-          allow="autoplay; fullscreen"
+          allow="autoplay; fullscreen; gamepad"
         />
       </section>
 
