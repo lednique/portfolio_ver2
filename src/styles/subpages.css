@@ -2010,3 +2010,11 @@
 .sub-hero__tagline {
   margin-top: 14px;
 }
+
+
+@media (max-width: 768px) {
+  .sub-hero {
+    padding-top: 28px;
+    padding-bottom: 40px;
+  }
+}
