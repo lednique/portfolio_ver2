@@ -3,21 +3,45 @@
 	<head>
 <script>
 (function () {
-  var orig = window.fetch;
-  if (!orig) return;
-  var R = /(?:^|\/)(index\.(?:wasm|pck|js))(?:\?.*)?$/;
-  window.fetch = function (input, init) {
-    var url = typeof input === 'string' ? input : (input && input.url) || '';
-    var mm = url.match(R);
-    if (mm && !/\.gz$/.test(url)) {
-      return orig(url + '.gz', init).then(function (resp) {
-        if (!resp.ok) return orig(input, init);
-        var d = resp.body.pipeThrough(new DecompressionStream('gzip'));
-        return new Response(d, { status: resp.status, headers: { 'Content-Type': resp.headers.get('Content-Type') || 'application/octet-stream' } });
-      }).catch(function () { return orig(input, init); });
+  var BV = '1795865623';
+  try {
+    var OAC = window.AudioContext || window.webkitAudioContext;
+    if (OAC && !window.__actxWrap) {
+      var WrappedAC = function() {
+        var c = new OAC();
+        window.__actx = c;
+        return c;
+      };
+      WrappedAC.prototype = OAC.prototype;
+      window.AudioContext = WrappedAC;
+      if (window.webkitAudioContext) window.webkitAudioContext = WrappedAC;
+      window.__actxWrap = true;
     }
-    return orig(input, init);
+  } catch (e) {}
+  var resumeAudio = function () {
+    var c = window.__actx;
+    if (c && c.state === 'suspended' && c.resume) { try { c.resume(); } catch (e) {} }
   };
+  document.addEventListener('touchend', resumeAudio, { passive: true });
+  document.addEventListener('mousedown', resumeAudio, { passive: true });
+  document.addEventListener('keydown', resumeAudio, { passive: true });
+  var orig = window.fetch;
+  if (orig) {
+    var R = /(?:^|\/)(index\.(?:wasm|pck|js))(?:\?.*)?$/;
+    window.fetch = function (input, init) {
+      var url = typeof input === 'string' ? input : (input && input.url) || '';
+      var mm = url.match(R);
+      if (mm) {
+        var target = url.split('?')[0] + '.gz?v=' + BV;
+        return orig(target, init).then(function (resp) {
+          if (!resp.ok) return orig(input, init);
+          var d = resp.body.pipeThrough(new DecompressionStream('gzip'));
+          return new Response(d, { status: resp.status, headers: { 'Content-Type': resp.headers.get('Content-Type') || 'application/octet-stream' } });
+        }).catch(function () { return orig(input, init); });
+      }
+      return orig(input, init);
+    };
+  }
   document.addEventListener('touchmove', function (e) { e.preventDefault(); }, { passive: false });
   var st = document.createElement('style');
   st.textContent = 'html,body{overflow:hidden;touch-action:none;}canvas{touch-action:none;}';
