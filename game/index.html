@@ -10,8 +10,7 @@
     var url = typeof input === 'string' ? input : (input && input.url) || '';
     var mm = url.match(R);
     if (mm && !/\.gz$/.test(url)) {
-      var gz = url.slice(0, mm.index + mm[0].length) + '.gz';
-      return orig(gz, init).then(function (resp) {
+      return orig(url + '.gz', init).then(function (resp) {
         if (!resp.ok) return orig(input, init);
         var d = resp.body.pipeThrough(new DecompressionStream('gzip'));
         return new Response(d, { status: resp.status, headers: { 'Content-Type': resp.headers.get('Content-Type') || 'application/octet-stream' } });
@@ -19,6 +18,10 @@
     }
     return orig(input, init);
   };
+  document.addEventListener('touchmove', function (e) { e.preventDefault(); }, { passive: false });
+  var st = document.createElement('style');
+  st.textContent = 'html,body{overflow:hidden;touch-action:none;}canvas{touch-action:none;}';
+  document.head.appendChild(st);
 })();
 </script>
 		<meta charset="utf-8">
@@ -158,7 +161,7 @@ body { background: #000000 !important; }
 
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":false,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":18838136,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":false,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":18541768,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
