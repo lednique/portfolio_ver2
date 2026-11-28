@@ -90,6 +90,17 @@ export function ArPage() {
 
   return (
     <div className="subpage subpage--ar">
+      {/* 0. Игра-герой: во всю ширину страницы, 720px, верхнее меню поверх */}
+      <section className="ar-game-hero" aria-label="Живая web-игра">
+        <iframe
+          src="./game/index.html"
+          title="Kotik Sakura Run — web-игра"
+          className="ar-game-hero__frame"
+          allow="autoplay; fullscreen"
+          loading="lazy"
+        />
+      </section>
+
       {/* 1. Hero section + 9:16 Video Carousel + Glass bio + ×3 scroll bg zoom */}
       <section className="sub-hero sub-hero--ar" ref={heroRef} data-hero>
         <div
@@ -102,6 +113,9 @@ export function ArPage() {
         <div className="content sub-hero__inner">
           <Reveal as="h1" className="sub-hero__title" immediate delay={0.08} stagger={0.055}>
             {t('AR-эффекты в соцсетях')}
+          </Reveal>
+          <Reveal as="p" className="sub-hero__tagline" immediate delay={0.16}>
+            {t('Это вам не игрушка! А инструмент вовлечения аудитории в ваш продукт.')}
           </Reveal>
         </div>
 
