@@ -1992,8 +1992,7 @@
 @media (max-width: 768px) {
   .ar-game-hero {
     height: 600px;
-    margin-bottom: 0;
-    z-index: 2;
+    margin-bottom: -120px;   /* контент начинается на 480px, как просили */
   }
 }
 
