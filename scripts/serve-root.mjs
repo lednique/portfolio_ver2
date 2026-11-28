@@ -175,19 +175,6 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    // Dev-only diagnostics sink: the game audio probe posts its report here so
-    // the result can be read from the server log without browser devtools.
-    if (urlPath === '/api/debug-report' && req.method === 'POST') {
-      const buf = await readRequestBody(req, 1024 * 1024);
-      const line = `\n===== BROWSER REPORT ${new Date().toISOString()} =====\n${buf.toString('utf8')}\n===== END REPORT =====\n`;
-      console.log(line);
-      try {
-        fs.appendFileSync(path.join(ROOT, 'debug-report.log'), line);
-      } catch {}
-      sendJson(res, 200, { ok: true });
-      return;
-    }
-
     if (urlPath === '/api/upload' && req.method === 'POST') {
       const buf = await readRequestBody(req, MAX_UPLOAD_BYTES);
       if (!buf.length) {

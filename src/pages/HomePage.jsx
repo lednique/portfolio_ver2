@@ -581,6 +581,9 @@ function BrandingSection() {
   return (
     <section className="section" id="branding">
       <div className="branding__layout">
+        <div className="branding__media">
+          <BrandingLottie still={still} />
+        </div>
         <div className="branding__head">
           <Reveal as="h2" className="h2" stagger={0.055}>
             {t('Брендинг для бизнес решений')}
@@ -612,9 +615,6 @@ function BrandingSection() {
             </Reveal>
           </div>
           <DiscussButtons worksPath="/design" />
-        </div>
-        <div className="branding__media">
-          <BrandingLottie still={still} />
         </div>
       </div>
     </section>
@@ -971,49 +971,6 @@ function AboutSection() {
   return (
     <section className="section content" id="about">
       <div className="about">
-        <div className="about__copy">
-          <Reveal as="h2" className="h2" stagger={0.05}>
-            {t('обо мне')}
-          </Reveal>
-          <Reveal as="p" delay={0.12} stagger={0.022}>
-            <strong>{t('Мультидиcциплинарный дизайнер с практичным мышлением.')}</strong>
-            {t(
-              ' За плечами художественная школа + высшее по художественной и промышленной технологии обработки материалов – создаю дизайн, который не просто красив, а технически грамотен и работает на результат.'
-            )}
-          </Reveal>
-          <Reveal as="p" delay={0.24} stagger={0.045}>
-            <strong>{t('Что делаю:')}</strong>
-          </Reveal>
-          <Reveal as="p" delay={0.36} stagger={0.022}>
-            {t('– Визуальное оформление – карточки, баннеры, обложки, контент')}
-            <br />
-            {t('– Полиграфия и айдентика – от визиток до упаковки, с учётом допечатной подготовки')}
-            <br />
-            {t('– Инфографика для маркетплейсов, соцсетей и презентаций')}
-            <br />
-            {t('– Графический дизайн любой сложности – графические редакторы на продвинутом уровне')}
-            <br />
-            {t('– 3D-визуализация в Blender и AR-проекты – когда задаче нужен объём и интерактив')}
-          </Reveal>
-          <Reveal as="p" delay={0.48} stagger={0.045}>
-            <strong>{t('Почему я:')}</strong>
-          </Reveal>
-          <Reveal as="p" delay={0.6} stagger={0.022}>
-            {t('– Понимаю, как дизайн будет жить в реальности → минимум правок')}
-            <br />
-            {t('– Внедряю нейросети → быстрее и дешевле для вас')}
-            <br />
-            {t('– Я закрываю задачи, на которые обычно нужно несколько специалистов')}
-            <br />
-            {t('– Не пропадаю, слышу задачу, довожу до конца')}
-          </Reveal>
-          <Reveal as="p" delay={0.72} stagger={0.03}>
-            <strong>
-              {t('Напишите – обсудим, что нужно сделать, и подберу лучшее решение')}
-            </strong>
-          </Reveal>
-        </div>
-
         <motion.aside
           className="about__side"
           data-reveal="1"
@@ -1093,6 +1050,49 @@ function AboutSection() {
             </motion.div>
           </motion.div>
         </motion.aside>
+        <div className="about__copy">
+          <Reveal as="h2" className="h2" stagger={0.05}>
+            {t('обо мне')}
+          </Reveal>
+          <Reveal as="p" delay={0.12} stagger={0.022}>
+            <strong>{t('Мультидиcциплинарный дизайнер с практичным мышлением.')}</strong>
+            {t(
+              ' За плечами художественная школа + высшее по художественной и промышленной технологии обработки материалов – создаю дизайн, который не просто красив, а технически грамотен и работает на результат.'
+            )}
+          </Reveal>
+          <Reveal as="p" delay={0.24} stagger={0.045}>
+            <strong>{t('Что делаю:')}</strong>
+          </Reveal>
+          <Reveal as="p" delay={0.36} stagger={0.022}>
+            {t('– Визуальное оформление – карточки, баннеры, обложки, контент')}
+            <br />
+            {t('– Полиграфия и айдентика – от визиток до упаковки, с учётом допечатной подготовки')}
+            <br />
+            {t('– Инфографика для маркетплейсов, соцсетей и презентаций')}
+            <br />
+            {t('– Графический дизайн любой сложности – графические редакторы на продвинутом уровне')}
+            <br />
+            {t('– 3D-визуализация в Blender и AR-проекты – когда задаче нужен объём и интерактив')}
+          </Reveal>
+          <Reveal as="p" delay={0.48} stagger={0.045}>
+            <strong>{t('Почему я:')}</strong>
+          </Reveal>
+          <Reveal as="p" delay={0.6} stagger={0.022}>
+            {t('– Понимаю, как дизайн будет жить в реальности → минимум правок')}
+            <br />
+            {t('– Внедряю нейросети → быстрее и дешевле для вас')}
+            <br />
+            {t('– Я закрываю задачи, на которые обычно нужно несколько специалистов')}
+            <br />
+            {t('– Не пропадаю, слышу задачу, довожу до конца')}
+          </Reveal>
+          <Reveal as="p" delay={0.72} stagger={0.03}>
+            <strong>
+              {t('Напишите – обсудим, что нужно сделать, и подберу лучшее решение')}
+            </strong>
+          </Reveal>
+        </div>
+
       </div>
     </section>
   );

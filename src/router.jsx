@@ -91,10 +91,23 @@ export function RouterProvider({ children }) {
             const reduced =
               document.documentElement.dataset.a11y === 'true' ||
               window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            el.scrollIntoView({
-              behavior: reduced ? 'auto' : 'smooth',
-              block: nextAnchor === 'about' ? 'center' : 'start',
-            });
+            const behavior = reduced ? 'auto' : 'smooth';
+
+            if (nextAnchor === 'about') {
+              // Anchor to the very top of the block (avatar + name), keeping a
+              // constant 40px gap below the fixed menu instead of centering it.
+              const menu = document.querySelector('.menu');
+              const menuBottom = menu
+                ? menu.getBoundingClientRect().bottom
+                : parseFloat(
+                    getComputedStyle(document.documentElement).getPropertyValue('--menu-bottom')
+                  ) || 0;
+              const padTop = parseFloat(getComputedStyle(el).paddingTop) || 0;
+              const top = window.scrollY + el.getBoundingClientRect().top + padTop - menuBottom - 40;
+              window.scrollTo({ top: Math.max(0, Math.round(top)), behavior });
+            } else {
+              el.scrollIntoView({ behavior, block: 'start' });
+            }
           }
         }, 60);
       });
