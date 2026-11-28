@@ -22,11 +22,11 @@ const AR_CHIPS = [
 ];
 
 const CLIENTS = [
-  { name: 'Mobile Legends', src: './assets/clients/mobile-legends.png' },
-  { name: 'OSCARxFRANK', src: './assets/clients/oscarxfrank.png' },
-  { name: 'H&M Beauty', src: './assets/clients/hm-beauty.png' },
-  { name: 'SLA Paris', src: './assets/clients/sla.png' },
-  { name: 'Glamnetic', src: './assets/clients/glamnetic.png' },
+  { name: 'Mobile Legends', src: './assets/clients/mobile-legends.webp' },
+  { name: 'OSCARxFRANK', src: './assets/clients/oscarxfrank.webp' },
+  { name: 'H&M Beauty', src: './assets/clients/hm-beauty.webp' },
+  { name: 'SLA Paris', src: './assets/clients/sla.webp' },
+  { name: 'Glamnetic', src: './assets/clients/glamnetic.webp' },
 ];
 
 const AR_APPLICATIONS = [
@@ -34,25 +34,25 @@ const AR_APPLICATIONS = [
     number: '01',
     title: 'Виртуальная примерка',
     text: 'Покупатели могут примерить очки, аксессуары или косметику через камеру до покупки. Это помогает оценить товар на себе и принять более уверенное решение.',
-    img: './assets/ar/business-tryon.jpg',
+    img: './assets/ar/business-tryon.webp',
   },
   {
     number: '02',
     title: 'Продвижение бренда в соцсетях',
     text: 'Интерактивные эффекты вовлекают аудиторию в кампанию и дают пользователям повод создавать собственный контент с элементами бренда. Это помогает расширять охват и повышать узнаваемость.',
-    img: './assets/ar/business-social.jpg',
+    img: './assets/ar/business-social.webp',
   },
   {
     number: '03',
     title: 'Интерактивная упаковка и рекламные материалы',
     text: 'AR добавляет цифровой контент к упаковке, плакатам и другим носителям: например, демонстрацию продукта, анимацию или дополнительную информацию. Компания получает новый способ взаимодействовать с клиентом после контакта с физическим объектом.',
-    img: './assets/ar/business-packaging.jpg',
+    img: './assets/ar/business-packaging.webp',
   },
   {
     number: '04',
     title: 'Демонстрация продуктов и пространств',
     text: 'AR позволяет показать продукт в окружении пользователя или представить его особенности в интерактивном формате. Это помогает компании объяснить преимущества предложения и поддержать процесс выбора.',
-    img: './assets/ar/business-product.jpg',
+    img: './assets/ar/business-product.webp',
   },
 ];
 
@@ -84,21 +84,38 @@ export function ArPage() {
   const { cms } = useCms();
   const { t } = useI18n();
   const [lightboxItem, setLightboxItem] = useState(null);
+  const [gameStarted, setGameStarted] = useState(false);
   const heroRef = useSubHeroMotion();
 
   const marqueeSet = [...CLIENTS, ...CLIENTS, ...CLIENTS, ...CLIENTS];
 
   return (
     <div className="subpage subpage--ar">
-      {/* 0. Игра-герой: во всю ширину страницы, 720px, верхнее меню поверх */}
+      {/* 0. Игра-герой: во всю ширину страницы, 720px, верхнее меню поверх.
+             Godot-сборка весит ~54 МБ (wasm + pck), поэтому iframe подключается
+             только по клику — до этого показываем постер. */}
       <section className="ar-game-hero" aria-label="Живая web-игра">
-        <iframe
-          src="./game/index.html"
-          title="Kotik Sakura Run — web-игра"
-          className="ar-game-hero__frame"
-          allow="autoplay; fullscreen"
-          loading="lazy"
-        />
+        {gameStarted ? (
+          <iframe
+            src="./game/index.html"
+            title="Kotik Sakura Run — web-игра"
+            className="ar-game-hero__frame"
+            allow="autoplay; fullscreen"
+          />
+        ) : (
+          <button
+            type="button"
+            className="ar-game-hero__play"
+            onClick={() => setGameStarted(true)}
+          >
+            <span className="ar-game-hero__play-label">
+              <span className="ar-game-hero__play-title">{t('Играть')}</span>
+              <span className="ar-game-hero__play-hint">
+                {t('Kotik Sakura Run · загрузится ~54 МБ')}
+              </span>
+            </span>
+          </button>
+        )}
       </section>
 
       {/* 1. Hero section + 9:16 Video Carousel + Glass bio + ×3 scroll bg zoom */}

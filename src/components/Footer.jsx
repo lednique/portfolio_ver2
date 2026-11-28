@@ -9,7 +9,7 @@ const SOCIAL_PUCKS = [
   {
     name: 'Telegram',
     className: 'puck--tg',
-    img: './assets/figma/f37b3.png',
+    img: './assets/figma/f37b3.webp',
     href: 'https://t.me/lednique',
     natW: 445,
     natH: 251,
@@ -24,7 +24,7 @@ const SOCIAL_PUCKS = [
   {
     name: 'Boosty',
     className: 'puck--boosty',
-    img: './assets/figma/7f0d3.png',
+    img: './assets/figma/7f0d3.webp',
     href: 'https://boosty.to/lednique',
     natW: 502,
     natH: 499,
@@ -38,7 +38,7 @@ const SOCIAL_PUCKS = [
   {
     name: 'Behance',
     className: 'puck--be',
-    img: './assets/figma/3fb4e.png',
+    img: './assets/figma/3fb4e.webp',
     href: 'https://behance.net/lednique',
     natW: 352,
     natH: 308,
@@ -52,7 +52,7 @@ const SOCIAL_PUCKS = [
   {
     name: 'Instagram',
     className: 'puck--ig',
-    img: './assets/figma/028e5.png',
+    img: './assets/figma/028e5.webp',
     href: 'https://instagram.com/lednique',
     natW: 324,
     natH: 334,
@@ -66,7 +66,7 @@ const SOCIAL_PUCKS = [
   {
     name: 'Threads',
     className: 'puck--thr',
-    img: './assets/figma/133c0.png',
+    img: './assets/figma/133c0.webp',
     href: 'https://www.threads.com/@lednique',
     natW: 368,
     natH: 389,
@@ -80,7 +80,7 @@ const SOCIAL_PUCKS = [
   {
     name: 'Kwork',
     className: 'puck--kwork',
-    img: './assets/figma/6cb70.png',
+    img: './assets/figma/6cb70.webp',
     href: 'https://kwork.ru/user/lednique',
     natW: 238,
     natH: 612,
@@ -477,10 +477,44 @@ function usePuckPhysics(containerRef, stageSpaceRef, enabled) {
       rafId = requestAnimationFrame(step);
     };
 
-    rafId = requestAnimationFrame(step);
+    // Only animate while the footer is actually on screen (Matter.js runs two
+    // sub-steps per frame; keeping it alive in the background wasted CPU).
+    let visible = true;
+    let visibilityObserver = null;
+    const startLoop = () => {
+      if (rafId) return;
+      prevTs = performance.now();
+      rafId = requestAnimationFrame(step);
+    };
+    const stopLoop = () => {
+      if (!rafId) return;
+      cancelAnimationFrame(rafId);
+      rafId = 0;
+    };
+
+    if ('IntersectionObserver' in window) {
+      visibilityObserver = new IntersectionObserver(
+        ([entry]) => {
+          visible = !!entry?.isIntersecting;
+          if (visible) startLoop();
+          else stopLoop();
+        },
+        { rootMargin: '120px' }
+      );
+      visibilityObserver.observe(container);
+    }
+    const onVisibilityChange = () => {
+      if (document.hidden) stopLoop();
+      else if (visible) startLoop();
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    startLoop();
 
     return () => {
-      cancelAnimationFrame(rafId);
+      stopLoop();
+      visibilityObserver?.disconnect();
+      document.removeEventListener('visibilitychange', onVisibilityChange);
       Matter.Composite.clear(engine.world, false);
       Matter.Engine.clear(engine);
       container.removeEventListener('pointerdown', onPointerDown);

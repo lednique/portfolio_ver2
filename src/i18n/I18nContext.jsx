@@ -33,7 +33,9 @@ async function fetchDict(code, bustCache = false) {
   if (!bustCache && dictCache.has(code)) return dictCache.get(code);
 
   const url = bustCache ? `./lang/${code}.json?t=${Date.now()}` : `./lang/${code}.json`;
-  const res = await fetch(url, { cache: 'no-store' });
+  // Published dictionaries are immutable between deploys: let the browser reuse
+  // them (revalidating via ETag) instead of re-downloading ~26 KB gz on every visit.
+  const res = await fetch(url, bustCache ? { cache: 'no-store' } : undefined);
   if (!res.ok) {
     throw new Error(`Failed to load lang/${code}.json (HTTP ${res.status})`);
   }

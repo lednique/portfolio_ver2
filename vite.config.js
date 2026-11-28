@@ -28,6 +28,23 @@ export default defineConfig({
         app: resolve(__dirname, 'app.html'),
       },
       output: {
+        // Split the heavy third-party libs out of the entry chunk so the landing
+        // page does not pay for the admin bundle / physics / lottie up front.
+        manualChunks(id) {
+          if (id.includes('node_modules/react') || id.includes('node_modules/scheduler')) {
+            return 'vendor-react';
+          }
+          if (
+            id.includes('framer-motion') ||
+            id.includes('motion-dom') ||
+            id.includes('motion-utils')
+          ) {
+            return 'vendor-motion';
+          }
+          if (id.includes('matter-js')) return 'vendor-matter';
+          if (id.includes('dotlottie')) return 'vendor-lottie';
+          return undefined;
+        },
         entryFileNames: 'assets/app-[hash].js',
         chunkFileNames: 'assets/chunk-[hash].js',
         assetFileNames: 'assets/app-[hash][extname]',

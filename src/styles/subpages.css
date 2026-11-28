@@ -2000,6 +2000,55 @@
   touch-action: none;
 }
 
+/* Click-to-play: the Godot build (~54 MB) is only fetched after a click */
+.ar-game-hero__play {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  color: #fff;
+  background:
+    radial-gradient(120% 90% at 50% 40%, rgba(203, 255, 49, 0.16), transparent 60%),
+    linear-gradient(180deg, #0a0a0a 0%, #141414 100%);
+  -webkit-tap-highlight-color: transparent;
+}
+.ar-game-hero__play:focus-visible {
+  outline: 2px solid #cbff31;
+  outline-offset: -6px;
+}
+.ar-game-hero__play-label {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 26px 34px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  backdrop-filter: blur(6px);
+  transition: border-color 0.25s ease, transform 0.25s ease;
+}
+.ar-game-hero__play:hover .ar-game-hero__play-label,
+.ar-game-hero__play:focus-visible .ar-game-hero__play-label {
+  border-color: #cbff31;
+  transform: translateY(-2px);
+}
+.ar-game-hero__play-title {
+  font-family: var(--font-nav);
+  font-weight: 600;
+  font-size: 22px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.ar-game-hero__play-hint {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  opacity: 0.62;
+}
+
 .ar-game-hero__frame {
   display: block;
   width: 100%;

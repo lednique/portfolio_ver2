@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { DotLottie } from '@lottiefiles/dotlottie-web';
 import { useCms } from '../data/CmsContext';
 import { useI18n } from '../i18n/I18nContext';
 import { useStillMode } from '../hooks/useA11y';
@@ -75,22 +74,22 @@ const AR_COPY = [
 
 const TOOLS = {
   graphic: [
-    { src: './assets/figma/dbbfc.png', alt: 'Photoshop' },
-    { src: './assets/figma/b5e62.png', alt: 'Illustrator' },
-    { src: './assets/figma/5bcd8.png', alt: 'Figma' },
-    { src: './assets/figma/0e1e6.png', alt: 'Procreate' },
+    { src: './assets/figma/dbbfc.webp', alt: 'Photoshop' },
+    { src: './assets/figma/b5e62.webp', alt: 'Illustrator' },
+    { src: './assets/figma/5bcd8.webp', alt: 'Figma' },
+    { src: './assets/figma/0e1e6.webp', alt: 'Procreate' },
   ],
-  video: { src: './assets/figma/1af5c.png', alt: 'CapCut' },
+  video: { src: './assets/figma/1af5c.webp', alt: 'CapCut' },
   ar: [
-    { src: './assets/figma/122e2.png', alt: 'Snapchat' },
-    { src: './assets/figma/d72ac.png', alt: 'TikTok' },
+    { src: './assets/figma/122e2.webp', alt: 'Snapchat' },
+    { src: './assets/figma/d72ac.webp', alt: 'TikTok' },
   ],
-  three: { src: './assets/figma/3d395.png', alt: 'Blender' },
+  three: { src: './assets/figma/3d395.webp', alt: 'Blender' },
   neural: [
-    { src: './assets/figma/d0db1.png', alt: 'ChatGPT' },
-    { src: './assets/figma/d0930.png', alt: 'Midjourney' },
-    { src: './assets/figma/34cb2.png', alt: 'Seedream' },
-    { src: './assets/figma/353b1.png', alt: 'Neural' },
+    { src: './assets/figma/d0db1.webp', alt: 'ChatGPT' },
+    { src: './assets/figma/d0930.webp', alt: 'Midjourney' },
+    { src: './assets/figma/34cb2.webp', alt: 'Seedream' },
+    { src: './assets/figma/353b1.webp', alt: 'Neural' },
   ],
 };
 
@@ -172,6 +171,10 @@ function HeroSection() {
           className="hero__bg-fallback"
           src="./assets/figma/_dc/hero/6b2c4945dd833d20a742b69906ddc84fe182b8cb.webp"
           alt=""
+          width={1024}
+          height={884}
+          fetchpriority="high"
+          decoding="async"
         />
         {!still && <ShaderCanvas />}
       </div>
@@ -188,7 +191,12 @@ function HeroSection() {
               <h1 className="hero__h1">
                 <picture className="hero__title-picture">
                   <source media="(max-width: 1000px)" srcSet={LETS_COOK_MOBILE} />
-                  <img className="hero__title-art" src={LETS_COOK_DESKTOP} alt="Let’s Cook!" />
+                  <img
+                    className="hero__title-art"
+                    src={LETS_COOK_DESKTOP}
+                    alt="Let’s Cook!"
+                    fetchpriority="high"
+                  />
                 </picture>
               </h1>
             </div>
@@ -225,6 +233,10 @@ function HeroSection() {
               className="hero__stickers"
               src={STICKERS_PHOTO}
               alt="Виктор Власов — Made with Love & Taste by Conceptional Chef"
+              width={904}
+              height={932}
+              fetchpriority="high"
+              decoding="async"
             />
           </picture>
         </motion.div>
@@ -411,7 +423,9 @@ function TodaySection() {
               }}
               whileHover={!still && !isMobile ? { y: -6 } : undefined}
             >
-              {imgSrc && <img src={imgSrc} alt={cardTitle} loading="lazy" />}
+              {imgSrc && (
+                <img src={imgSrc} alt={cardTitle} loading="lazy" decoding="async" />
+              )}
               <div className="case__label">
                 {cardTag && (
                   <Reveal as="p" className="case__tag" stagger={0.025}>
@@ -460,9 +474,20 @@ function BrandingLottie({ still }) {
 
     let cancelled = false;
     let io = null;
+    let visibilityIo = null;
 
-    DotLottie.setWasmUrl(DOTLOTTIE_WASM);
-    const canvas = document.createElement('canvas');
+    // The player (≈470 KB gz wasm) + the 1.7 MB .lottie file are fetched only
+    // when the branding block is about to enter the viewport.
+    const start = async () => {
+      const { DotLottie } = await import('@lottiefiles/dotlottie-web');
+      if (cancelled) return;
+      DotLottie.setWasmUrl(DOTLOTTIE_WASM);
+      mount(DotLottie);
+    };
+
+    const mount = (DotLottie) => {
+      if (cancelled) return;
+      const canvas = document.createElement('canvas');
     canvas.className = 'branding__lottie-canvas';
     host.replaceChildren(canvas);
 
@@ -474,35 +499,54 @@ function BrandingLottie({ still }) {
       layout: { fit: 'contain', align: [0.5, 0.5] },
       renderConfig: { autoResize: false, freezeOnOffscreen: true },
     });
-    playerRef.current = player;
+      playerRef.current = player;
 
-    const sync = () => {
-      if (cancelled) return;
-      if (stillRef.current || !inViewRef.current) {
-        if (stillRef.current) player.setFrame(0);
-        player.pause();
+      const sync = () => {
+        if (cancelled) return;
+        if (stillRef.current || !inViewRef.current) {
+          if (stillRef.current) player.setFrame(0);
+          player.pause();
+        } else {
+          player.play();
+        }
+      };
+
+      player.addEventListener('load', sync);
+      player.addEventListener('ready', sync);
+
+      if ('IntersectionObserver' in window) {
+        io = new IntersectionObserver(
+          ([entry]) => {
+            inViewRef.current = !!entry?.isIntersecting;
+            sync();
+          },
+          { threshold: 0.05 }
+        );
+        io.observe(host);
       } else {
-        player.play();
+        sync();
       }
     };
 
-    player.addEventListener('load', sync);
-    player.addEventListener('ready', sync);
-
     if ('IntersectionObserver' in window) {
-      io = new IntersectionObserver(
+      visibilityIo = new IntersectionObserver(
         ([entry]) => {
-          inViewRef.current = !!entry?.isIntersecting;
-          sync();
+          if (!entry?.isIntersecting) return;
+          visibilityIo?.disconnect();
+          visibilityIo = null;
+          start();
         },
-        { threshold: 0.05 }
+        { rootMargin: '700px 0px' }
       );
-      io.observe(host);
+      visibilityIo.observe(host);
+    } else {
+      start();
     }
 
     return () => {
       cancelled = true;
       io?.disconnect();
+      visibilityIo?.disconnect();
       playerRef.current?.destroy();
       playerRef.current = null;
       host.replaceChildren();
@@ -981,7 +1025,7 @@ function AboutSection() {
         >
           <motion.div className="about__person" variants={ITEM_VARIANTS}>
             <motion.div className="about__avatar" variants={ITEM_VARIANTS}>
-              <img src="./assets/figma/06a14.png" alt={t('Виктор Власов')} loading="lazy" />
+              <img src="./assets/figma/06a14.webp" alt={t('Виктор Власов')} loading="lazy" />
             </motion.div>
             <motion.div className="about__name" variants={ROW_VARIANTS}>
               <Reveal as="strong" stagger={0.06}>

@@ -10,6 +10,7 @@ import {
 import { useI18n } from '../i18n/I18nContext';
 import { LANGUAGES } from '../i18n/languages';
 import { useRouter } from '../router';
+import '../styles/admin.css';
 
 const TABS = [
   { id: 'home', label: 'Главная страница', badge: 'Меню + AI', route: '/' },
@@ -495,7 +496,7 @@ function HomeTab({ onNotify }) {
         tag: 'новый проект – 2026',
         title: 'Новая карточка',
         href: '#/design',
-        image: './assets/figma/e37af.png',
+        image: './assets/figma/e37af.webp',
       },
     ]);
     onNotify('Карточка добавлена в «Сегодня в меню»');

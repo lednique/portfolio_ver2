@@ -6,11 +6,18 @@ import { RouterProvider, useRouter } from './router';
 import { Footer } from './components/Footer';
 import { Menu } from './components/Menu';
 import { ResumeModal } from './components/ResumeModal';
-import { AdminPage } from './pages/AdminPage';
-import { AiPage } from './pages/AiPage';
-import { ArPage } from './pages/ArPage';
-import { DesignPage } from './pages/DesignPage';
 import { HomePage } from './pages/HomePage';
+
+// Route-level code splitting: the admin bundle (1599 LOC) and the subpages no
+// longer ship with the landing page.
+const AdminPage = React.lazy(() =>
+  import('./pages/AdminPage').then((m) => ({ default: m.AdminPage }))
+);
+const AiPage = React.lazy(() => import('./pages/AiPage').then((m) => ({ default: m.AiPage })));
+const ArPage = React.lazy(() => import('./pages/ArPage').then((m) => ({ default: m.ArPage })));
+const DesignPage = React.lazy(() =>
+  import('./pages/DesignPage').then((m) => ({ default: m.DesignPage }))
+);
 
 const SITE_TITLE = 'lednique – portfolio';
 
@@ -32,33 +39,18 @@ function AppShell() {
     }
   }, [navigate, path]);
 
+  // Previously the hero stayed at opacity:0 until window.load — i.e. until every
+  // hero texture, video and wasm file had finished. Revealing it after the first
+  // painted frame removes the hero from the critical-path wait entirely.
   useEffect(() => {
-    let triggered = false;
     let raf1 = 0;
     let raf2 = 0;
-
-    const triggerFade = () => {
-      if (triggered) return;
-      triggered = true;
-      // Wait 2 animation frames so the initial opacity:0 paints and CSS fade transition always plays
-      raf1 = window.requestAnimationFrame(() => {
-        raf2 = window.requestAnimationFrame(() => {
-          document.documentElement.classList.add('is-loaded');
-        });
+    raf1 = window.requestAnimationFrame(() => {
+      raf2 = window.requestAnimationFrame(() => {
+        document.documentElement.classList.add('is-loaded');
       });
-    };
-
-    const timer = window.setTimeout(triggerFade, 500);
-
-    if (document.readyState === 'complete') {
-      triggerFade();
-    } else {
-      window.addEventListener('load', triggerFade, { once: true });
-    }
-
+    });
     return () => {
-      window.clearTimeout(timer);
-      window.removeEventListener('load', triggerFade);
       window.cancelAnimationFrame(raf1);
       window.cancelAnimationFrame(raf2);
     };
@@ -89,7 +81,9 @@ function AppShell() {
     <MotionConfig reducedMotion="user">
       <Menu onOpenResume={handleOpenResume} />
       <div className="site">
-        <main>{renderPage()}</main>
+        <main>
+          <React.Suspense fallback={null}>{renderPage()}</React.Suspense>
+        </main>
         <Footer />
       </div>
       <AnimatePresence>

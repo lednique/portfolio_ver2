@@ -244,8 +244,31 @@ function cleanup(){
 let prev=performance.now();
 const motionQuery=matchMedia('(prefers-reduced-motion: reduce)');
 let lastDrawX=NaN,lastDrawY=NaN,lastDrawW=0,lastDrawH=0;
+// Pause the render loop when the hero is off-screen or the tab is hidden:
+// the shader used to keep a full-frame RAF alive for the whole session.
+let inView=true,pageVisible=!document.hidden,loopRunning=false;
+const canRun=()=>inView&&pageVisible&&canvas.isConnected;
+function kick(){
+  if(loopRunning||!canRun())return;
+  loopRunning=true;prev=performance.now();
+  requestAnimationFrame(frame);
+}
+if('IntersectionObserver'in window){
+  const vio=new IntersectionObserver(entries=>{
+    inView=!!entries[0]?.isIntersecting;
+    if(inView)kick(); else loopRunning=false;
+  },{rootMargin:'120px'});
+  vio.observe(canvas);
+  const drop=()=>{vio.disconnect();cleanup();};
+  canvas.addEventListener('lednique:teardown',drop,{once:true});
+}
+document.addEventListener('visibilitychange',()=>{
+  pageVisible=!document.hidden;
+  if(pageVisible)kick(); else loopRunning=false;
+});
 function frame(now){
-if(!canvas.isConnected||canvas.dataset.shaderReady!=='1'){cleanup();return;}
+if(!canvas.isConnected||canvas.dataset.shaderReady!=='1'){cleanup();loopRunning=false;return;}
+if(!canRun()){loopRunning=false;return;}
 const dt=Math.min((now-prev)/1000,.05);prev=now;
 const still=motionQuery.matches||document.documentElement.dataset.a11y==='true';
 // No automatic rotation: only real pointer movement drives the metal lighting.
@@ -273,7 +296,7 @@ gl.uniform1f(U.u_rot90,matchMedia('(max-width: 1000px)').matches?1:0);
 gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
 lastDrawX=m.x;lastDrawY=m.y;lastDrawW=canvas.width;lastDrawH=canvas.height;
 requestAnimationFrame(frame);}
-requestAnimationFrame(frame);
+kick();
 }
 window.__bootLedniqueShader=bootShader;
 bootShader();
