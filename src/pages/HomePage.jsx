@@ -74,22 +74,22 @@ const AR_COPY = [
 
 const TOOLS = {
   graphic: [
-    { src: './assets/figma/dbbfc.webp', alt: 'Photoshop' },
-    { src: './assets/figma/b5e62.webp', alt: 'Illustrator' },
-    { src: './assets/figma/5bcd8.webp', alt: 'Figma' },
-    { src: './assets/figma/0e1e6.webp', alt: 'Procreate' },
+    { src: './assets/figma/dbbfc.png', alt: 'Photoshop' },
+    { src: './assets/figma/b5e62.png', alt: 'Illustrator' },
+    { src: './assets/figma/5bcd8.png', alt: 'Figma' },
+    { src: './assets/figma/0e1e6.png', alt: 'Procreate' },
   ],
-  video: { src: './assets/figma/1af5c.webp', alt: 'CapCut' },
+  video: { src: './assets/figma/1af5c.png', alt: 'CapCut' },
   ar: [
-    { src: './assets/figma/122e2.webp', alt: 'Snapchat' },
-    { src: './assets/figma/d72ac.webp', alt: 'TikTok' },
+    { src: './assets/figma/122e2.png', alt: 'Snapchat' },
+    { src: './assets/figma/d72ac.png', alt: 'TikTok' },
   ],
-  three: { src: './assets/figma/3d395.webp', alt: 'Blender' },
+  three: { src: './assets/figma/3d395.png', alt: 'Blender' },
   neural: [
-    { src: './assets/figma/d0db1.webp', alt: 'ChatGPT' },
-    { src: './assets/figma/d0930.webp', alt: 'Midjourney' },
-    { src: './assets/figma/34cb2.webp', alt: 'Seedream' },
-    { src: './assets/figma/353b1.webp', alt: 'Neural' },
+    { src: './assets/figma/d0db1.png', alt: 'ChatGPT' },
+    { src: './assets/figma/d0930.png', alt: 'Midjourney' },
+    { src: './assets/figma/34cb2.png', alt: 'Seedream' },
+    { src: './assets/figma/353b1.png', alt: 'Neural' },
   ],
 };
 
@@ -971,6 +971,48 @@ function AboutSection() {
   return (
     <section className="section content" id="about">
       <div className="about">
+        <div className="about__copy">
+          <Reveal as="h2" className="h2" stagger={0.05}>
+            {t('обо мне')}
+          </Reveal>
+          <Reveal as="p" delay={0.12} stagger={0.022}>
+            <strong>{t('Мультидиcциплинарный дизайнер с практичным мышлением.')}</strong>
+            {t(
+              ' За плечами художественная школа + высшее по художественной и промышленной технологии обработки материалов – создаю дизайн, который не просто красив, а технически грамотен и работает на результат.'
+            )}
+          </Reveal>
+          <Reveal as="p" delay={0.24} stagger={0.045}>
+            <strong>{t('Что делаю:')}</strong>
+          </Reveal>
+          <Reveal as="p" delay={0.36} stagger={0.022}>
+            {t('– Визуальное оформление – карточки, баннеры, обложки, контент')}
+            <br />
+            {t('– Полиграфия и айдентика – от визиток до упаковки, с учётом допечатной подготовки')}
+            <br />
+            {t('– Инфографика для маркетплейсов, соцсетей и презентаций')}
+            <br />
+            {t('– Графический дизайн любой сложности – графические редакторы на продвинутом уровне')}
+            <br />
+            {t('– 3D-визуализация в Blender и AR-проекты – когда задаче нужен объём и интерактив')}
+          </Reveal>
+          <Reveal as="p" delay={0.48} stagger={0.045}>
+            <strong>{t('Почему я:')}</strong>
+          </Reveal>
+          <Reveal as="p" delay={0.6} stagger={0.022}>
+            {t('– Понимаю, как дизайн будет жить в реальности → минимум правок')}
+            <br />
+            {t('– Внедряю нейросети → быстрее и дешевле для вас')}
+            <br />
+            {t('– Я закрываю задачи, на которые обычно нужно несколько специалистов')}
+            <br />
+            {t('– Не пропадаю, слышу задачу, довожу до конца')}
+          </Reveal>
+          <Reveal as="p" delay={0.72} stagger={0.03}>
+            <strong>
+              {t('Напишите – обсудим, что нужно сделать, и подберу лучшее решение')}
+            </strong>
+          </Reveal>
+        </div>
         <motion.aside
           className="about__side"
           data-reveal="1"
@@ -982,7 +1024,7 @@ function AboutSection() {
         >
           <motion.div className="about__person" variants={ITEM_VARIANTS}>
             <motion.div className="about__avatar" variants={ITEM_VARIANTS}>
-              <img src="./assets/figma/06a14.webp" alt={t('Виктор Власов')} loading="lazy" />
+              <img src="./assets/figma/06a14.png" alt={t('Виктор Власов')} loading="lazy" />
             </motion.div>
             <motion.div className="about__name" variants={ROW_VARIANTS}>
               <Reveal as="strong" stagger={0.06}>
@@ -1050,48 +1092,6 @@ function AboutSection() {
             </motion.div>
           </motion.div>
         </motion.aside>
-        <div className="about__copy">
-          <Reveal as="h2" className="h2" stagger={0.05}>
-            {t('обо мне')}
-          </Reveal>
-          <Reveal as="p" delay={0.12} stagger={0.022}>
-            <strong>{t('Мультидиcциплинарный дизайнер с практичным мышлением.')}</strong>
-            {t(
-              ' За плечами художественная школа + высшее по художественной и промышленной технологии обработки материалов – создаю дизайн, который не просто красив, а технически грамотен и работает на результат.'
-            )}
-          </Reveal>
-          <Reveal as="p" delay={0.24} stagger={0.045}>
-            <strong>{t('Что делаю:')}</strong>
-          </Reveal>
-          <Reveal as="p" delay={0.36} stagger={0.022}>
-            {t('– Визуальное оформление – карточки, баннеры, обложки, контент')}
-            <br />
-            {t('– Полиграфия и айдентика – от визиток до упаковки, с учётом допечатной подготовки')}
-            <br />
-            {t('– Инфографика для маркетплейсов, соцсетей и презентаций')}
-            <br />
-            {t('– Графический дизайн любой сложности – графические редакторы на продвинутом уровне')}
-            <br />
-            {t('– 3D-визуализация в Blender и AR-проекты – когда задаче нужен объём и интерактив')}
-          </Reveal>
-          <Reveal as="p" delay={0.48} stagger={0.045}>
-            <strong>{t('Почему я:')}</strong>
-          </Reveal>
-          <Reveal as="p" delay={0.6} stagger={0.022}>
-            {t('– Понимаю, как дизайн будет жить в реальности → минимум правок')}
-            <br />
-            {t('– Внедряю нейросети → быстрее и дешевле для вас')}
-            <br />
-            {t('– Я закрываю задачи, на которые обычно нужно несколько специалистов')}
-            <br />
-            {t('– Не пропадаю, слышу задачу, довожу до конца')}
-          </Reveal>
-          <Reveal as="p" delay={0.72} stagger={0.03}>
-            <strong>
-              {t('Напишите – обсудим, что нужно сделать, и подберу лучшее решение')}
-            </strong>
-          </Reveal>
-        </div>
 
       </div>
     </section>

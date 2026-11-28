@@ -9,7 +9,7 @@ const SOCIAL_PUCKS = [
   {
     name: 'Telegram',
     className: 'puck--tg',
-    img: './assets/figma/f37b3.webp',
+    img: './assets/figma/f37b3.png',
     href: 'https://t.me/lednique',
     natW: 445,
     natH: 251,
@@ -24,7 +24,7 @@ const SOCIAL_PUCKS = [
   {
     name: 'Boosty',
     className: 'puck--boosty',
-    img: './assets/figma/7f0d3.webp',
+    img: './assets/figma/7f0d3.png',
     href: 'https://boosty.to/lednique',
     natW: 502,
     natH: 499,
@@ -38,7 +38,7 @@ const SOCIAL_PUCKS = [
   {
     name: 'Behance',
     className: 'puck--be',
-    img: './assets/figma/3fb4e.webp',
+    img: './assets/figma/3fb4e.png',
     href: 'https://behance.net/lednique',
     natW: 352,
     natH: 308,
@@ -52,7 +52,7 @@ const SOCIAL_PUCKS = [
   {
     name: 'Instagram',
     className: 'puck--ig',
-    img: './assets/figma/028e5.webp',
+    img: './assets/figma/028e5.png',
     href: 'https://instagram.com/lednique',
     natW: 324,
     natH: 334,
@@ -66,7 +66,7 @@ const SOCIAL_PUCKS = [
   {
     name: 'Threads',
     className: 'puck--thr',
-    img: './assets/figma/133c0.webp',
+    img: './assets/figma/133c0.png',
     href: 'https://www.threads.com/@lednique',
     natW: 368,
     natH: 389,
@@ -80,7 +80,7 @@ const SOCIAL_PUCKS = [
   {
     name: 'Kwork',
     className: 'puck--kwork',
-    img: './assets/figma/6cb70.webp',
+    img: './assets/figma/6cb70.png',
     href: 'https://kwork.ru/user/lednique',
     natW: 238,
     natH: 612,
