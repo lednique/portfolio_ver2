@@ -71,7 +71,7 @@ export function DesignPage() {
           <div className="sub-design-heroimg__in">
             <img
               className="sub-design-heroimg__pic"
-              src="./assets/gfx/design-hero.jpg"
+              src="./assets/gfx/design-hero.webp"
               alt={t('Графический дизайн')}
               width={1400}
               height={736}
@@ -173,7 +173,7 @@ export function DesignPage() {
           className="sub-bigcase"
           onClick={() =>
             setLightboxItem({
-              src: './assets/gfx/roll.jpg',
+              src: './assets/gfx/roll.webp',
               alt: t('Кейс BKA Vertical – превью'),
               caption: t('Company rebranding — BKA Vertical (полный разбор)'),
             })
@@ -186,7 +186,7 @@ export function DesignPage() {
           aria-label={t('Открыть превью кейса BKA Vertical')}
         >
           <img
-            src="./assets/gfx/bka-banner.jpg"
+            src="./assets/gfx/bka-banner.webp"
             alt="Company rebranding – BKA Vertical"
             loading="lazy"
           />

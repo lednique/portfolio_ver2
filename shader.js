@@ -9,6 +9,10 @@ const canvas=document.getElementById('gl');
 if(!canvas||!canvas.isConnected||canvas.dataset.shaderReady!=='1')return;
 if(canvas.dataset.shaderInitialized==='1')return;
 canvas.dataset.shaderInitialized='1';
+// Mobile layout: the metal lighting is driven by the device accelerometer and
+// painting is disabled entirely (touch is reserved for scrolling the page).
+const isMobileLayout=()=>matchMedia('(max-width: 1000px)').matches;
+const canPaint=()=>!isMobileLayout();
 const gl=canvas.getContext('webgl2',{antialias:false,alpha:false})||canvas.getContext('webgl',{antialias:false,alpha:false});
 if(!gl)return;
 const VS=`attribute vec2 a_pos;varying vec2 v_uv;void main(){v_uv=a_pos*0.5+0.5;gl_Position=vec4(a_pos,0.,1.);}`;
@@ -177,7 +181,7 @@ function drawTrail(from,to,alpha){
   pCtx.restore();paintDirty=true;
 }
 canvas.addEventListener('pointermove',e=>{
-  if(!hW)return;
+  if(!hW||!canPaint())return;
   const evs=(e.getCoalescedEvents&&e.getCoalescedEvents().length)?e.getCoalescedEvents():[e];
   for(const ev of evs){
     const pos=pointerToHeight(ev),now=performance.now();
@@ -191,7 +195,7 @@ canvas.addEventListener('pointermove',e=>{
   }
 });
 canvas.addEventListener('pointerdown',e=>{
-  if(e.button!==0)return;
+  if(e.button!==0||!canPaint())return;
   leftDown=true;lastPos=null;
   try{canvas.setPointerCapture(e.pointerId);}catch(_){}
   if(!hW)return;
@@ -201,6 +205,7 @@ canvas.addEventListener('pointerdown',e=>{
 const onPointerUp=e=>{if(e.button===0){leftDown=false;lastPos=null;}};
 const onPointerCancel=()=>{leftDown=false;lastPos=null;};
 const onKeyDown=e=>{
+  if(!canPaint())return;
   const t=e.target;
   if(t&&(t.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)))return;
   if((e.key==='r'||e.key==='R'||e.key==='к'||e.key==='К')&&hW){pCtx.fillStyle='#000';pCtx.fillRect(0,0,hW,hH);bgHidden=false;paintDirty=true;}
@@ -213,6 +218,8 @@ addEventListener('keydown',onKeyDown);
 
 let tm={x:0,y:0},m={x:0,y:0},last=performance.now(),ang=0;
 const onWinPointerMove=e=>{
+  // On phones the accelerometer owns the lighting, not the touch position.
+  if(isMobileLayout()&&('DeviceOrientationEvent'in window))return;
   const r=canvas.getBoundingClientRect();
   if(!r.width||!r.height)return;
   tm.x=((e.clientX-r.left)/r.width)*2-1;
@@ -220,6 +227,47 @@ const onWinPointerMove=e=>{
   last=performance.now();
 };
 addEventListener('pointermove',onWinPointerMove,{passive:true});
+
+// --- Accelerometer lighting (mobile) -------------------------------------
+// Tilting the phone pans the reflected HDRI, exactly like moving the cursor
+// does on desktop. The first reading becomes the neutral position, so the
+// lighting starts where the phone is actually held.
+const TILT_RANGE=30; // degrees of tilt for the full pan
+let tiltBase=null;
+const clampUnit=v=>Math.max(-1,Math.min(1,v));
+const onDeviceOrientation=e=>{
+  if(!isMobileLayout())return;
+  if(e.beta==null&&e.gamma==null)return;
+  const beta=e.beta||0,gamma=e.gamma||0;
+  if(!tiltBase)tiltBase={beta,gamma};
+  let dx=gamma-tiltBase.gamma;
+  let dy=beta-tiltBase.beta;
+  if(dx>180)dx-=360; else if(dx<-180)dx+=360;
+  if(dy>180)dy-=360; else if(dy<-180)dy+=360;
+  tm.x=clampUnit(dx/TILT_RANGE);
+  tm.y=clampUnit(-dy/TILT_RANGE);
+  last=performance.now();
+};
+const listenTilt=()=>{
+  removeEventListener('deviceorientation',onDeviceOrientation);
+  addEventListener('deviceorientation',onDeviceOrientation,{passive:true});
+};
+const requestTilt=()=>{
+  if(!isMobileLayout()||!('DeviceOrientationEvent'in window))return;
+  // iOS 13+ needs an explicit permission granted from a user gesture.
+  if(typeof DeviceOrientationEvent.requestPermission==='function'){
+    DeviceOrientationEvent.requestPermission()
+      .then(state=>{if(state==='granted')listenTilt();})
+      .catch(()=>{});
+  }else{
+    listenTilt();
+  }
+};
+if(isMobileLayout()){
+  requestTilt();
+  // Retry on the first real gesture: browsers only allow the prompt there.
+  addEventListener('pointerup',requestTilt,{passive:true});
+}
 function resize(){
   const rect=canvas.getBoundingClientRect();
   const d=Math.min(devicePixelRatio||1,2);
@@ -238,14 +286,38 @@ function cleanup(){
   removeEventListener('pointercancel',onPointerCancel);
   removeEventListener('keydown',onKeyDown);
   removeEventListener('pointermove',onWinPointerMove);
+  removeEventListener('deviceorientation',onDeviceOrientation);
   removeEventListener('resize',resize);
   if(ro)ro.disconnect();
 }
 let prev=performance.now();
 const motionQuery=matchMedia('(prefers-reduced-motion: reduce)');
 let lastDrawX=NaN,lastDrawY=NaN,lastDrawW=0,lastDrawH=0;
+// Pause the render loop when the hero is off-screen or the tab is hidden:
+// the shader used to keep a full-frame RAF alive for the whole session.
+let inView=true,pageVisible=!document.hidden,loopRunning=false;
+const canRun=()=>inView&&pageVisible&&canvas.isConnected;
+function kick(){
+  if(loopRunning||!canRun())return;
+  loopRunning=true;prev=performance.now();
+  requestAnimationFrame(frame);
+}
+if('IntersectionObserver'in window){
+  const vio=new IntersectionObserver(entries=>{
+    inView=!!entries[0]?.isIntersecting;
+    if(inView)kick(); else loopRunning=false;
+  },{rootMargin:'120px'});
+  vio.observe(canvas);
+  const drop=()=>{vio.disconnect();cleanup();};
+  canvas.addEventListener('lednique:teardown',drop,{once:true});
+}
+document.addEventListener('visibilitychange',()=>{
+  pageVisible=!document.hidden;
+  if(pageVisible)kick(); else loopRunning=false;
+});
 function frame(now){
-if(!canvas.isConnected||canvas.dataset.shaderReady!=='1'){cleanup();return;}
+if(!canvas.isConnected||canvas.dataset.shaderReady!=='1'){cleanup();loopRunning=false;return;}
+if(!canRun()){loopRunning=false;return;}
 const dt=Math.min((now-prev)/1000,.05);prev=now;
 const still=motionQuery.matches||document.documentElement.dataset.a11y==='true';
 // No automatic rotation: only real pointer movement drives the metal lighting.
@@ -273,7 +345,7 @@ gl.uniform1f(U.u_rot90,matchMedia('(max-width: 1000px)').matches?1:0);
 gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
 lastDrawX=m.x;lastDrawY=m.y;lastDrawW=canvas.width;lastDrawH=canvas.height;
 requestAnimationFrame(frame);}
-requestAnimationFrame(frame);
+kick();
 }
 window.__bootLedniqueShader=bootShader;
 bootShader();

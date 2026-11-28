@@ -348,8 +348,8 @@
   border-radius:0 0 36px 36px;
   overflow:hidden;
   z-index:0;
-  -webkit-mask-image:url(../../assets/figma/_dc/hero/c07ae181aa43af6f5421b17f220d46e22dc61cbd.webp);
-  mask-image:url(../../assets/figma/_dc/hero/c07ae181aa43af6f5421b17f220d46e22dc61cbd.webp);
+  -webkit-mask-image:url(../../assets/figma/_dc/hero/hero-mask.svg);
+  mask-image:url(../../assets/figma/_dc/hero/hero-mask.svg);
   -webkit-mask-repeat:no-repeat;
   mask-repeat:no-repeat;
   -webkit-mask-size:100% 100%;
@@ -628,6 +628,7 @@
   gap:10px
 }
 .branding__head {
+  order:1;
   flex:1 1 580px;
   min-width:0;
   width:580px;
@@ -645,6 +646,7 @@
   gap:0
 }
 .branding__media {
+  order:0;
   flex:0 0 530px;
   width:530px;
   height:690px
@@ -1062,7 +1064,9 @@
   gap:10px;
   align-items:center
 }
+/* Column order: the tools/avatar rail comes first (left), the copy second. */
 .about__copy {
+  order:1;
   display:flex;
   flex-direction:column;
   gap:0
@@ -1092,6 +1096,7 @@
   font-weight:700
 }
 .about__side {
+  order:0;
   display:flex;
   flex-direction:column;
   gap:20px;
@@ -1730,8 +1735,8 @@
     height:calc(570px + env(safe-area-inset-top,0px));
     aspect-ratio:auto;
     border-radius:0;
-    -webkit-mask-image:url(../../assets/figma/_dc/mobile/4dc4b7de1c10150df5d1cfc62daf6b61a087c68a.webp);
-    mask-image:url(../../assets/figma/_dc/mobile/4dc4b7de1c10150df5d1cfc62daf6b61a087c68a.webp);
+    -webkit-mask-image:url(../../assets/figma/_dc/hero/hero-mask.svg);
+    mask-image:url(../../assets/figma/_dc/hero/hero-mask.svg);
     -webkit-mask-repeat:no-repeat;
     mask-repeat:no-repeat;
     -webkit-mask-size:100% 100%;
@@ -1742,8 +1747,12 @@
   .hero__bg-fallback {
     object-position:center
   }
+  /* Painting is disabled on phones: the canvas no longer captures gestures,
+     the metal lighting follows the accelerometer instead of the finger. */
   #gl {
-    touch-action:pan-y
+    touch-action:auto;
+    pointer-events:none;
+    cursor:default
   }
   .hero__info {
     position:relative;

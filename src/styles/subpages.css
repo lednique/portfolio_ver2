@@ -108,7 +108,9 @@
 /* ───────── Subpage Hero (bg extends cleanly to top:0 behind fixed menu + ×3 scroll zoom) ───────── */
 .sub-hero {
   position: relative;
-  padding-top: 128px;
+  /* Keep a fixed 40px gap below the floating menu bar. --menu-bottom is measured
+     by Menu.jsx (menu offset-top + menu height); 108px is the old fallback. */
+  padding-top: calc(var(--menu-bottom, 108px) + 40px);
   padding-bottom: 64px;
   overflow: hidden;
   isolation: isolate;
@@ -144,6 +146,13 @@
 
 :root[data-theme='light'] .sub-hero__bg {
   opacity: 0.34;
+}
+
+/* AR hero: lift the artwork 100px so its top edge is not clipped by the section
+   top. Offset via background-position (not transform) because the scroll-zoom
+   hook writes an inline transform on this element. */
+.sub-hero--ar .sub-hero__bg {
+  background-position: center -100px;
 }
 
 .sub-hero__fishes-bg {
@@ -1622,7 +1631,7 @@
    ========================================================================== */
 @media (max-width: 1000px) {
   .sub-hero {
-    padding-top: 104px;
+    padding-top: calc(var(--menu-bottom, 72px) + 40px);
     padding-bottom: 40px;
   }
 
@@ -2014,7 +2023,8 @@
 
 @media (max-width: 768px) {
   .sub-hero {
-    padding-top: 28px;
+    /* Same rule as above: 40px below the measured menu bottom edge. */
+    padding-top: calc(var(--menu-bottom, 72px) + 40px);
     padding-bottom: 40px;
   }
 }

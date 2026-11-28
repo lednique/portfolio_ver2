@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useCms } from '../data/CmsContext';
 import { useI18n } from '../i18n/I18nContext';
 import { useStillMode } from '../hooks/useA11y';
 import { useSubHeroMotion } from '../hooks/useSubHeroMotion';
+import { GAME_URL } from '../gameWarmup';
 import { Lightbox } from '../components/Lightbox';
 import { PinnedSteps } from '../components/PinnedSteps';
 import { RequestBuilder } from '../components/RequestBuilder';
@@ -22,11 +23,11 @@ const AR_CHIPS = [
 ];
 
 const CLIENTS = [
-  { name: 'Mobile Legends', src: './assets/clients/mobile-legends.png' },
-  { name: 'OSCARxFRANK', src: './assets/clients/oscarxfrank.png' },
-  { name: 'H&M Beauty', src: './assets/clients/hm-beauty.png' },
-  { name: 'SLA Paris', src: './assets/clients/sla.png' },
-  { name: 'Glamnetic', src: './assets/clients/glamnetic.png' },
+  { name: 'Mobile Legends', src: './assets/clients/mobile-legends.webp' },
+  { name: 'OSCARxFRANK', src: './assets/clients/oscarxfrank.webp' },
+  { name: 'H&M Beauty', src: './assets/clients/hm-beauty.webp' },
+  { name: 'SLA Paris', src: './assets/clients/sla.webp' },
+  { name: 'Glamnetic', src: './assets/clients/glamnetic.webp' },
 ];
 
 const AR_APPLICATIONS = [
@@ -34,25 +35,25 @@ const AR_APPLICATIONS = [
     number: '01',
     title: 'Виртуальная примерка',
     text: 'Покупатели могут примерить очки, аксессуары или косметику через камеру до покупки. Это помогает оценить товар на себе и принять более уверенное решение.',
-    img: './assets/ar/business-tryon.jpg',
+    img: './assets/ar/business-tryon.webp',
   },
   {
     number: '02',
     title: 'Продвижение бренда в соцсетях',
     text: 'Интерактивные эффекты вовлекают аудиторию в кампанию и дают пользователям повод создавать собственный контент с элементами бренда. Это помогает расширять охват и повышать узнаваемость.',
-    img: './assets/ar/business-social.jpg',
+    img: './assets/ar/business-social.webp',
   },
   {
     number: '03',
     title: 'Интерактивная упаковка и рекламные материалы',
     text: 'AR добавляет цифровой контент к упаковке, плакатам и другим носителям: например, демонстрацию продукта, анимацию или дополнительную информацию. Компания получает новый способ взаимодействовать с клиентом после контакта с физическим объектом.',
-    img: './assets/ar/business-packaging.jpg',
+    img: './assets/ar/business-packaging.webp',
   },
   {
     number: '04',
     title: 'Демонстрация продуктов и пространств',
     text: 'AR позволяет показать продукт в окружении пользователя или представить его особенности в интерактивном формате. Это помогает компании объяснить преимущества предложения и поддержать процесс выбора.',
-    img: './assets/ar/business-product.jpg',
+    img: './assets/ar/business-product.webp',
   },
 ];
 
@@ -84,20 +85,74 @@ export function ArPage() {
   const { cms } = useCms();
   const { t } = useI18n();
   const [lightboxItem, setLightboxItem] = useState(null);
+  const frameRef = useRef(null);
+
+  // Browsers keep an AudioContext suspended until the page has seen a real user
+  // gesture. The game is autoloaded (no click required), so without this the
+  // engine boots with a suspended context and stays silent until the visitor
+  // happens to tap the canvas. Forward the first gesture into the iframe and
+  // resume the context the engine already created.
+  useEffect(() => {
+    const frame = frameRef.current;
+    if (!frame) return undefined;
+
+    let done = false;
+    const resumeInFrame = () => {
+      try {
+        const win = frame.contentWindow;
+        if (!win) return;
+        // The engine mirrors its own unlock logic on the iframe window.
+        if (typeof win.__unlockAudio === 'function') {
+          win.__unlockAudio();
+          done = true;
+          return;
+        }
+        const ctx = win.__actx;
+        if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
+        if (ctx) done = true;
+      } catch {
+        // cross-origin / not ready yet: try again on the next gesture
+      }
+    };
+
+    const onGesture = () => {
+      resumeInFrame();
+      if (done) {
+        window.removeEventListener('pointerdown', onGesture, true);
+        window.removeEventListener('keydown', onGesture, true);
+        window.removeEventListener('touchstart', onGesture, true);
+      }
+    };
+
+    window.addEventListener('pointerdown', onGesture, true);
+    window.addEventListener('keydown', onGesture, true);
+    window.addEventListener('touchstart', onGesture, true);
+    // The engine may also be ready long after the first gesture.
+    const poll = window.setInterval(resumeInFrame, 1500);
+
+    return () => {
+      window.removeEventListener('pointerdown', onGesture, true);
+      window.removeEventListener('keydown', onGesture, true);
+      window.removeEventListener('touchstart', onGesture, true);
+      window.clearInterval(poll);
+    };
+  }, []);
   const heroRef = useSubHeroMotion();
 
   const marqueeSet = [...CLIENTS, ...CLIENTS, ...CLIENTS, ...CLIENTS];
 
   return (
     <div className="subpage subpage--ar">
-      {/* 0. Игра-герой: во всю ширину страницы, 720px, верхнее меню поверх */}
+      {/* 0. Игра-герой: во всю ширину страницы, 720px, верхнее меню поверх.
+             Игра грузится сама, без кнопки: на этой странице — сразу, на остальных
+             — в фоне, когда сайт уже прогрузился (см. useGameWarmup в App.jsx). */}
       <section className="ar-game-hero" aria-label="Живая web-игра">
         <iframe
-          src="./game/index.html"
+          ref={frameRef}
+          src={GAME_URL}
           title="Kotik Sakura Run — web-игра"
           className="ar-game-hero__frame"
-          allow="autoplay; fullscreen"
-          loading="lazy"
+          allow="autoplay; fullscreen; gamepad"
         />
       </section>
 

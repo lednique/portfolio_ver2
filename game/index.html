@@ -13,6 +13,10 @@
         window.__actx = c;
         return c;
       };
+      // Also pick up a context created straight from the native constructor, so
+      // the unlock helper below always has something to resume.
+      var origAC = OAC;
+      window.__actxOf = function () { return window.__actx || null; };
       WrappedAC.prototype = OAC.prototype;
       window.AudioContext = WrappedAC;
       if (window.webkitAudioContext) window.webkitAudioContext = WrappedAC;
@@ -22,6 +26,14 @@
   var resumeAudio = function () {
     var c = window.__actx;
     if (c && c.state === 'suspended' && c.resume) { try { c.resume(); } catch (e) {} }
+  };
+  // The parent page forwards its first real gesture as a synthetic event here.
+  window.__unlockAudio = function () {
+    resumeAudio();
+    try {
+      var ev = new Event('pointerdown', { bubbles: true });
+      document.dispatchEvent(ev);
+    } catch (e) {}
   };
   document.addEventListener('touchend', resumeAudio, { passive: true });
   document.addEventListener('mousedown', resumeAudio, { passive: true });
@@ -50,6 +62,7 @@
 })();
 </script>
 		<meta charset="utf-8">
+		<meta name="color-scheme" content="dark">
 		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
 		<title>Kotik Sakura Run</title>
 		<style>
@@ -57,6 +70,7 @@ html, body, #canvas {
 	margin: 0;
 	padding: 0;
 	border: 0;
+	background-color: #000000;
 }
 
 body {
@@ -286,6 +300,20 @@ const engine = new Engine(GODOT_CONFIG);
 			},
 		}).then(() => {
 			setStatusMode('hidden');
+			// Autoplay policy: the context may have been created before any user
+			// gesture. Resume it as soon as one arrives.
+			const unlock = () => {
+				try {
+					const ctx = window.__actx;
+					if (ctx && ctx.state === 'suspended') ctx.resume();
+				} catch (e) {}
+			};
+			['pointerdown', 'keydown', 'touchstart'].forEach((ev) =>
+				document.addEventListener(ev, unlock, { passive: true })
+			);
+			const nudge = setInterval(unlock, 1000);
+			setTimeout(() => clearInterval(nudge), 15000);
+			window.__unlockAudio = unlock;
 		}, displayFailureNotice);
 	}
 }());

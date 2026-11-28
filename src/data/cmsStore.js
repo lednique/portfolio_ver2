@@ -160,9 +160,9 @@ export async function probeLocalServer() {
 export async function fetchPublishedSiteData() {
   if (typeof window === 'undefined') return cloneDefaultCms();
   try {
-    const res = await fetch(`./content/site-data.json?t=${Date.now()}`, {
-      cache: 'no-store',
-    });
+    // Cacheable on purpose: the JSON is small and replaced on deploy, so a plain
+    // revalidating request is enough (no Date.now() cache-buster on every visit).
+    const res = await fetch('./content/site-data.json');
     if (!res.ok) return cloneDefaultCms();
     const ct = res.headers.get('content-type') || '';
     if (!ct.includes('application/json') && !ct.includes('text/plain')) {

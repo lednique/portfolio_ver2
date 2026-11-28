@@ -201,6 +201,41 @@ export function Menu({ onOpenResume }) {
   const wrapDesktopRef = useRef(null);
   const wrapMobileRef = useRef(null);
 
+  // Publish the menu's real height so pages can keep a fixed 40px gap below it
+  // instead of guessing with a hard-coded hero padding.
+  useEffect(() => {
+    const root = document.documentElement;
+    let ro = null;
+
+    const sync = () => {
+      const wrap =
+        wrapDesktopRef.current && wrapDesktopRef.current.offsetParent !== null
+          ? wrapDesktopRef.current
+          : wrapMobileRef.current;
+      const header = wrap && wrap.querySelector('.menu');
+      const menuTop = wrap ? parseFloat(getComputedStyle(wrap).top) || 0 : 0;
+      const h = header ? header.getBoundingClientRect().height : 0;
+      if (!h) return;
+      root.style.setProperty('--menu-h', `${Math.round(h)}px`);
+      root.style.setProperty('--menu-bottom', `${Math.round(menuTop + h)}px`);
+    };
+
+    sync();
+    if (typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(sync);
+      [wrapDesktopRef.current, wrapMobileRef.current].forEach((el) => el && ro.observe(el));
+    }
+    window.addEventListener('resize', sync);
+    // The menu changes height when it switches between desktop / mobile layouts.
+    window.addEventListener('orientationchange', sync);
+
+    return () => {
+      if (ro) ro.disconnect();
+      window.removeEventListener('resize', sync);
+      window.removeEventListener('orientationchange', sync);
+    };
+  }, []);
+
   useEffect(() => {
     const root = document.documentElement;
     root.dataset.theme = theme;
