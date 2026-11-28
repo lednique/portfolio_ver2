@@ -86,36 +86,6 @@ export function ArPage() {
   const { t } = useI18n();
   const [lightboxItem, setLightboxItem] = useState(null);
   const frameRef = useRef(null);
-  // Until the iframe has parsed its own document it paints the browser default
-  // (white), which flashes before the game's loading screen. A veil in the page
-  // colour covers that gap and is dropped as soon as the shell is interactive.
-  const [gameReady, setGameReady] = useState(false);
-
-  useEffect(() => {
-    if (gameReady) return undefined;
-    let raf = 0;
-    let tries = 0;
-    const poll = () => {
-      const frame = frameRef.current;
-      tries += 1;
-      try {
-        const doc = frame && frame.contentDocument;
-        if (doc && doc.readyState !== 'loading' && doc.body) {
-          setGameReady(true);
-          return;
-        }
-      } catch {
-        // cross-origin: fall through to the timeout below
-      }
-      if (tries > 240) {
-        setGameReady(true);
-        return;
-      }
-      raf = window.setTimeout(poll, 50);
-    };
-    poll();
-    return () => window.clearTimeout(raf);
-  }, [gameReady]);
 
   // Browsers keep an AudioContext suspended until the page has seen a real user
   // gesture. The game is autoloaded (no click required), so without this the
@@ -183,10 +153,6 @@ export function ArPage() {
           title="Kotik Sakura Run — web-игра"
           className="ar-game-hero__frame"
           allow="autoplay; fullscreen; gamepad"
-        />
-        <div
-          className={`ar-game-hero__veil${gameReady ? ' is-ready' : ''}`}
-          aria-hidden="true"
         />
       </section>
 
