@@ -4,6 +4,7 @@ import { useCms } from '../data/CmsContext';
 import { useI18n } from '../i18n/I18nContext';
 import { useStillMode } from '../hooks/useA11y';
 import { useSubHeroMotion } from '../hooks/useSubHeroMotion';
+import { GAME_URL } from '../gameWarmup';
 import { Lightbox } from '../components/Lightbox';
 import { PinnedSteps } from '../components/PinnedSteps';
 import { RequestBuilder } from '../components/RequestBuilder';
@@ -84,7 +85,6 @@ export function ArPage() {
   const { cms } = useCms();
   const { t } = useI18n();
   const [lightboxItem, setLightboxItem] = useState(null);
-  const [gameStarted, setGameStarted] = useState(false);
   const heroRef = useSubHeroMotion();
 
   const marqueeSet = [...CLIENTS, ...CLIENTS, ...CLIENTS, ...CLIENTS];
@@ -92,30 +92,15 @@ export function ArPage() {
   return (
     <div className="subpage subpage--ar">
       {/* 0. Игра-герой: во всю ширину страницы, 720px, верхнее меню поверх.
-             Godot-сборка весит ~54 МБ (wasm + pck), поэтому iframe подключается
-             только по клику — до этого показываем постер. */}
+             Игра грузится сама, без кнопки: на этой странице — сразу, на остальных
+             — в фоне, когда сайт уже прогрузился (см. useGameWarmup в App.jsx). */}
       <section className="ar-game-hero" aria-label="Живая web-игра">
-        {gameStarted ? (
-          <iframe
-            src="./game/index.html"
-            title="Kotik Sakura Run — web-игра"
-            className="ar-game-hero__frame"
-            allow="autoplay; fullscreen"
-          />
-        ) : (
-          <button
-            type="button"
-            className="ar-game-hero__play"
-            onClick={() => setGameStarted(true)}
-          >
-            <span className="ar-game-hero__play-label">
-              <span className="ar-game-hero__play-title">{t('Играть')}</span>
-              <span className="ar-game-hero__play-hint">
-                {t('Kotik Sakura Run · загрузится ~54 МБ')}
-              </span>
-            </span>
-          </button>
-        )}
+        <iframe
+          src={GAME_URL}
+          title="Kotik Sakura Run — web-игра"
+          className="ar-game-hero__frame"
+          allow="autoplay; fullscreen"
+        />
       </section>
 
       {/* 1. Hero section + 9:16 Video Carousel + Glass bio + ×3 scroll bg zoom */}

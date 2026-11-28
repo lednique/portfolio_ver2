@@ -348,8 +348,8 @@
   border-radius:0 0 36px 36px;
   overflow:hidden;
   z-index:0;
-  -webkit-mask-image:url(../../assets/figma/_dc/hero/hero-mask.webp);
-  mask-image:url(../../assets/figma/_dc/hero/hero-mask.webp);
+  -webkit-mask-image:url(../../assets/figma/_dc/hero/hero-mask.svg);
+  mask-image:url(../../assets/figma/_dc/hero/hero-mask.svg);
   -webkit-mask-repeat:no-repeat;
   mask-repeat:no-repeat;
   -webkit-mask-size:100% 100%;
@@ -1730,8 +1730,8 @@
     height:calc(570px + env(safe-area-inset-top,0px));
     aspect-ratio:auto;
     border-radius:0;
-    -webkit-mask-image:url(../../assets/figma/_dc/mobile/hero-mask-mobile.webp);
-    mask-image:url(../../assets/figma/_dc/mobile/hero-mask-mobile.webp);
+    -webkit-mask-image:url(../../assets/figma/_dc/hero/hero-mask.svg);
+    mask-image:url(../../assets/figma/_dc/hero/hero-mask.svg);
     -webkit-mask-repeat:no-repeat;
     mask-repeat:no-repeat;
     -webkit-mask-size:100% 100%;

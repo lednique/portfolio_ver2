@@ -4,6 +4,7 @@ import { CmsProvider } from './data/CmsContext';
 import { I18nProvider, useI18n } from './i18n/I18nContext';
 import { RouterProvider, useRouter } from './router';
 import { Footer } from './components/Footer';
+import { warmUpGame } from './gameWarmup';
 import { Menu } from './components/Menu';
 import { ResumeModal } from './components/ResumeModal';
 import { HomePage } from './pages/HomePage';
@@ -55,6 +56,12 @@ function AppShell() {
       window.cancelAnimationFrame(raf2);
     };
   }, []);
+
+  // Download the /ar game in the background (after load + idle), but never while
+  // the visitor is already on /ar — there the iframe is the fastest path.
+  useEffect(() => {
+    if (path !== '/ar') warmUpGame();
+  }, [path]);
 
   useEffect(() => {
     document.title = SITE_TITLE;

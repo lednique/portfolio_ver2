@@ -4,6 +4,7 @@ import { useCms } from '../data/CmsContext';
 import { useI18n } from '../i18n/I18nContext';
 import { useStillMode } from '../hooks/useA11y';
 import { useRouter } from '../router';
+import { warmUpGameOnIntent } from '../gameWarmup';
 import {
   A11yIcon,
   AdminIcon,
@@ -304,6 +305,9 @@ export function Menu({ onOpenResume }) {
     if (link.type === 'anchor') {
       navigate('/', { anchor: link.anchor });
     } else {
+      // Cliking /ar is a clear signal of interest: start pulling the game files
+      // in parallel with the page transition instead of waiting for the iframe.
+      if (link.path === '/ar') warmUpGameOnIntent();
       navigate(link.path);
     }
   };
