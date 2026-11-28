@@ -148,13 +148,6 @@
   opacity: 0.34;
 }
 
-/* AR hero: lift the artwork 100px so its top edge is not clipped by the section
-   top. Offset via background-position (not transform) because the scroll-zoom
-   hook writes an inline transform on this element. */
-.sub-hero--ar .sub-hero__bg {
-  background-position: center -100px;
-}
-
 .sub-hero__fishes-bg {
   position: absolute;
   inset: 0;
@@ -1635,6 +1628,14 @@
     padding-bottom: 40px;
   }
 
+  /* AR hero: lift the artwork 100px so its top edge is not clipped by the
+     section top. Desktop keeps the untouched centered background; the offset
+     goes through background-position (not transform) because the scroll-zoom
+     hook writes an inline transform on this element. */
+  .sub-hero--ar .sub-hero__bg {
+    background-position: center -100px;
+  }
+
   .sub-section {
     padding-block: 44px;
   }
@@ -2026,5 +2027,11 @@
     /* Same rule as above: 40px below the measured menu bottom edge. */
     padding-top: calc(var(--menu-bottom, 72px) + 40px);
     padding-bottom: 40px;
+  }
+
+  /* The game frame above is full-bleed and the menu floats over it, so the
+     AR heading only needs its own 40px gap under the frame. */
+  .sub-hero--ar {
+    padding-top: 40px;
   }
 }
