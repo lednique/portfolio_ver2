@@ -1,60 +1,107 @@
 <!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>audio probe</title>
-<style>body{background:#000;color:#0f0;font:13px monospace;padding:12px}</style>
-</head><body>
-<pre id="out">starting...</pre>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="color-scheme" content="dark">
+<title>audio probe</title>
+<style>
+  body{background:#0b0b0b;color:#c8ffc8;font:12px/1.5 ui-monospace,monospace;padding:14px;margin:0}
+  h1{font:600 14px/1.4 ui-monospace,monospace;color:#fff;margin:0 0 8px}
+  #out{white-space:pre-wrap;word-break:break-word}
+  .ok{color:#7cf47c}.bad{color:#ff7b7b}.warn{color:#ffd166}
+  button{margin:10px 0;padding:8px 14px;background:#1b1b1b;color:#fff;border:1px solid #444;border-radius:6px;font:inherit;cursor:pointer}
+</style></head><body>
+<h1>Диагностика звука Kotik Sakura Run</h1>
+<div id="progress">Запускаю движок…</div>
+<button id="reportBtn" style="display:none">Отправить отчёт</button>
+<pre id="out"></pre>
 <script src="index.js"></script>
 <script>
+const lines = [];
+const out = document.getElementById('out');
+const put = (m, cls) => {
+  lines.push(m);
+  const span = document.createElement('span');
+  span.textContent = m + '\n';
+  if (cls) span.className = cls;
+  out.appendChild(span);
+};
+const putErr = (m) => put(m, 'bad');
+const putOk = (m) => put(m, 'ok');
+const send = (tag) => {
+  const body = JSON.stringify({ tag, ua: navigator.userAgent, secure: window.isSecureContext, report: lines }, null, 2);
+  fetch('/api/debug-report', { method: 'POST', headers: {'Content-Type':'application/json'}, body }).catch(()=>{});
+};
+
 const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":false,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":17282464,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
-const log = (m) => { document.getElementById('out').textContent += '\n' + m; (window.__probe = window.__probe || []).push(m); };
-// capture the real URLs the engine asks for
+
+put('secureContext=' + window.isSecureContext + ' | origin=' + location.origin);
+put('AudioContext=' + !!(window.AudioContext || window.webkitAudioContext));
+
+// intercept worklet module loads
+const NativeAC = window.AudioContext || window.webkitAudioContext;
+if (NativeAC) {
+  const Wrapped = function (...args) {
+    const ctx = new NativeAC(...args);
+    putOk('CTX created: state=' + ctx.state + ' sr=' + ctx.sampleRate);
+    ctx.addEventListener('statechange', () => put('CTX statechange -> ' + ctx.state));
+    if (ctx.audioWorklet && !ctx.__probed) {
+      ctx.__probed = true;
+      const orig = ctx.audioWorklet.addModule.bind(ctx.audioWorklet);
+      ctx.audioWorklet.addModule = (url, opts) => {
+        const name = String(url).split('/').pop();
+        put('addModule START ' + name + '  (url=' + String(url) + ')');
+        return orig(url, opts).then(
+          (r) => { putOk('addModule OK    ' + name); return r; },
+          (e) => { putErr('addModule FAIL  ' + name + ' :: ' + (e && e.name) + ': ' + (e && e.message)); throw e; }
+        );
+      };
+    }
+    window.__actx = ctx;
+    return ctx;
+  };
+  Wrapped.prototype = NativeAC.prototype;
+  window.AudioContext = Wrapped;
+  if (window.webkitAudioContext) window.webkitAudioContext = Wrapped;
+}
+
+// log every worklet / pack request made by the engine
 const origFetch = window.fetch;
 window.fetch = function (input, init) {
   const url = typeof input === 'string' ? input : (input && input.url) || '';
-  if (/worklet|index\.(wasm|pck)/.test(url)) log('FETCH ' + url.split('/').pop());
-  return origFetch.call(this, input, init);
+  if (/worklet|index\.(wasm|pck)/.test(url)) put('FETCH ' + url.split('/').slice(-1)[0] + ' -> ' + url);
+  return origFetch.call(this, input, init).then(r => {
+    if (/worklet|index\.(wasm|pck)/.test(url)) put('  HTTP ' + r.status + ' ' + url.split('/').slice(-1)[0]);
+    return r;
+  }, e => { putErr('  FETCH ERROR ' + url + ' :: ' + e); throw e; });
 };
-window.addEventListener('error', e => log('WINDOW_ERROR ' + e.message));
-window.addEventListener('unhandledrejection', e => log('REJECTION ' + (e.reason && e.reason.message || e.reason)));
-// patch audioWorklet.addModule to record results
-const AC = window.AudioContext || window.webkitAudioContext;
-if (AC) {
-  const proto = AC.prototype;
-  const addModule = proto.audioWorklet ? Object.getOwnPropertyDescriptor(Object.getPrototypeOf(proto.audioWorklet), 'addModule') : null;
-  log('AudioContext available, audioWorklet=' + !!proto.audioWorklet);
-} else { log('NO AudioContext'); }
-const wrapAC = function (...a) {
-  const c = new AC(...a);
-  log('CTX created state=' + c.state + ' sr=' + c.sampleRate);
-  if (c.audioWorklet && !c.__wrapAdd) {
-    c.__wrapAdd = true;
-    const origAdd = c.audioWorklet.addModule.bind(c.audioWorklet);
-    c.audioWorklet.addModule = (url) => {
-      log('addModule START ' + String(url).split('/').pop());
-      return origAdd(url).then(r => { log('addModule OK ' + String(url).split('/').pop()); return r; },
-                             e => { log('addModule FAIL ' + String(url).split('/').pop() + ' :: ' + e); throw e; });
-    };
-  }
-  c.addEventListener('statechange', () => log('CTX state=' + c.state));
-  window.__actx = c;
-  return c;
+
+window.addEventListener('error', e => putErr('WINDOW ERROR: ' + e.message));
+window.addEventListener('unhandledrejection', e => putErr('UNHANDLED REJECTION: ' + (e.reason && (e.reason.stack || e.reason.message) || e.reason)));
+
+const finish = (tag) => {
+  const ctx = window.__actx;
+  put('--- итог ---');
+  put('ctx=' + (ctx ? 'state=' + ctx.state + ' sr=' + ctx.sampleRate : 'НЕ СОЗДАН'));
+  put('worklets=' + (window.__workletSummary || 'n/a'));
+  send(tag);
+  document.getElementById('progress').textContent = 'Готово. Отчёт отправлен на сервер.';
+  const btn = document.getElementById('reportBtn');
+  btn.style.display = 'inline-block';
+  btn.onclick = () => send('manual-' + Date.now());
 };
-wrapAC.prototype = AC.prototype;
-window.AudioContext = wrapAC;
-if (window.webkitAudioContext) window.webkitAudioContext = wrapAC;
 
 (async () => {
-  const engine = new Engine(GODOT_CONFIG);
-  log('engine created');
   try {
+    const engine = new Engine(GODOT_CONFIG);
+    put('engine created');
     await engine.startGame({ onProgress: () => {} });
-    log('GAME STARTED');
-  } catch (e) { log('START FAILED ' + e); }
-  setTimeout(() => {
-    const c = window.__actx;
-    log('FINAL ctx.state=' + (c ? c.state : 'none'));
-    document.title = 'DONE';
-  }, 3000);
+    putOk('GAME STARTED');
+    document.getElementById('progress').textContent = 'Игра загружена. Ждём инициализации аудио…';
+  } catch (e) {
+    putErr('START FAILED: ' + (e && (e.stack || e.message) || e));
+    finish('start-failed');
+    return;
+  }
+  setTimeout(() => finish('auto'), 7000);
 })();
 </script>
 </body></html>
