@@ -1980,11 +1980,18 @@
 .ar-game-hero {
   position: relative;
   width: 100%;
-  height: 600px;
-  margin-bottom: -120px;
+  height: 720px;          /* десктоп: 720px, контент с 620px */
+  margin-bottom: -100px;
   z-index: 0;
   overflow: hidden;
   background: #000;
+}
+
+@media (max-width: 720px) {
+  .ar-game-hero {
+    height: 600px;        /* только мобильная: 600px, контент на 120 выше */
+    margin-bottom: -120px;
+  }
 }
 
 .ar-game-hero__frame {
